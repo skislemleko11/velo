@@ -3,17 +3,20 @@
   "description": "Fast and easy to learn tiny MVC framework",
   "type": "library",
   "license": "LGPL-3.0",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "repositories": [
     {
       "type": "path",
       "url": "packages/*",
       "options": {
-        "symlink": true
+        "symlink": false
       }
     }
   ],
   "require": {
     "php": ">=8.5",
+    "ext-pdo": "*",
     "velo/container": "*",
     "velo/database": "*",
     "velo/http": "*",
@@ -30,7 +33,12 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Velo\\Tests\\": "tests/"
+      "Velo\\Tests\\": "tests/",
+      "Velo\\Container\\Tests\\": "packages/container/tests/",
+      "Velo\\Database\\Tests\\": "packages/database/tests/",
+      "Velo\\Http\\Tests\\": "packages/http/tests/",
+      "Velo\\Logger\\Tests\\": "packages/logger/tests/",
+      "Velo\\Router\\Tests\\": "packages/router/tests/"
     }
   }
 }
