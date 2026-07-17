@@ -1,0 +1,54 @@
+name: 'Packages Split'
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+
+env:
+  GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+jobs:
+  packages_split:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - local_path: 'container'
+            split_repository: 'velo-container'
+          - local_path: 'database'
+            split_repository: 'velo-database'
+          - local_path: 'http'
+            split_repository: 'velo-http'
+          - local_path: 'logger'
+            split_repository: 'velo-logger'
+          - local_path: 'router'
+            split_repository: 'velo-router'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # no tag
+      - if: "!startsWith(github.ref, 'refs/tags/')"
+        uses: danharrin/monorepo-split-github-action@v2.4.0
+        with:
+          package_directory: 'packages/${{ matrix.package.local_path }}'
+          repository_organization: 'skislemleko11'
+          repository_name: '${{ matrix.package.split_repository }}'
+          user_name: "github-actions[bot]"
+          user_email: "github-actions[bot]@users.noreply.github.com"
+
+      # with tag
+      - if: "startsWith(github.ref, 'refs/tags/')"
+        uses: danharrin/monorepo-split-github-action@v2.4.0
+        with:
+          tag: ${GITHUB_REF#refs/tags/}
+          package_directory: 'packages/${{ matrix.package.local_path }}'
+          repository_organization: 'skislemleko11'
+          repository_name: '${{ matrix.package.split_repository }}'
+          user_name: "github-actions[bot]"
+          user_email: "github-actions[bot]@users.noreply.github.com"
