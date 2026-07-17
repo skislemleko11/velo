@@ -5,27 +5,23 @@
   "license": "LGPL-3.0",
   "minimum-stability": "dev",
   "prefer-stable": true,
-  "repositories": [
-    {
-      "type": "path",
-      "url": "packages/*",
-      "options": {
-        "symlink": false
-      }
-    }
-  ],
   "require": {
     "php": ">=8.5",
     "ext-pdo": "*",
-    "velo/container": "*",
-    "velo/database": "*",
-    "velo/http": "*",
-    "velo/logger": "*",
-    "velo/router": "*"
+    "skislemleko11/velo-container": "*",
+    "skislemleko11/velo-database": "*",
+    "skislemleko11/velo-http": "*",
+    "skislemleko11/velo-logger": "*",
+    "skislemleko11/velo-router": "*"
   },
   "autoload": {
     "psr-4": {
-      "Velo\\": "src/"
+      "Velo\\": "src/",
+      "Velo\\Container\\": "packages/container/src/",
+      "Velo\\Database\\": "packages/database/src/",
+      "Velo\\Http\\": "packages/http/src/",
+      "Velo\\Logger\\": "packages/logger/src/",
+      "Velo\\Router\\": "packages/router/src/"
     }
   },
   "require-dev": {
