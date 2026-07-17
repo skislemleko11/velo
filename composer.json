@@ -2,7 +2,6 @@
   "name": "skislemleko11/velo",
   "description": "Fast and easy to learn tiny MVC framework",
   "type": "library",
-  "version": "1.0.0",
   "license": "LGPL-3.0",
   "repositories": [
     {
@@ -15,7 +14,6 @@
   ],
   "require": {
     "php": ">=8.5",
-    "vlucas/phpdotenv": "^5.6.3",
     "velo/container": "*",
     "velo/database": "*",
     "velo/http": "*",
