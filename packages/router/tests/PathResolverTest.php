@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Tests\Unit;
+namespace Velo\Router\Tests;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-use Velo\Core\PathResolver;
-use Velo\Exceptions\PathNotFoundException;
+use Velo\Router\PathResolver;
+use Velo\Router\Exceptions\PathNotFoundException;
 
 class PathResolverTest extends TestCase
 {

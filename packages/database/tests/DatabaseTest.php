@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Tests\Unit;
+namespace Velo\Database\Tests;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Velo\Core\Database;
-use Velo\Core\PdoFactory;
+use Velo\Database\Database;
+use Velo\Database\PdoFactory;
 use PDO;
 
 class DatabaseTest extends TestCase
@@ -65,7 +65,7 @@ class DatabaseTest extends TestCase
 
     public function testFetchAllReturnsMultipleRows(): void
     {
-        $result = $this->db->fetchAll("SELECT * FROM users ORDER BY id ASC");
+        $result = $this->db->fetchAll("SELECT * FROM users ORDER BY id");
 
         $this->assertCount(2, $result);
         $this->assertSame('Jan Kowalski', $result[0]['name']);

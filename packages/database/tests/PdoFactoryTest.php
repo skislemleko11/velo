@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Tests\Unit;
+namespace Velo\Database\Tests;
 
 use PDOException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Velo\Core\PdoFactory;
+use Velo\Database\PdoFactory;
 
 use PDO;
 

@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Tests\Unit;
+namespace Velo\Router\Tests;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Velo\Container\Container;
 use Velo\Controllers\Controller;
-use Velo\Core\HttpResponse;
-use Velo\Core\PathResolver;
-use Velo\Core\Router;
-use Velo\Exceptions\PageNotFoundException;
+use Velo\Http\HttpResponse;
+use Velo\Router\PathResolver;
+use Velo\Router\Router;
+use Velo\Router\Exceptions\PageNotFoundException;
 
 class RouterTest extends TestCase
 {
