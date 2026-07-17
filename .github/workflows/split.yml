@@ -32,6 +32,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Ensure split repository main branch exists
+        shell: bash
+        env:
+          TARGET_REPO: ${{ matrix.package.split_repository }}
+        run: |
+          set -euo pipefail
+
+          REMOTE_URL="https://${GITHUB_TOKEN}@github.com/skislemleko11/${TARGET_REPO}.git"
+          TARGET_BRANCH="main"
+
+          if git ls-remote --exit-code --heads "${REMOTE_URL}" "${TARGET_BRANCH}" > /dev/null 2>&1; then
+            echo "Branch ${TARGET_BRANCH} already exists in ${TARGET_REPO}."
+            exit 0
+          fi
+
+          echo "Initializing ${TARGET_REPO} with ${TARGET_BRANCH} branch."
+          TMP_DIR="$(mktemp -d)"
+          trap 'rm -rf "${TMP_DIR}"' EXIT
+
+          git clone -- "${REMOTE_URL}" "${TMP_DIR}"
+          git -C "${TMP_DIR}" checkout --orphan "${TARGET_BRANCH}"
+          git -C "${TMP_DIR}" -c user.name="github-actions[bot]" -c user.email="github-actions[bot]@users.noreply.github.com" commit --allow-empty -m "chore: initialize split repository"
+          git -C "${TMP_DIR}" push --quiet origin "${TARGET_BRANCH}"
+
       # no tag
       - if: "!startsWith(github.ref, 'refs/tags/')"
         uses: danharrin/monorepo-split-github-action@v2.4.0
