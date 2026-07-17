@@ -3,9 +3,10 @@
 /logs/
 /docs/
 /public/
-/views/
+/playground/views/
 .idea/
 .vscode/
+/playground/
 .env
 .phpunit.result.cache
 phpdoc.dist.xml

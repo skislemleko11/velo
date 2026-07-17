@@ -34,7 +34,8 @@
       "Velo\\Database\\Tests\\": "packages/database/tests/",
       "Velo\\Http\\Tests\\": "packages/http/tests/",
       "Velo\\Logger\\Tests\\": "packages/logger/tests/",
-      "Velo\\Router\\Tests\\": "packages/router/tests/"
+      "Velo\\Router\\Tests\\": "packages/router/tests/",
+      "Velo\\Playground\\": "playground/src/"
     }
   }
 }
