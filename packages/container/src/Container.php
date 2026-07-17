@@ -1,0 +1,129 @@
+<?php
+declare(strict_types=1);
+
+namespace Velo\Container;
+
+use Psr\Container\ContainerInterface;
+use ReflectionClass;
+use ReflectionIntersectionType;
+use ReflectionNamedType;
+use ReflectionUnionType;
+use Velo\Container\Exceptions\ContainerException;
+
+class Container implements ContainerInterface
+{
+    /**
+     * @var array<string, callable|string>
+     */
+    private(set) array $entries = [];
+
+    /**
+     * @var array<string, object>
+     */
+    private(set) array $instances = [];
+
+    public function set(string $id, callable|string $concrete): void
+    {
+        $this->entries[$id] = $concrete;
+        unset($this->instances[$id]);
+    }
+
+    public function get(string $id): mixed
+    {
+        if (isset($this->instances[$id]))
+            return $this->instances[$id];
+
+        if ($this->has($id)) {
+            $entry = $this->entries[$id];
+
+            if (is_callable($entry)) {
+                $object = $entry($this);
+
+                if (is_object($object))
+                    $this->instances[$id] = $object;
+
+                return $object;
+            }
+
+            // Aliases / Interfaces
+            $resolvedId = $entry;
+
+            if(isset($this->instances[$resolvedId]))
+                $this->instances[$id] = $this->instances[$resolvedId];
+
+            $object = $this->resolve($resolvedId);
+
+            $this->instances[$resolvedId] = $object;
+            $this->instances[$id] = $object;
+
+            return $object;
+        }
+
+        $object = $this->resolve($id);
+        $this->instances[$id] = $object;
+
+        return $object;
+    }
+
+    public function has(string $id): bool
+    {
+        return isset($this->entries[$id]);
+    }
+
+    private function resolve(string $id): object
+    {
+        $reflectionClass = new ReflectionClass($id);
+
+        if (!$reflectionClass->isInstantiable())
+            throw new ContainerException('Class "' . $id . '" is not instantiable!');
+
+        if ($constructor = $reflectionClass->getConstructor()) {
+            $params = $constructor->getParameters();
+
+            if (!$params)
+                return new $id();
+
+            $dependencies = [];
+
+            foreach ($params as $param) {
+                $paramName = $param->getName();
+                $paramType = $param->getType();
+
+                if (!$paramType)
+                    throw new ContainerException(
+                        'Failed to resolve dependency: "' . $id . '" because "' . $paramName . '" is missing a type hint!');
+
+                if ($paramType instanceof ReflectionUnionType)
+                    throw new ContainerException(
+                        'Failed to resolve dependency: "' . $id . '" because param"' . $paramName . '" has a union type hint!'
+                    );
+
+                if ($paramType instanceof ReflectionNamedType) {
+                    if ($paramType->isBuiltin()) {
+                        if ($param->isDefaultValueAvailable())
+                            $dependencies[] = $param->getDefaultValue();
+                        else
+                            throw new ContainerException(
+                                'Failed to resolve dependency: "' . $id . '" because invalid param"' . $paramName . '" (no default value)'
+                            );
+                    } else {
+                        $dependencies[] = $this->get($paramType->getName());
+                    }
+                } else if ($paramType instanceof ReflectionIntersectionType) {
+                    throw new ContainerException(
+                        'Failed to resolve dependency: "' . $id . '" because param"' . $paramName . '" has an intersection type hint!'
+                    );
+                } else {
+                    // Probably it's not reachable in current(8.5) PHP, but i'm leaving it in case of future changes or bugs
+                    throw new ContainerException(
+                        'Failed to resolve dependency: "' . $id . '" because invalid param"' . $paramName . '"'
+                    );
+                }
+            }
+
+            return $reflectionClass->newInstanceArgs($dependencies);
+        }
+
+        return new $id();
+    }
+}

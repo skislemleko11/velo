@@ -1,0 +1,12 @@
+/vendor/
+/docker/
+/logs/
+/docs/
+/public/
+/views/
+.idea/
+.vscode/
+.env
+.phpunit.result.cache
+phpdoc.dist.xml
+phpDocumentor.phar
