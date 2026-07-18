@@ -6,17 +6,16 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": ">=8.5",
-    "ext-pdo": "*",
-    "skislemleko11/velo-container": "*",
-    "skislemleko11/velo-database": "*",
-    "skislemleko11/velo-http": "*",
-    "skislemleko11/velo-logger": "*",
-    "skislemleko11/velo-router": "*"
+    "php": ">=8.5"
   },
   "autoload": {
     "psr-4": {
-      "Velo\\": "src/"
+      "Velo\\": "src/",
+      "Velo\\Container\\": "packages/container/src/",
+      "Velo\\Database\\": "packages/database/src/",
+      "Velo\\Http\\": "packages/http/src/",
+      "Velo\\Logger\\": "packages/logger/src/",
+      "Velo\\Router\\": "packages/router/src/"
     }
   },
   "require-dev": {
@@ -25,12 +24,6 @@
   "autoload-dev": {
     "psr-4": {
       "Velo\\Tests\\": "tests/",
-
-      "Velo\\Container\\": "packages/container/src/",
-      "Velo\\Database\\": "packages/database/src/",
-      "Velo\\Http\\": "packages/http/src/",
-      "Velo\\Logger\\": "packages/logger/src/",
-      "Velo\\Router\\": "packages/router/src/",
 
       "Velo\\Container\\Tests\\": "packages/container/tests/",
       "Velo\\Database\\Tests\\": "packages/database/tests/",
