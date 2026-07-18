@@ -5,6 +5,7 @@ namespace Velo\Tests;
 
 use ErrorException;
 use Exception;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Velo\Core\ExceptionHandler;
@@ -15,9 +16,10 @@ use Velo\Http\ResponseRenderer;
 use Velo\Router\Exceptions\Interfaces\HttpExceptionInterface;
 use Velo\Router\Exceptions\PageNotFoundException;
 
+#[AllowMockObjectsWithoutExpectations]
 class ExceptionHandlerTest extends TestCase
 {
-    private int $originalErrorReporting;
+    protected int $originalErrorReporting;
 
     protected function setUp(): void
     {
@@ -57,7 +59,7 @@ class ExceptionHandlerTest extends TestCase
                 return $resp->viewPath === '/path/to/error500.php' && $resp->statusCode === 500;
             }));
 
-        $handler = new ExceptionHandler($logger, $pathResolver, $responseRenderer);
+        $handler = $this->createExceptionHandler($logger, $pathResolver, $responseRenderer);
         $handler->handleException($exception);
     }
 
@@ -110,7 +112,7 @@ class ExceptionHandlerTest extends TestCase
         // logger should receive the same anonymous exception instance
         $logger->expects($this->once())->method('error')->with($this->identicalTo($anon));
 
-        $handler = new ExceptionHandler($logger, $pathResolver, $responseRenderer);
+        $handler = $this->createExceptionHandler($logger, $pathResolver, $responseRenderer);
         $handler->handleException($anon);
     }
 
@@ -142,7 +144,7 @@ class ExceptionHandlerTest extends TestCase
                 return $resp->viewPath === '/path/to/error404.php' && $resp->statusCode === 404;
             }));
 
-        $handler = new ExceptionHandler($logger, $pathResolver, $responseRenderer);
+        $handler = $this->createExceptionHandler($logger, $pathResolver, $responseRenderer);
         $handler->handleException($exception);
     }
 
@@ -166,4 +168,15 @@ class ExceptionHandlerTest extends TestCase
         $handler->createErrorException(E_USER_NOTICE, 'msg', __FILE__, __LINE__);
     }
 
+    protected function createExceptionHandler(Logger $logger, PathResolver $pathResolver, ResponseRenderer $responseRenderer): ExceptionHandler
+    {
+        $handler = $this->getMockBuilder(ExceptionHandler::class)
+            ->setConstructorArgs([$logger, $pathResolver, $responseRenderer])
+            ->onlyMethods(['cleanBuffer'])
+            ->getMock();
+        $handler->expects($this->once())
+            ->method('cleanBuffer');
+
+        return $handler;
+    }
 }

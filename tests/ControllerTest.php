@@ -45,16 +45,16 @@ class ControllerTest extends TestCase
     public function it_returns_HttpResponse_with_view_path_when_view_file_exists(): void
     {
         $fileName = 'testfile_controller';
-        $fileNameWithExtension = $fileName . '.php';
-        file_put_contents($fileNameWithExtension, '');
+        $filePath = __DIR__ . '/' . $fileName . '.php';
+        file_put_contents($filePath, '');
         $data = ['key' => 'value'];
 
         $response = $this->controller->triggerResponse($fileName, 200, $data);
         $this->assertSame(200, $response->statusCode);
-        $this->assertSame(__DIR__ . '/' . $fileNameWithExtension, $response->viewPath);
+        $this->assertSame($filePath, $response->viewPath);
         $this->assertSame($data, $response->data);
 
-        unlink($fileNameWithExtension);
+        unlink($filePath);
     }
 
     #[Test]

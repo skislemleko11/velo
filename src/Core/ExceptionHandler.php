@@ -25,9 +25,7 @@ readonly class ExceptionHandler
     {
         $this->logException($throwable);
 
-        while (ob_get_level() > 0) {
-            ob_end_clean();
-        }
+        $this->cleanBuffer();
 
         if (!headers_sent())
             $this->responseRenderer->render($this->returnResponse($throwable));
