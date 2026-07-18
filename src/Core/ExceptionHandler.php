@@ -32,7 +32,7 @@ readonly class ExceptionHandler
         if (!headers_sent())
             $this->responseRenderer->render($this->returnResponse($throwable));
         else
-            echo 'Critical error occurred! Headers already sent! See logs for details.';
+            echo 'Critical error occurred! Headers already sent!';
     }
 
     protected function logException(Throwable $throwable): void
@@ -75,5 +75,12 @@ readonly class ExceptionHandler
             filename: $filename,
             line: $line
         );
+    }
+
+    protected function cleanBuffer(): void
+    {
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
     }
 }

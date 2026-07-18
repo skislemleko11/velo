@@ -7,7 +7,6 @@ use Velo\Http\HttpResponse;
 use Velo\Router\PathResolver;
 use Velo\Router\Exceptions\PageNotFoundException;
 
-// TODO: Write tests for Controller class
 abstract class Controller
 {
     public function __construct(protected readonly PathResolver $pathResolver)
