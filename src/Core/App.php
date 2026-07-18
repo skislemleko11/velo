@@ -5,6 +5,7 @@ namespace Velo\Core;
 
 use SensitiveParameter;
 use Velo\Container\Container;
+use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
 use Velo\Router\Router;
 use Velo\Http\ResponseRenderer;
@@ -18,10 +19,10 @@ readonly class App
     {
     }
 
-    public function run(string $url, string $requestMethod, #[SensitiveParameter] array &$session): void
+    public function run(HttpRequest $request, #[SensitiveParameter] array &$session): void
     {
         $this->setCsrfToken($session);
-        $response = $this->resolve($url, $requestMethod);
+        $response = $this->resolve($request);
         $this->renderResponse($response);
     }
 
@@ -31,9 +32,9 @@ readonly class App
             $session['csrf_token'] = bin2hex(random_bytes(32));
     }
 
-    protected function resolve(string $url, string $requestMethod): HttpResponse
+    protected function resolve(HttpRequest $request): HttpResponse
     {
-        return $this->router->resolve($url, $requestMethod);
+        return $this->router->resolve($request);
     }
 
     protected function renderResponse(HttpResponse $response): void

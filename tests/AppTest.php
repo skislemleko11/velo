@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Velo\Core\App;
+use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
 use Velo\Http\ResponseRenderer;
 use Velo\Router\Router;
@@ -36,7 +37,8 @@ class AppTest extends TestCase
 
         $session = [];
 
-        $app->run('/', 'GET', $session);
+        $request = new HttpRequest('/', 'GET');
+        $app->run($request, $session);
 
         $this->assertTrue(isset($session['csrf_token']));
     }
@@ -49,13 +51,15 @@ class AppTest extends TestCase
             ->onlyMethods(['setCsrfToken', 'renderResponse'])
             ->getMock();
 
+        $request = new HttpRequest('/', 'GET');
+
         $this->router->expects($this->once())
             ->method('resolve')
-            ->with($this->equalTo('/'), $this->equalTo('GET'))
+            ->with($this->equalTo($request))
             ->willReturn(new HttpResponse());
 
         $session = [];
-        $app->run('/', 'GET', $session);
+        $app->run($request, $session);
     }
 
     #[Test]
@@ -82,6 +86,7 @@ class AppTest extends TestCase
             ->willReturn($responseRenderer);
 
         $session = [];
-        $app->run('/', 'GET', $session);
+        $request = new HttpRequest('/', 'GET');
+        $app->run($request, $session);
     }
 }
