@@ -3,16 +3,17 @@ declare(strict_types=1);
 
 namespace Velo\Logger;
 
+use DateTimeImmutable;
 use Throwable;
 use Velo\Logger\Interfaces\LogFormatter;
 
 class LogTextFormatter implements LogFormatter
 {
-    protected string $format = "[%datetime%] [%level%] %message% %context%\n\n";
+    protected string $format = "[%datetime%] [%level%] %message% %context%\n";
 
     public function format(string $level, string $message, array $context = []): string
     {
-        $datetime = date('Y-m-d H:i:s');
+        $datetime = new DateTimeImmutable()->format('Y-m-d H:i:s.v');
         $exceptionString = '';
 
         if (isset($context['exception']) && $context['exception'] instanceof Throwable) {
@@ -36,7 +37,7 @@ class LogTextFormatter implements LogFormatter
         if ($exceptionString != '')
             $output .= $exceptionString . "\n";
 
-        return $output;
+        return $output . "\n";
     }
 
     protected function interpolate(string $message, array $context): string
@@ -44,7 +45,7 @@ class LogTextFormatter implements LogFormatter
         $replace = [];
 
         foreach ($context as $key => $val) {
-            if (!is_array($val) || (!is_object($val) || method_exists($val, '__toString')))
+            if (!is_array($val) && (!is_object($val) || method_exists($val, '__toString')))
                 $replace['{' . $key . '}'] = (string)$val;
         }
 

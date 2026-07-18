@@ -2,8 +2,6 @@
 /docker/
 /logs/
 /docs/
-/public/
-/playground/views/
 .idea/
 .vscode/
 /playground/

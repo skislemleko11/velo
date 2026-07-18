@@ -83,6 +83,7 @@ class ExceptionHandlerTest extends TestCase
             ->with($this->callback(function (HttpResponse $resp) {
                 return $resp->viewPath === '/path/to/error404.php' && $resp->statusCode === 404;
             }));
+
         // create an Exception implementation of HttpExceptionInterface (so it's a Throwable)
         $anon = new class('msg') extends Exception implements HttpExceptionInterface {
             private int $codeStatus;

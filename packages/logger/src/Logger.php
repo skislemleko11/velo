@@ -8,7 +8,6 @@ use Stringable;
 use InvalidArgumentException;
 use Velo\Logger\Interfaces\LogFormatter;
 
-// TODO: Write tests for Logger class
 class Logger extends AbstractLogger
 {
     public function __construct(

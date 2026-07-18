@@ -16,7 +16,6 @@ class DatabaseTest extends TestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->pdo = PdoFactory::create(
             sql: 'sqlite',
             dbname: ':memory:'
@@ -41,7 +40,8 @@ class DatabaseTest extends TestCase
         $this->assertSame($this->pdo, $this->db->getPDO());
     }
 
-    public function testFetchOneReturnsSingleRow(): void
+    #[Test]
+    public function it_fetches_and_returnes_single_row(): void
     {
         $result = $this->db->fetchOne(
             "SELECT * FROM users WHERE email = :email",
@@ -53,7 +53,8 @@ class DatabaseTest extends TestCase
         $this->assertEquals(1, $result['id']);
     }
 
-    public function testFetchOneReturnsEmptyArrayWhenNoResults(): void
+    #[Test]
+    public function it_fetches_and_returns_empty_array_when_no_results(): void
     {
         $result = $this->db->fetchOne(
             "SELECT * FROM users WHERE email = :email",
@@ -63,7 +64,8 @@ class DatabaseTest extends TestCase
         $this->assertSame([], $result);
     }
 
-    public function testFetchAllReturnsMultipleRows(): void
+    #[Test]
+    public function it_fetches_and_returns_multiple_rows(): void
     {
         $result = $this->db->fetchAll("SELECT * FROM users ORDER BY id");
 
@@ -72,7 +74,8 @@ class DatabaseTest extends TestCase
         $this->assertSame('Anna Nowak', $result[1]['name']);
     }
 
-    public function testExecuteCanInsertDataAndReturnRowCount(): void
+    #[Test]
+    public function it_executes_queries_and_returns_row_count(): void
     {
         $rowCount = $this->db->execute(
             "INSERT INTO users (name, email) VALUES (:name, :email)",
@@ -86,7 +89,8 @@ class DatabaseTest extends TestCase
         $this->assertSame('Tomasz Bat', $user['name']);
     }
 
-    public function testTransactionsRollbackChangesOnError(): void
+    #[Test]
+    public function it_rolls_back_changes_on_error(): void
     {
         $this->db->beginTransaction();
 
@@ -101,7 +105,8 @@ class DatabaseTest extends TestCase
         $this->assertSame([], $user);
     }
 
-    public function testTransactionsCommitChangesOnSuccess(): void
+    #[Test]
+    public function it_commits_changes_on_success(): void
     {
         $this->db->beginTransaction();
 
