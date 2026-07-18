@@ -16,12 +16,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Velo\\": "src/",
-      "Velo\\Container\\": "packages/container/src/",
-      "Velo\\Database\\": "packages/database/src/",
-      "Velo\\Http\\": "packages/http/src/",
-      "Velo\\Logger\\": "packages/logger/src/",
-      "Velo\\Router\\": "packages/router/src/"
+      "Velo\\": "src/"
     }
   },
   "require-dev": {
@@ -30,11 +25,19 @@
   "autoload-dev": {
     "psr-4": {
       "Velo\\Tests\\": "tests/",
+
+      "Velo\\Container\\": "packages/container/src/",
+      "Velo\\Database\\": "packages/database/src/",
+      "Velo\\Http\\": "packages/http/src/",
+      "Velo\\Logger\\": "packages/logger/src/",
+      "Velo\\Router\\": "packages/router/src/",
+
       "Velo\\Container\\Tests\\": "packages/container/tests/",
       "Velo\\Database\\Tests\\": "packages/database/tests/",
       "Velo\\Http\\Tests\\": "packages/http/tests/",
       "Velo\\Logger\\Tests\\": "packages/logger/tests/",
       "Velo\\Router\\Tests\\": "packages/router/tests/",
+
       "Velo\\Playground\\": "playground/src/"
     }
   }
