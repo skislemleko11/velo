@@ -6,7 +6,10 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": ">=8.5"
+    "php": ">=8.5",
+    "ext-pdo": "*",
+    "psr/container": "^2.0",
+    "psr/log": "^3.0"
   },
   "autoload": {
     "psr-4": {
