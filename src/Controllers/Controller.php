@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Velo\Controllers;
 
 use Velo\Http\HttpResponse;
+use Velo\Router\Exceptions\PathNotFoundException;
 use Velo\Router\PathResolver;
 use Velo\Router\Exceptions\PageNotFoundException;
 
@@ -14,6 +15,10 @@ abstract class Controller
 
     }
 
+    /**
+     * @throws PathNotFoundException
+     * @throws PageNotFoundException
+     */
     protected function returnResopnse(?string $viewName = null, array $data = [], int $responseCode = 200): HttpResponse
     {
         if (!$viewName)

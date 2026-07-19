@@ -3,8 +3,11 @@ declare(strict_types=1);
 
 namespace Velo\Container;
 
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionIntersectionType;
 use ReflectionNamedType;
 use ReflectionUnionType;
@@ -28,6 +31,12 @@ class Container implements ContainerInterface
         unset($this->instances[$id]);
     }
 
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     * @throws ReflectionException
+     * @throws ContainerException
+     */
     public function get(string $id): mixed
     {
         if (isset($this->instances[$id]))
@@ -70,6 +79,12 @@ class Container implements ContainerInterface
         return isset($this->entries[$id]);
     }
 
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerException
+     * @throws ContainerExceptionInterface
+     * @throws ReflectionException
+     */
     private function resolve(string $id): object
     {
         $reflectionClass = new ReflectionClass($id);

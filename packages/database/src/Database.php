@@ -60,4 +60,9 @@ readonly class Database implements DatabaseInterface
     {
         return $this->pdo->rollBack();
     }
+
+    public function getLastInsertId(?string $name = null): false|int
+    {
+        return (int)$this->pdo->lastInsertId($name) ?: false;
+    }
 }

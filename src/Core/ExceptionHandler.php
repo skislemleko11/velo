@@ -7,6 +7,7 @@ use ErrorException;
 use Psr\Log\LoggerInterface;
 use Throwable;
 use Velo\Router\Exceptions\Interfaces\HttpExceptionInterface;
+use Velo\Router\Exceptions\PathNotFoundException;
 use Velo\Router\PathResolver;
 use Velo\Http\ResponseRenderer;
 use Velo\Http\HttpResponse;
@@ -21,6 +22,9 @@ readonly class ExceptionHandler
     {
     }
 
+    /**
+     * @throws PathNotFoundException
+     */
     public function handleException(Throwable $throwable): void
     {
         $this->logException($throwable);
@@ -49,6 +53,9 @@ readonly class ExceptionHandler
         $this->logger->critical($throwable);
     }
 
+    /**
+     * @throws PathNotFoundException
+     */
     protected function returnResponse(Throwable $throwable): HttpResponse
     {
         $statusCode = $throwable instanceof HttpExceptionInterface ? $throwable->getStatusCode() : 500;
@@ -61,6 +68,9 @@ readonly class ExceptionHandler
         return new HttpResponse($this->pathResolver->getFilePath($viewName), $statusCode);
     }
 
+    /**
+     * @throws ErrorException
+     */
     public function createErrorException(int $severity, string $message, string $filename, int $line): false
     {
         if (!(error_reporting() & $severity))

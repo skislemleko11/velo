@@ -22,4 +22,6 @@ interface DatabaseInterface
     public function commit(): bool;
 
     public function rollback(): bool;
+
+    public function getLastInsertId(?string $name = null): false|int;
 }

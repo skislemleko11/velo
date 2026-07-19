@@ -120,4 +120,18 @@ class DatabaseTest extends TestCase
         $user = $this->db->fetchOne("SELECT * FROM users WHERE email = 'success@test.pl'");
         $this->assertSame('Sukces Transakcji', $user['name']);
     }
+
+    #[Test]
+    public function it_gets_last_insert_id(): void
+    {
+        $this->db->execute(
+            "INSERT INTO users (name, email) VALUES (:name, :email)",
+            ['name' => 'Test User', 'email' => 'test@test.pl']
+        );
+
+        $lastInsertId = $this->db->getLastInsertId();
+
+        $this->assertIsInt($lastInsertId);
+        $this->assertGreaterThan(0, $lastInsertId);
+    }
 }
