@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Tests;
+namespace Velo\Tests\Core;
 
 use ErrorException;
 use Exception;
@@ -10,11 +10,11 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Velo\Core\ExceptionHandler;
 use Velo\Http\HttpResponse;
-use Velo\Logger\Logger;
-use Velo\Router\PathResolver;
 use Velo\Http\ResponseRenderer;
+use Velo\Logger\Logger;
 use Velo\Router\Exceptions\Interfaces\HttpExceptionInterface;
 use Velo\Router\Exceptions\PageNotFoundException;
+use Velo\Router\PathResolver;
 
 #[AllowMockObjectsWithoutExpectations]
 class ExceptionHandlerTest extends TestCase

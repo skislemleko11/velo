@@ -3,15 +3,17 @@ declare(strict_types=1);
 
 namespace Velo\Http;
 
-class HttpRequest
+readonly class HttpRequest
 {
+    public string $url;
     public string $method;
 
     public function __construct(
-        public string $url,
-        string        $method
+        string $url,
+        string $method
     )
     {
+        $this->url = parse_url($url, PHP_URL_PATH);
         $this->method = strtoupper($method);
     }
 

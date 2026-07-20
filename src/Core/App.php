@@ -5,9 +5,7 @@ namespace Velo\Core;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Random\RandomException;
 use ReflectionException;
-use SensitiveParameter;
 use Velo\Container\Container;
 use Velo\Container\Exceptions\ContainerException;
 use Velo\Http\HttpRequest;
@@ -33,27 +31,16 @@ readonly class App
      * @throws MustImplementMiddlewareInterfaceException
      * @throws NotFoundControllerException
      * @throws NotFoundExceptionInterface
-     * @throws RandomException
      * @throws NotFoundMethodException
      * @throws ControllerMethodInvalidReturnTypeException
      * @throws ContainerExceptionInterface
      * @throws PageNotFoundException
      * @throws ReflectionException
      */
-    public function run(HttpRequest $request, #[SensitiveParameter] array &$session): void
+    public function run(HttpRequest $request): void
     {
-        $this->setCsrfToken($session);
         $response = $this->resolve($request);
         $this->renderResponse($response);
-    }
-
-    /**
-     * @throws RandomException
-     */
-    protected function setCsrfToken(#[SensitiveParameter] array &$session): void
-    {
-        if (!isset($session['csrf_token']))
-            $session['csrf_token'] = bin2hex(random_bytes(32));
     }
 
     /**

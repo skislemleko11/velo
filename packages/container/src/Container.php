@@ -57,7 +57,7 @@ class Container implements ContainerInterface
             // Aliases / Interfaces
             $resolvedId = $entry;
 
-            if(isset($this->instances[$resolvedId]))
+            if (isset($this->instances[$resolvedId]))
                 $this->instances[$id] = $this->instances[$resolvedId];
 
             $object = $this->resolve($resolvedId);
@@ -122,7 +122,17 @@ class Container implements ContainerInterface
                                 'Failed to resolve dependency: "' . $id . '" because invalid param"' . $paramName . '" (no default value)'
                             );
                     } else {
-                        $dependencies[] = $this->get($paramType->getName());
+                        $typeName = $paramType->getName();
+
+                        if ($this->has($typeName)) {
+                            $dependencies[] = $this->get($typeName);
+                        } else if ($param->isDefaultValueAvailable()) {
+                            $dependencies[] = $param->getDefaultValue();
+                        } else if ($paramType->allowsNull()) {
+                            $dependencies[] = null;
+                        } else {
+                            $dependencies[] = $this->get($typeName);
+                        }
                     }
                 } else if ($paramType instanceof ReflectionIntersectionType) {
                     throw new ContainerException(

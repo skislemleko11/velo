@@ -1,15 +1,15 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Tests;
+namespace Velo\Tests\Controllers;
 
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Test;
-use Velo\Http\HttpResponse;
 use PHPUnit\Framework\TestCase;
 use Velo\Controllers\Controller;
-use Velo\Router\PathResolver;
+use Velo\Http\HttpResponse;
 use Velo\Router\Exceptions\PageNotFoundException;
+use Velo\Router\PathResolver;
 
 #[AllowMockObjectsWithoutExpectations]
 class ControllerTest extends TestCase

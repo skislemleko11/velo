@@ -213,9 +213,44 @@ class ContainerTest extends TestCase
         $this->assertNotSame($firstInstance, $secondInstance);
         $this->assertSame($anotherConcrete, $secondInstance);
     }
+
+    #[Test]
+    public function it_gets_obj_with_param_which_is_not_instantiable_but_has_default_value(): void
+    {
+        $class = $this->container->get(NotInstantiableParamWithDefaultValue::class);
+        $this->assertInstanceOf(NotInstantiableParamWithDefaultValue::class, $class);
+    }
+
+    #[Test]
+    public function it_gets_obj_with_param_which_is_not_instantiable_but_allows_null(): void
+    {
+        $class = $this->container->get(NotInstantiableParamWithoutDefaultValueButAllowsNull::class);
+        $this->assertInstanceOf(NotInstantiableParamWithoutDefaultValueButAllowsNull::class, $class);
+    }
 }
 
-// ===== Test Fixtures =====
+class NotInstantiableParamWithDefaultValue
+{
+    public function __construct(
+        public ?B $b = null
+    )
+    {
+    }
+}
+
+class NotInstantiableParamWithoutDefaultValueButAllowsNull
+{
+    public function __construct(
+        public ?B $b
+    )
+    {
+    }
+}
+
+abstract class B
+{
+
+}
 
 interface SimpleInterface
 {

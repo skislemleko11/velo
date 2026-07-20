@@ -1,17 +1,17 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Tests;
+namespace Velo\Tests\Core;
 
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Velo\Container\Container;
 use Velo\Core\App;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
 use Velo\Http\ResponseRenderer;
 use Velo\Router\Router;
-use Velo\Container\Container;
 
 #[AllowMockObjectsWithoutExpectations]
 class AppTest extends TestCase
@@ -26,29 +26,11 @@ class AppTest extends TestCase
     }
 
     #[Test]
-    public function it_sets_csrf_token(): void
-    {
-        $app = $this->getMockBuilder(App::class)
-            ->setConstructorArgs([$this->router, $this->container])
-            ->onlyMethods(['resolve', 'renderResponse'])
-            ->getMock();
-        $app->method('resolve')
-            ->willReturn(new HttpResponse());
-
-        $session = [];
-
-        $request = new HttpRequest('/', 'GET');
-        $app->run($request, $session);
-
-        $this->assertTrue(isset($session['csrf_token']));
-    }
-
-    #[Test]
     public function it_calls_router_resolve_method(): void
     {
         $app = $this->getMockBuilder(App::class)
             ->setConstructorArgs([$this->router, $this->container])
-            ->onlyMethods(['setCsrfToken', 'renderResponse'])
+            ->onlyMethods(['renderResponse'])
             ->getMock();
 
         $request = new HttpRequest('/', 'GET');
@@ -58,8 +40,7 @@ class AppTest extends TestCase
             ->with($this->equalTo($request))
             ->willReturn(new HttpResponse());
 
-        $session = [];
-        $app->run($request, $session);
+        $app->run($request);
     }
 
     #[Test]
@@ -67,7 +48,7 @@ class AppTest extends TestCase
     {
         $app = $this->getMockBuilder(App::class)
             ->setConstructorArgs([$this->router, $this->container])
-            ->onlyMethods(['setCsrfToken', 'resolve'])
+            ->onlyMethods(['resolve'])
             ->getMock();
 
         $httpResponse = new HttpResponse();
@@ -85,8 +66,7 @@ class AppTest extends TestCase
             ->with(ResponseRenderer::class)
             ->willReturn($responseRenderer);
 
-        $session = [];
         $request = new HttpRequest('/', 'GET');
-        $app->run($request, $session);
+        $app->run($request);
     }
 }

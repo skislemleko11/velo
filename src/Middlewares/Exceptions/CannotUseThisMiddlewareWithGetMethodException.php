@@ -5,7 +5,7 @@ namespace Velo\Middlewares\Exceptions;
 
 use InvalidArgumentException;
 
-class CannotUseAntiCsrfMiddlewareWithGetMethodException extends InvalidArgumentException
+class CannotUseThisMiddlewareWithGetMethodException extends InvalidArgumentException
 {
 
 }
