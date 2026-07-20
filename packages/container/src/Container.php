@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Velo\Container;
 
+use Closure;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -16,19 +17,36 @@ use Velo\Container\Exceptions\ContainerException;
 class Container implements ContainerInterface
 {
     /**
-     * @var array<string, callable|string>
+     * @var array<string, object|callable|string>
      */
-    private(set) array $entries = [];
+    private array $entries = [];
 
     /**
      * @var array<string, object>
      */
-    private(set) array $instances = [];
+    private array $instances = [];
 
-    public function set(string $id, callable|string $concrete): void
+    /**
+     * Binds a service, factory, or instantiated object to the container.
+     *
+     * @param string $id Service class name or interface identifier.
+     * @param object|callable|string $concrete Instance, factory function, or class name.
+     *
+     * @note Passing already instantiated objects is optimal only when You've already used it.
+     * Don't create objects just to pass them, using functions (lazy loading) is way more efficient.
+     */
+    public function set(string $id, object|callable|string $concrete): void
     {
         $this->entries[$id] = $concrete;
-        unset($this->instances[$id]);
+
+        if (is_object($concrete) && !$concrete instanceof Closure) {
+            $this->instances[$id] = $concrete;
+            unset($this->entries[$id]);
+        }
+        else {
+            $this->entries[$id] = $concrete;
+            unset($this->instances[$id]);
+        }
     }
 
     /**

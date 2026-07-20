@@ -6,6 +6,7 @@ namespace Velo\Container\Tests;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use Velo\Container\Container;
 use Velo\Container\Exceptions\ContainerException;
 
@@ -18,12 +19,19 @@ class ContainerTest extends TestCase
         $this->container = new Container();
     }
 
+    private function getPropertyValue(string $property): mixed
+    {
+        $reflection = new ReflectionClass($this->container);
+        $property = $reflection->getProperty($property);
+        return $property->getValue($this->container);
+    }
+
     #[Test]
     #[DataProvider('bindingCases')]
     public function it_binds(string $key, callable|string $value): void
     {
         $this->container->set($key, $value);
-        $this->assertEquals([$key => $value], $this->container->entries);
+        $this->assertEquals([$key => $value], $this->getPropertyValue('entries'));
     }
 
     public static function bindingCases(): array
@@ -226,6 +234,17 @@ class ContainerTest extends TestCase
     {
         $class = $this->container->get(NotInstantiableParamWithoutDefaultValueButAllowsNull::class);
         $this->assertInstanceOf(NotInstantiableParamWithoutDefaultValueButAllowsNull::class, $class);
+    }
+
+    #[Test]
+    public function it_sets_already_istanciated_object(): void
+    {
+        $obj = new SimpleClass();
+
+        $this->container->set('hehe', $obj);
+
+        $this->assertSame(['hehe' => $obj], $this->getPropertyValue('instances'));
+        $this->assertSame([], $this->getPropertyValue('entries'));
     }
 }
 
