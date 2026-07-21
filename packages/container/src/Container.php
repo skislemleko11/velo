@@ -13,6 +13,12 @@ use ReflectionIntersectionType;
 use ReflectionNamedType;
 use ReflectionUnionType;
 use Velo\Container\Exceptions\ContainerException;
+use Velo\Container\Exceptions\InvalidParameterExceptions\InvalidParameterException;
+use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterIntersectionTypeHintException;
+use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterMissingTypeHintException;
+use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterNoDefaultValueException;
+use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterUnionTypeHintException;
+use Velo\Container\Exceptions\IsNotInstantiableException;
 
 class Container implements ContainerInterface
 {
@@ -99,16 +105,20 @@ class Container implements ContainerInterface
 
     /**
      * @throws NotFoundExceptionInterface
-     * @throws ContainerException
-     * @throws ContainerExceptionInterface
+     * @throws IsNotInstantiableException
      * @throws ReflectionException
+     * @throws ParameterMissingTypeHintException
+     * @throws ParameterUnionTypeHintException
+     * @throws ParameterNoDefaultValueException
+     * @throws ParameterIntersectionTypeHintException
+     * @throws InvalidParameterException
      */
     private function resolve(string $id): object
     {
         $reflectionClass = new ReflectionClass($id);
 
         if (!$reflectionClass->isInstantiable())
-            throw new ContainerException('Class "' . $id . '" is not instantiable!');
+            throw new IsNotInstantiableException('Class "' . $id . '" is not instantiable!');
 
         if ($constructor = $reflectionClass->getConstructor()) {
             $params = $constructor->getParameters();
@@ -123,11 +133,11 @@ class Container implements ContainerInterface
                 $paramType = $param->getType();
 
                 if (!$paramType)
-                    throw new ContainerException(
+                    throw new ParameterMissingTypeHintException(
                         'Failed to resolve dependency: "' . $id . '" because "' . $paramName . '" is missing a type hint!');
 
                 if ($paramType instanceof ReflectionUnionType)
-                    throw new ContainerException(
+                    throw new ParameterUnionTypeHintException(
                         'Failed to resolve dependency: "' . $id . '" because param"' . $paramName . '" has a union type hint!'
                     );
 
@@ -136,7 +146,7 @@ class Container implements ContainerInterface
                         if ($param->isDefaultValueAvailable())
                             $dependencies[] = $param->getDefaultValue();
                         else
-                            throw new ContainerException(
+                            throw new ParameterNoDefaultValueException(
                                 'Failed to resolve dependency: "' . $id . '" because invalid param"' . $paramName . '" (no default value)'
                             );
                     } else {
@@ -153,12 +163,12 @@ class Container implements ContainerInterface
                         }
                     }
                 } else if ($paramType instanceof ReflectionIntersectionType) {
-                    throw new ContainerException(
+                    throw new ParameterIntersectionTypeHintException(
                         'Failed to resolve dependency: "' . $id . '" because param"' . $paramName . '" has an intersection type hint!'
                     );
                 } else {
                     // Probably it's not reachable in current(8.5) PHP, but i'm leaving it in case of future changes or bugs
-                    throw new ContainerException(
+                    throw new InvalidParameterException(
                         'Failed to resolve dependency: "' . $id . '" because invalid param"' . $paramName . '"'
                     );
                 }
