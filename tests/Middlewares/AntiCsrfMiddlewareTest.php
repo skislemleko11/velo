@@ -11,7 +11,7 @@ use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
 use Velo\Middlewares\AntiCsrfMiddleware;
 use Velo\Middlewares\Exceptions\CannotUseThisMiddlewareWithGetMethodException;
-use Velo\Router\PathResolver;
+use Velo\Router\PathResolver\PathResolver;
 
 class AntiCsrfMiddlewareTest extends TestCase
 {

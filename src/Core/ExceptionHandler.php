@@ -6,11 +6,11 @@ namespace Velo\Core;
 use ErrorException;
 use Psr\Log\LoggerInterface;
 use Throwable;
-use Velo\Router\Exceptions\Interfaces\HttpExceptionInterface;
-use Velo\Router\Exceptions\PathNotFoundException;
-use Velo\Router\PathResolver;
-use Velo\Http\ResponseRenderer;
 use Velo\Http\HttpResponse;
+use Velo\Http\ResponseRenderer;
+use Velo\Router\Exceptions\Interfaces\HttpExceptionInterface;
+use Velo\Router\PathResolver\Exceptions\PathNotFoundException;
+use Velo\Router\PathResolver\PathResolver;
 
 readonly class ExceptionHandler
 {

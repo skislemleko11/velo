@@ -3,14 +3,14 @@ declare(strict_types=1);
 
 namespace Velo\Middlewares;
 
+use Closure;
 use Random\RandomException;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
 use Velo\Http\Interfaces\MiddlewareInterface;
-use Velo\Router\Exceptions\PathNotFoundException;
-use Velo\Router\PathResolver;
 use Velo\Middlewares\Exceptions\CannotUseThisMiddlewareWithGetMethodException;
-use Closure;
+use Velo\Router\PathResolver\Exceptions\PathNotFoundException;
+use Velo\Router\PathResolver\PathResolver;
 
 readonly class AntiCsrfMiddleware implements MiddlewareInterface
 {

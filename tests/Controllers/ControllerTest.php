@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Velo\Controllers\Controller;
 use Velo\Http\HttpResponse;
 use Velo\Router\Exceptions\PageNotFoundException;
-use Velo\Router\PathResolver;
+use Velo\Router\PathResolver\PathResolver;
 
 #[AllowMockObjectsWithoutExpectations]
 class ControllerTest extends TestCase

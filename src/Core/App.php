@@ -10,13 +10,13 @@ use Velo\Container\Container;
 use Velo\Container\Exceptions\ContainerException;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
-use Velo\Router\Exceptions\ControllerMethodInvalidReturnTypeException;
-use Velo\Router\Exceptions\MustImplementMiddlewareInterfaceException;
-use Velo\Router\Exceptions\NotFoundControllerException;
-use Velo\Router\Exceptions\NotFoundMethodException;
-use Velo\Router\Exceptions\PageNotFoundException;
-use Velo\Router\Router;
 use Velo\Http\ResponseRenderer;
+use Velo\Router\Exceptions\PageNotFoundException;
+use Velo\Router\Pipeline\Exceptions\ControllerMethodInvalidReturnTypeException;
+use Velo\Router\Pipeline\Exceptions\MustImplementMiddlewareInterfaceException;
+use Velo\Router\Router\Exceptions\NotFoundControllerException;
+use Velo\Router\Router\Exceptions\NotFoundMethodException;
+use Velo\Router\Router\Router;
 
 readonly class App
 {

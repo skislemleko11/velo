@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace Velo\Controllers;
 
 use Velo\Http\HttpResponse;
-use Velo\Router\Exceptions\PathNotFoundException;
-use Velo\Router\PathResolver;
 use Velo\Router\Exceptions\PageNotFoundException;
+use Velo\Router\PathResolver\Exceptions\PathNotFoundException;
+use Velo\Router\PathResolver\PathResolver;
 
 abstract class Controller
 {

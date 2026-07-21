@@ -11,7 +11,7 @@ use Velo\Core\App;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
 use Velo\Http\ResponseRenderer;
-use Velo\Router\Router;
+use Velo\Router\Router\Router;
 
 #[AllowMockObjectsWithoutExpectations]
 class AppTest extends TestCase

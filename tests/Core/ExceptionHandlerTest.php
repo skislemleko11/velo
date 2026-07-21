@@ -14,7 +14,7 @@ use Velo\Http\ResponseRenderer;
 use Velo\Logger\Logger;
 use Velo\Router\Exceptions\Interfaces\HttpExceptionInterface;
 use Velo\Router\Exceptions\PageNotFoundException;
-use Velo\Router\PathResolver;
+use Velo\Router\PathResolver\PathResolver;
 
 #[AllowMockObjectsWithoutExpectations]
 class ExceptionHandlerTest extends TestCase
