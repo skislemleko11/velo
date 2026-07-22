@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Middlewares\AuthMiddleware;
+namespace Velo\Middlewares\GuestMiddleware;
 
 use Closure;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
 use Velo\Http\Interfaces\MiddlewareInterface;
 
-readonly class WebAuthMiddleware implements MiddlewareInterface
+readonly class WebGuestMiddleware implements MiddlewareInterface
 {
     public function __construct(
         private ?Closure $customResponseHandler = null,
@@ -18,20 +18,18 @@ readonly class WebAuthMiddleware implements MiddlewareInterface
 
     public function handle(
         HttpRequest $request,
-        callable $next,
-        string $redirectUnauthenticatedUserTo = '/login'
+        callable    $next,
+        string $redirectAuthenticatedUserTo = '/'
     ): HttpResponse
     {
-        if (!isset($_SESSION['user_id']))
-            return $this->getResponseForUnauthenticatedUser($request, $redirectUnauthenticatedUserTo);
+        if (isset($_SESSION['user_id']))
+            return $this->getResponseForAuthenticatedUser($request, $redirectAuthenticatedUserTo);
 
         return $next($request);
     }
 
-    private function getResponseForUnauthenticatedUser(HttpRequest $request, string $redirectUrl): HttpResponse
+    private function getResponseForAuthenticatedUser(HttpRequest $request, string $redirectUrl): HttpResponse
     {
-        $_SESSION['redirect_after_login'] = $request->url;
-
         if ($this->customResponseHandler)
             return ($this->customResponseHandler)($request, $redirectUrl);
 
