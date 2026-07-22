@@ -10,7 +10,7 @@ use Velo\Container\Container;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
 use Velo\Middlewares\AntiCsrfMiddleware;
-use Velo\Middlewares\Exceptions\CannotUseThisMiddlewareWithGetMethodException;
+use Velo\Middlewares\Exceptions\InvalidRequestMethodMiddlewareException;
 use Velo\Router\PathResolver\PathResolver;
 
 class AntiCsrfMiddlewareTest extends TestCase
@@ -47,7 +47,7 @@ class AntiCsrfMiddlewareTest extends TestCase
     #[Test]
     public function it_throws_exception_with_GET_method(): void
     {
-        $this->expectException(CannotUseThisMiddlewareWithGetMethodException::class);
+        $this->expectException(InvalidRequestMethodMiddlewareException::class);
         $this->middleware->handle(new HttpRequest('/hehe', 'GET'), fn() => new HttpResponse());
     }
 

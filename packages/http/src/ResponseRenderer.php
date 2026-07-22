@@ -8,11 +8,25 @@ class ResponseRenderer
     public function render(HttpResponse $httpResponse): void
     {
         $this->setStatusCode($httpResponse->statusCode);
+        $this->sendHeaders($httpResponse->headers);
+
+        if (isset($httpResponse->headers['Location']))
+            $this->terminate();
 
         if ($httpResponse->viewPath)
             $this->renderView($httpResponse);
         else
             $this->echoApiResponse($httpResponse);
+    }
+
+    public function sendHeaders(array $headers): void
+    {
+        if (headers_sent())
+            return;
+
+        foreach ($headers as $name => $value) {
+            header("$name: $value");
+        }
     }
 
     protected function renderView(HttpResponse $httpResponse): void

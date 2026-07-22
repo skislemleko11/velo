@@ -8,7 +8,7 @@ use Random\RandomException;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
 use Velo\Http\Interfaces\MiddlewareInterface;
-use Velo\Middlewares\Exceptions\CannotUseThisMiddlewareWithGetMethodException;
+use Velo\Middlewares\Exceptions\InvalidRequestMethodMiddlewareException;
 use Velo\Router\PathResolver\Exceptions\PathNotFoundException;
 use Velo\Router\PathResolver\PathResolver;
 
@@ -24,11 +24,12 @@ readonly class AntiCsrfMiddleware implements MiddlewareInterface
     /**
      * @throws PathNotFoundException
      * @throws RandomException
+     * @throws InvalidRequestMethodMiddlewareException
      */
     public function handle(HttpRequest $request, callable $next): HttpResponse
     {
         if ($request->method === 'GET')
-            throw new CannotUseThisMiddlewareWithGetMethodException(
+            throw new InvalidRequestMethodMiddlewareException(
                 'Cannot use ' . self::class . ' with GET method!',
             );
 
@@ -48,7 +49,7 @@ readonly class AntiCsrfMiddleware implements MiddlewareInterface
      */
     private function getInvalidTokenResponse(HttpRequest $request): HttpResponse
     {
-        if ($this->customResponseHandler !== null)
+        if ($this->customResponseHandler)
             return ($this->customResponseHandler)($request);
 
         return new HttpResponse(

@@ -9,7 +9,18 @@ readonly class HttpResponse
         public ?string $viewPath = null,
         public int $statusCode = 200,
         public array $data = [],
+        public array $headers = []
     )
     {
+    }
+
+    public static function redirect(string $url, int $statuCode = 302): self
+    {
+        return new self(
+            viewPath: null,
+            statusCode: $statuCode,
+            data: [],
+            headers: ['Location' => $url]
+        );
     }
 }
