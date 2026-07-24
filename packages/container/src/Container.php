@@ -46,11 +46,9 @@ class Container implements ContainerInterface
         $this->entries[$id] = $concrete;
 
         if (is_object($concrete) && !$concrete instanceof Closure) {
-            $this->instances[$id] = $concrete;
             unset($this->entries[$id]);
         }
         else {
-            $this->entries[$id] = $concrete;
             unset($this->instances[$id]);
         }
     }
@@ -81,8 +79,10 @@ class Container implements ContainerInterface
             // Aliases / Interfaces
             $resolvedId = $entry;
 
-            if (isset($this->instances[$resolvedId]))
+            if (isset($this->instances[$resolvedId])) {
                 $this->instances[$id] = $this->instances[$resolvedId];
+                return $this->instances[$id];
+            }
 
             $object = $this->resolve($resolvedId);
 
@@ -100,7 +100,7 @@ class Container implements ContainerInterface
 
     public function has(string $id): bool
     {
-        return isset($this->entries[$id]);
+        return isset($this->entries[$id]) || isset($this->instances[$id]);
     }
 
     /**

@@ -43,7 +43,7 @@ class ContainerTest extends TestCase
     }
 
     #[Test]
-    public function it_gets_binded_callable(): void
+    public function it_gets_bound_callable(): void
     {
         $this->container->set(SimpleClass::class, fn() => new SimpleClass());
         $this->assertInstanceOf(SimpleClass::class, $this->container->get(SimpleClass::class));
@@ -237,7 +237,7 @@ class ContainerTest extends TestCase
     }
 
     #[Test]
-    public function it_sets_already_istanciated_object(): void
+    public function it_sets_already_istantiated_object(): void
     {
         $obj = new SimpleClass();
 
@@ -245,6 +245,17 @@ class ContainerTest extends TestCase
 
         $this->assertSame(['hehe' => $obj], $this->getPropertyValue('instances'));
         $this->assertSame([], $this->getPropertyValue('entries'));
+    }
+
+    #[Test]
+    public function it_gets_cached_instance_of_aliased_class(): void
+    {
+        $this->container->set(SimpleInterface::class, SimpleClass::class);
+        $simpleClass = new SimpleClass();
+
+        $this->container->set(SimpleClass::class, $simpleClass);
+
+        $this->assertSame($simpleClass, $this->container->get(SimpleInterface::class));
     }
 }
 
