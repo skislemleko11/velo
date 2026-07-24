@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Velo\Container;
 
 use Closure;
-use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionClass;
@@ -12,7 +11,6 @@ use ReflectionException;
 use ReflectionIntersectionType;
 use ReflectionNamedType;
 use ReflectionUnionType;
-use Velo\Container\Exceptions\ContainerException;
 use Velo\Container\Exceptions\InvalidParameterExceptions\InvalidParameterException;
 use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterIntersectionTypeHintException;
 use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterMissingTypeHintException;
@@ -36,28 +34,35 @@ class Container implements ContainerInterface
      * Binds a service, factory, or instantiated object to the container.
      *
      * @param string $id Service class name or interface identifier.
-     * @param object|callable|string $concrete Instance, factory function, or class name.
+     * @param object|callable|class-string $concrete Instance, factory function, or class name.
      *
      * @note Passing already instantiated objects is optimal only when You've already used it.
      * Don't create objects just to pass them, using functions (lazy loading) is way more efficient.
      */
     public function set(string $id, object|callable|string $concrete): void
     {
-        $this->entries[$id] = $concrete;
 
         if (is_object($concrete) && !$concrete instanceof Closure) {
+            $this->instances[$id] = $concrete;
             unset($this->entries[$id]);
         }
         else {
+            $this->entries[$id] = $concrete;
             unset($this->instances[$id]);
         }
     }
 
     /**
+     * @param string $id
+     * @return mixed
+     * @throws InvalidParameterException
+     * @throws IsNotInstantiableException
      * @throws NotFoundExceptionInterface
-     * @throws ContainerExceptionInterface
+     * @throws ParameterIntersectionTypeHintException
+     * @throws ParameterMissingTypeHintException
+     * @throws ParameterNoDefaultValueException
+     * @throws ParameterUnionTypeHintException
      * @throws ReflectionException
-     * @throws ContainerException
      */
     public function get(string $id): mixed
     {

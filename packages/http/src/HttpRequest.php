@@ -26,4 +26,12 @@ readonly class HttpRequest
     {
         return $_POST;
     }
+
+    public static function fromGlobals(): self
+    {
+        return new self(
+            $_SERVER['REQUEST_URI'],
+            $_SERVER['REQUEST_METHOD']
+        );
+    }
 }
