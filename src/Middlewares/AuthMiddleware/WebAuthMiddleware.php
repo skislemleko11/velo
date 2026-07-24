@@ -18,12 +18,13 @@ readonly class WebAuthMiddleware implements MiddlewareInterface
 
     public function handle(
         HttpRequest $request,
-        callable $next,
-        string $redirectUnauthenticatedUserTo = '/login'
+        callable    $next,
+        string      $redirectUnauthenticatedUserTo = '/login'
     ): HttpResponse
     {
-        if (!isset($_SESSION['user_id']))
+        if (!isset($_SESSION['user_id'])) {
             return $this->getResponseForUnauthenticatedUser($request, $redirectUnauthenticatedUserTo);
+        }
 
         return $next($request);
     }
@@ -32,8 +33,9 @@ readonly class WebAuthMiddleware implements MiddlewareInterface
     {
         $_SESSION['redirect_after_login'] = $request->url;
 
-        if ($this->customResponseHandler)
+        if ($this->customResponseHandler) {
             return ($this->customResponseHandler)($request, $redirectUrl);
+        }
 
         return HttpResponse::redirect($redirectUrl);
     }

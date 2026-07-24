@@ -1,2 +1,4 @@
 # Velo
-Velo is a PHP MVC Framework which is fast and very easy to learn! It's a public project, but it's not recommended to use it at all yet, cuz it's in active development and nothing is finished yet.
+
+Velo is a PHP MVC Framework which is fast and very easy to learn! It's a public project, but it's not recommended to use
+it at all yet, cuz it's in active development and nothing is finished yet.

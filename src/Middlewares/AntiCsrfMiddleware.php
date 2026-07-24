@@ -28,10 +28,11 @@ readonly class AntiCsrfMiddleware implements MiddlewareInterface
      */
     public function handle(HttpRequest $request, callable $next): HttpResponse
     {
-        if ($request->method === 'GET')
+        if ($request->method === 'GET') {
             throw new InvalidRequestMethodMiddlewareException(
                 'Cannot use ' . self::class . ' with GET method!',
             );
+        }
 
         $sessionToken = (string)($_SESSION['csrf_token'] ?? '');
         $requestToken = (string)$request->getPostArg('csrf_token', '');
@@ -49,8 +50,9 @@ readonly class AntiCsrfMiddleware implements MiddlewareInterface
      */
     private function getInvalidTokenResponse(HttpRequest $request): HttpResponse
     {
-        if ($this->customResponseHandler)
+        if ($this->customResponseHandler) {
             return ($this->customResponseHandler)($request);
+        }
 
         return new HttpResponse(
             $this->pathResolver->getFilePath('error403'),

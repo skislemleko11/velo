@@ -19,19 +19,21 @@ readonly class ApiAuthMiddleware implements MiddlewareInterface
     public function handle(
         HttpRequest $request,
         callable    $next,
-        array $responseForUnauthenticatedUser = ['error' => 'Unauthenticated']
+        array       $responseForUnauthenticatedUser = ['error' => 'Unauthenticated']
     ): HttpResponse
     {
-        if (!isset($_SESSION['user_id']))
+        if (!isset($_SESSION['user_id'])) {
             return $this->getUnauthenticatedResponse($request, $responseForUnauthenticatedUser);
+        }
 
         return $next($request);
     }
 
     private function getUnauthenticatedResponse(HttpRequest $request, array $response): HttpResponse
     {
-        if ($this->customResponseHandler)
+        if ($this->customResponseHandler) {
             return ($this->customResponseHandler)($request, $response);
+        }
 
         return new HttpResponse(
             statusCode: 401,

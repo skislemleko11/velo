@@ -45,14 +45,14 @@ class Container implements ContainerInterface
         if (is_object($concrete) && !$concrete instanceof Closure) {
             $this->instances[$id] = $concrete;
             unset($this->entries[$id]);
-        }
-        else {
+        } else {
             $this->entries[$id] = $concrete;
             unset($this->instances[$id]);
         }
     }
 
     /**
+     * Givent the id, it gets an aproperiate object.
      * @param string $id
      * @return mixed
      * @throws InvalidParameterException
@@ -75,8 +75,9 @@ class Container implements ContainerInterface
             if (is_callable($entry)) {
                 $object = $entry($this);
 
-                if (is_object($object))
+                if (is_object($object)) {
                     $this->instances[$id] = $object;
+                }
 
                 return $object;
             }
@@ -103,33 +104,43 @@ class Container implements ContainerInterface
         return $object;
     }
 
+    /**
+     * Checks if the given id is set in entries or instances arrays.
+     * @param string $id
+     * @return bool
+     */
     public function has(string $id): bool
     {
         return isset($this->entries[$id]) || isset($this->instances[$id]);
     }
 
     /**
-     * @throws NotFoundExceptionInterface
-     * @throws IsNotInstantiableException
-     * @throws ReflectionException
-     * @throws ParameterMissingTypeHintException
-     * @throws ParameterUnionTypeHintException
-     * @throws ParameterNoDefaultValueException
-     * @throws ParameterIntersectionTypeHintException
+     * Resolves the dependency with the given id.
+     * @param string $id
+     * @return object
      * @throws InvalidParameterException
+     * @throws IsNotInstantiableException
+     * @throws NotFoundExceptionInterface
+     * @throws ParameterIntersectionTypeHintException
+     * @throws ParameterMissingTypeHintException
+     * @throws ParameterNoDefaultValueException
+     * @throws ParameterUnionTypeHintException
+     * @throws ReflectionException
      */
     private function resolve(string $id): object
     {
         $reflectionClass = new ReflectionClass($id);
 
-        if (!$reflectionClass->isInstantiable())
+        if (!$reflectionClass->isInstantiable()) {
             throw new IsNotInstantiableException('Class "' . $id . '" is not instantiable!');
+        }
 
         if ($constructor = $reflectionClass->getConstructor()) {
             $params = $constructor->getParameters();
 
-            if (!$params)
+            if (!$params) {
                 return new $id();
+            }
 
             $dependencies = [];
 
@@ -137,23 +148,27 @@ class Container implements ContainerInterface
                 $paramName = $param->getName();
                 $paramType = $param->getType();
 
-                if (!$paramType)
+                if (!$paramType) {
                     throw new ParameterMissingTypeHintException(
                         'Failed to resolve dependency: "' . $id . '" because "' . $paramName . '" is missing a type hint!');
+                }
 
-                if ($paramType instanceof ReflectionUnionType)
+                if ($paramType instanceof ReflectionUnionType) {
                     throw new ParameterUnionTypeHintException(
                         'Failed to resolve dependency: "' . $id . '" because param"' . $paramName . '" has a union type hint!'
                     );
+                }
+
 
                 if ($paramType instanceof ReflectionNamedType) {
                     if ($paramType->isBuiltin()) {
-                        if ($param->isDefaultValueAvailable())
+                        if ($param->isDefaultValueAvailable()) {
                             $dependencies[] = $param->getDefaultValue();
-                        else
+                        } else {
                             throw new ParameterNoDefaultValueException(
                                 'Failed to resolve dependency: "' . $id . '" because invalid param"' . $paramName . '" (no default value)'
                             );
+                        }
                     } else {
                         $typeName = $paramType->getName();
 

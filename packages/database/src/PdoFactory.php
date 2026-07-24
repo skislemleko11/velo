@@ -20,10 +20,11 @@ class PdoFactory
         bool                         $pdoEmulatedPrepares = false
     ): PDO
     {
-        if (strtolower($sql) === 'sqlite')
+        if (strtolower($sql) === 'sqlite') {
             $dsn = "sqlite:$dbname";
-        else
+        } else {
             $dsn = "$sql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
+        }
 
         return new PDO($dsn, $username, $password, [
             PDO::ATTR_ERRMODE => $pdoErrorMode,

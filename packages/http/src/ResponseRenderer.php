@@ -10,19 +10,22 @@ class ResponseRenderer
         $this->setStatusCode($httpResponse->statusCode);
         $this->sendHeaders($httpResponse->headers);
 
-        if (isset($httpResponse->headers['Location']))
+        if (isset($httpResponse->headers['Location'])) {
             $this->terminate();
+        }
 
-        if ($httpResponse->viewPath)
+        if ($httpResponse->viewPath) {
             $this->renderView($httpResponse);
-        else
+        } else {
             $this->echoApiResponse($httpResponse);
+        }
     }
 
     public function sendHeaders(array $headers): void
     {
-        if (headers_sent())
+        if (headers_sent()) {
             return;
+        }
 
         foreach ($headers as $name => $value) {
             header("$name: $value");
@@ -51,14 +54,16 @@ class ResponseRenderer
 
     protected function setHeader(string $header): void
     {
-        if (!headers_sent())
+        if (!headers_sent()) {
             header($header);
+        }
     }
 
     protected function setStatusCode(int $statusCode): void
     {
-        if (!headers_sent())
+        if (!headers_sent()) {
             http_response_code($statusCode);
+        }
     }
 
     protected function terminate(): void

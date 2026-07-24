@@ -31,10 +31,11 @@ readonly class ExceptionHandler
 
         $this->cleanBuffer();
 
-        if (!headers_sent())
+        if (!headers_sent()) {
             $this->responseRenderer->render($this->returnResponse($throwable));
-        else
+        } else {
             echo 'Critical error occurred! Headers already sent!';
+        }
     }
 
     protected function logException(Throwable $throwable): void
@@ -45,8 +46,9 @@ readonly class ExceptionHandler
         }
 
         if ($throwable instanceof HttpExceptionInterface) {
-            if ($throwable->shouldLogException())
+            if ($throwable->shouldLogException()) {
                 $this->logger->error($throwable);
+            }
             return;
         }
 
@@ -62,8 +64,9 @@ readonly class ExceptionHandler
 
         $viewName = 'error' . $statusCode;
 
-        if (!$this->pathResolver->isFileRegistered($viewName))
+        if (!$this->pathResolver->isFileRegistered($viewName)) {
             $viewName = 'error500';
+        }
 
         return new HttpResponse($this->pathResolver->getFilePath($viewName), $statusCode);
     }
@@ -73,8 +76,9 @@ readonly class ExceptionHandler
      */
     public function createErrorException(int $severity, string $message, string $filename, int $line): false
     {
-        if (!(error_reporting() & $severity))
+        if (!(error_reporting() & $severity)) {
             return false;
+        }
 
         throw new ErrorException(
             message: $message,

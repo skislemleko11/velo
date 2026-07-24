@@ -19,19 +19,21 @@ readonly class WebGuestMiddleware implements MiddlewareInterface
     public function handle(
         HttpRequest $request,
         callable    $next,
-        string $redirectAuthenticatedUserTo = '/'
+        string      $redirectAuthenticatedUserTo = '/'
     ): HttpResponse
     {
-        if (isset($_SESSION['user_id']))
+        if (isset($_SESSION['user_id'])) {
             return $this->getResponseForAuthenticatedUser($request, $redirectAuthenticatedUserTo);
+        }
 
         return $next($request);
     }
 
     private function getResponseForAuthenticatedUser(HttpRequest $request, string $redirectUrl): HttpResponse
     {
-        if ($this->customResponseHandler)
+        if ($this->customResponseHandler) {
             return ($this->customResponseHandler)($request, $redirectUrl);
+        }
 
         return HttpResponse::redirect($redirectUrl);
     }

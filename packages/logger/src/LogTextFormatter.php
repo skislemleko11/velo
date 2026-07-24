@@ -34,8 +34,9 @@ class LogTextFormatter implements LogFormatter
             '%context%' => $contextString,
         ]);
 
-        if ($exceptionString != '')
+        if ($exceptionString != '') {
             $output .= $exceptionString . "\n";
+        }
 
         return $output . "\n";
     }
@@ -45,8 +46,9 @@ class LogTextFormatter implements LogFormatter
         $replace = [];
 
         foreach ($context as $key => $val) {
-            if (!is_array($val) && (!is_object($val) || method_exists($val, '__toString')))
+            if (!is_array($val) && (!is_object($val) || method_exists($val, '__toString'))) {
                 $replace['{' . $key . '}'] = (string)$val;
+            }
         }
 
         return strtr($message, $replace);

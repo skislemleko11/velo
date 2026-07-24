@@ -202,7 +202,7 @@ class ContainerTest extends TestCase
         $this->container->set(SimpleInterface::class, SimpleClass::class);
 
         $fromInterface = $this->container->get(SimpleInterface::class);
-        $fromConcrete  = $this->container->get(SimpleClass::class);
+        $fromConcrete = $this->container->get(SimpleClass::class);
 
         $this->assertSame($fromInterface, $fromConcrete);
     }

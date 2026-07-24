@@ -21,13 +21,15 @@ abstract class Controller
      */
     protected function returnResopnse(?string $viewName = null, array $data = [], int $responseCode = 200): HttpResponse
     {
-        if (!$viewName)
+        if (!$viewName) {
             return new HttpResponse(null, $responseCode, $data);
+        }
 
         $viewPath = $this->pathResolver->getDirPath('views') . $viewName . '.php';
 
-        if (file_exists($viewPath))
+        if (file_exists($viewPath)) {
             return new HttpResponse($viewPath, $responseCode, $data);
+        }
 
         throw new PageNotFoundException();
     }
