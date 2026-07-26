@@ -12,7 +12,10 @@ use Velo\Router\Exceptions\Interfaces\HttpExceptionInterface;
 use Velo\Router\PathResolver\Exceptions\PathNotFoundException;
 use Velo\Router\PathResolver\PathResolver;
 
-readonly class ExceptionHandler
+/**
+ * Throwable handler made for global throwable and error handling.
+ */
+readonly class ThrowableHandler
 {
     public function __construct(
         protected LoggerInterface  $logger,
@@ -23,9 +26,14 @@ readonly class ExceptionHandler
     }
 
     /**
+     * Handles the given Throwable.
+     *
+     * It logs exceptions if it's meant to be logged,
+     * cleans the buffer and renders aproperiate resopone using returnResponse method and ResponseRenderer render method.
+     *
      * @throws PathNotFoundException
      */
-    public function handleException(Throwable $throwable): void
+    public function handleThrowable(Throwable $throwable): void
     {
         $this->logException($throwable);
 
@@ -38,7 +46,13 @@ readonly class ExceptionHandler
         }
     }
 
-    protected function logException(Throwable $throwable): void
+    /**
+     * Logs Throwable if it's meant to be logged.
+     *
+     * Throwable is meant to be logged if it's an instance of ErrorException,
+     * or it's an instance of HttpExceptionInterface and shouldLogException() returns true
+     */
+    private function logException(Throwable $throwable): void
     {
         if ($throwable instanceof ErrorException) {
             $this->logger->error($throwable);
@@ -56,9 +70,11 @@ readonly class ExceptionHandler
     }
 
     /**
+     * Returns HttpResponse for the given Throwable.
+     *
      * @throws PathNotFoundException
      */
-    protected function returnResponse(Throwable $throwable): HttpResponse
+    private function returnResponse(Throwable $throwable): HttpResponse
     {
         $statusCode = $throwable instanceof HttpExceptionInterface ? $throwable->getStatusCode() : 500;
 
@@ -72,9 +88,13 @@ readonly class ExceptionHandler
     }
 
     /**
+     * Throws an ErrorException instance created from the given arguments.
+     *
+     * Returns false if error_reporting is not active for the given severity.
+     *
      * @throws ErrorException
      */
-    public function createErrorException(int $severity, string $message, string $filename, int $line): false
+    public function throwErrorException(int $severity, string $message, string $filename, int $line): false
     {
         if (!(error_reporting() & $severity)) {
             return false;
@@ -89,7 +109,10 @@ readonly class ExceptionHandler
         );
     }
 
-    protected function cleanBuffer(): void
+    /**
+     * Cleans the buffer to the top level.
+     */
+    private function cleanBuffer(): void
     {
         while (ob_get_level() > 0) {
             ob_end_clean();

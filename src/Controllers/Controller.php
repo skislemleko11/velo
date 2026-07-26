@@ -8,6 +8,9 @@ use Velo\Router\Exceptions\PageNotFoundException;
 use Velo\Router\PathResolver\Exceptions\PathNotFoundException;
 use Velo\Router\PathResolver\PathResolver;
 
+/**
+ * Controller is an abstract class which all Controllers should extend.
+ */
 abstract class Controller
 {
     public function __construct(protected readonly PathResolver $pathResolver)
@@ -16,6 +19,8 @@ abstract class Controller
     }
 
     /**
+     * Returns an HttpResponse with the specified view and data.
+     *
      * @throws PathNotFoundException
      * @throws PageNotFoundException
      */

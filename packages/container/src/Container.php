@@ -37,7 +37,8 @@ class Container implements ContainerInterface
      * Binds an alias/interface, a factory, or an instantiated object to the container.
      *
      * @param string $id Dependency ID - class name or alias/interface.
-     * @param object|callable|class-string $concrete Instance, factory function, or class name. Passing already instantiated objects is optimal only when You've already used it.
+     * @param object|callable|string $concrete Instance, factory function, or class name.
+     * Passing already instantiated objects is optimal only when You've already used it.
      * Don't create objects just to pass them, using functions (lazy loading) is way more efficient.
      */
     public function set(string $id, object|callable|string $concrete): void
@@ -114,7 +115,7 @@ class Container implements ContainerInterface
     }
 
     /**
-     * It resolves unbound dependency.
+     * It resolves an unbound dependency.
      *
      * @param string $id Dependency ID - class name or alias/interface.
      *

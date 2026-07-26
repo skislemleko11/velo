@@ -26,6 +26,9 @@ use Velo\Router\Router\Exceptions\NotFoundControllerException;
 use Velo\Router\Router\Exceptions\NotFoundMethodException;
 use Velo\Router\Router\Router;
 
+/**
+ * Runs the application.
+ */
 class App
 {
     use AddMiddlewaresTrait {
@@ -41,6 +44,8 @@ class App
     }
 
     /**
+     * Runs the application with the given HttpRequest.
+     *
      * @throws ContainerExceptionInterface
      * @throws InvalidParameterException
      * @throws IsNotInstantiableException
@@ -70,6 +75,8 @@ class App
     }
 
     /**
+     * Resolves the given HttpRequest, it uses Router's resolve method.
+     *
      * @throws NotFoundControllerException
      * @throws MustImplementMiddlewareInterfaceException
      * @throws NotFoundExceptionInterface
@@ -78,6 +85,7 @@ class App
      * @throws ContainerExceptionInterface
      * @throws PageNotFoundException
      * @throws ReflectionException
+     * @throws MiddlewareNotFoundException
      */
     private function resolve(HttpRequest $request): HttpResponse
     {
@@ -85,6 +93,8 @@ class App
     }
 
     /**
+     * Renders the given HttpResponse with ResponseRenderer's render method.
+     *
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
      * @throws InvalidParameterException
