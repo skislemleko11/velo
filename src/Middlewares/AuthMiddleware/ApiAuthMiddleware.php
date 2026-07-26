@@ -6,7 +6,7 @@ namespace Velo\Middlewares\AuthMiddleware;
 use Closure;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
-use Velo\Http\Interfaces\MiddlewareInterface;
+use Velo\Router\Middlewares\MiddlewareInterface;
 
 readonly class ApiAuthMiddleware implements MiddlewareInterface
 {

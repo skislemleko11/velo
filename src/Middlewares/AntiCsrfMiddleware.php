@@ -7,8 +7,8 @@ use Closure;
 use Random\RandomException;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
-use Velo\Http\Interfaces\MiddlewareInterface;
 use Velo\Middlewares\Exceptions\InvalidRequestMethodMiddlewareException;
+use Velo\Router\Middlewares\MiddlewareInterface;
 use Velo\Router\PathResolver\Exceptions\PathNotFoundException;
 use Velo\Router\PathResolver\PathResolver;
 

@@ -7,7 +7,6 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionException;
-use Velo\Container\Container;
 use Velo\Container\Exceptions\InvalidParameterExceptions\InvalidParameterException;
 use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterIntersectionTypeHintException;
 use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterMissingTypeHintException;
@@ -16,9 +15,9 @@ use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterUnionTypeHintE
 use Velo\Container\Exceptions\IsNotInstantiableException;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
-use Velo\Http\Interfaces\MiddlewareInterface;
 use Velo\Http\ResponseRenderer;
 use Velo\Router\Exceptions\PageNotFoundException;
+use Velo\Router\Middlewares\AddMiddlewaresTrait;
 use Velo\Router\Pipeline\Exceptions\ControllerMethodInvalidReturnTypeException;
 use Velo\Router\Pipeline\Exceptions\MiddlewareNotFoundException;
 use Velo\Router\Pipeline\Exceptions\MustImplementMiddlewareInterfaceException;
@@ -29,7 +28,10 @@ use Velo\Router\Router\Router;
 
 class App
 {
-    private array $globalMiddlewares = [];
+    use AddMiddlewaresTrait {
+        addMiddleware as addGlobalMiddleware;
+        addMiddlewares as addGlobalMiddlewares;
+    }
 
     public function __construct(
         private readonly Router             $router,
@@ -38,15 +40,7 @@ class App
     {
     }
 
-    public function addGlobalMiddleware(MiddlewareInterface|string|array $middleware): self
-    {
-        $this->globalMiddlewares[] = $middleware;
-        return $this;
-    }
-
     /**
-     * @param HttpRequest $request
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws InvalidParameterException
      * @throws IsNotInstantiableException
@@ -68,7 +62,7 @@ class App
 
         $response = $pipeline->executeMiddlewaresChain(
             $request,
-            $this->globalMiddlewares,
+            $this->middlewares,
             fn() => $this->resolve($request)
         );
 
@@ -91,8 +85,6 @@ class App
     }
 
     /**
-     * @param HttpResponse $response
-     * @return void
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
      * @throws InvalidParameterException

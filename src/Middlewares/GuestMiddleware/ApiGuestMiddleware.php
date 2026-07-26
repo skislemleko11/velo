@@ -6,7 +6,7 @@ namespace Velo\Middlewares\GuestMiddleware;
 use Closure;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
-use Velo\Http\Interfaces\MiddlewareInterface;
+use Velo\Router\Middlewares\MiddlewareInterface;
 
 readonly class ApiGuestMiddleware implements MiddlewareInterface
 {

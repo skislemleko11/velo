@@ -8,6 +8,9 @@ use Stringable;
 use InvalidArgumentException;
 use Velo\Logger\Interfaces\LogFormatter;
 
+/**
+ * Basic Logger following Psr\Log\LoggerInterface.
+ */
 class Logger extends AbstractLogger
 {
     public function __construct(
@@ -17,6 +20,11 @@ class Logger extends AbstractLogger
     {
     }
 
+    /**
+     * Logs a message with context at the given level.
+     *
+     * @param string $level should be a value from Psr\Log\LogLevel or eventaully custom defined log level.
+     */
     public function log($level, string|Stringable $message, array $context = []): void
     {
         if (!is_string($level) && !($level instanceof Stringable)) {
@@ -28,6 +36,9 @@ class Logger extends AbstractLogger
         $this->write($formattedMessage);
     }
 
+    /**
+     * Writes message to the log file, creates log directory if it doesn't exist.
+     */
     protected function write(string $message): void
     {
         $dir = dirname($this->logFilePath);

@@ -7,7 +7,7 @@ use Closure;
 use Psr\Log\LoggerInterface;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
-use Velo\Http\Interfaces\MiddlewareInterface;
+use Velo\Router\Middlewares\MiddlewareInterface;
 
 readonly class RequestLoggerMiddleware implements MiddlewareInterface
 {
@@ -31,7 +31,7 @@ readonly class RequestLoggerMiddleware implements MiddlewareInterface
 
     private function logRequestWithLogger(HttpRequest $request): void
     {
-        $this->logger->info('Request', [
+        $this->logger->info("Request:\nUrl: {url}\nMethod: {method}", [
             'url' => $request->url,
             'method' => $request->method,
         ]);

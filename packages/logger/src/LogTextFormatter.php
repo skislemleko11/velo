@@ -7,10 +7,19 @@ use DateTimeImmutable;
 use Throwable;
 use Velo\Logger\Interfaces\LogFormatter;
 
+/**
+ * Basic text log formatter for Logger Class.
+ */
 class LogTextFormatter implements LogFormatter
 {
-    protected string $format = "[%datetime%] [%level%] %message% %context%\n";
+    protected const string FORMAT = "[%datetime%] [%level%] %message%\n%context%\n";
+    protected const string THROWABLE_FORMAT = "--- Stack Trace: %s: %s in %s:%d\n%s";
 
+    /**
+     * Formats a log message with the given level, message, and context.
+     *
+     * @param string $level should be a value from Psr\Log\LogLevel or eventaully custom defined log level.
+     */
     public function format(string $level, string $message, array $context = []): string
     {
         $datetime = new DateTimeImmutable()->format('Y-m-d H:i:s.v');
@@ -24,10 +33,10 @@ class LogTextFormatter implements LogFormatter
         $messageString = $this->interpolate($message, $context);
 
         $contextString = !empty($context)
-            ? json_encode($context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+            ? json_encode($context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR)
             : '';
 
-        $output = strtr($this->format, [
+        $output = strtr(self::FORMAT, [
             '%datetime%' => $datetime,
             '%level%' => strtoupper($level),
             '%message%' => $messageString,
@@ -41,7 +50,10 @@ class LogTextFormatter implements LogFormatter
         return $output . "\n";
     }
 
-    protected function interpolate(string $message, array $context): string
+    /**
+     * Replaces placeholders in the message with context values.
+     */
+    private function interpolate(string $message, array $context): string
     {
         $replace = [];
 
@@ -54,10 +66,13 @@ class LogTextFormatter implements LogFormatter
         return strtr($message, $replace);
     }
 
-    protected function formatThrowable(Throwable $exception): string
+    /**
+     * Universally formats Throwable.
+     */
+    private function formatThrowable(Throwable $exception): string
     {
         return sprintf(
-            "--- Stack Trace: %s: %s in %s:%d\n%s",
+            self::THROWABLE_FORMAT,
             get_class($exception),
             $exception->getMessage(),
             $exception->getFile(),

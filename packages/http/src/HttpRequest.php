@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace Velo\Http;
 
+/**
+ * Represents an HTTP request.
+ */
 readonly class HttpRequest
 {
     public string $url;
@@ -17,16 +20,25 @@ readonly class HttpRequest
         $this->method = strtoupper($method);
     }
 
-    public function getPostArg(string $key, $default = null): mixed
+    /**
+     * Gets POST key, returns default value if the key is not set.
+     */
+    public function getPostArg(string $key, mixed $default = null): mixed
     {
         return $_POST[$key] ?? $default;
     }
 
+    /**
+     * Returns $_POST superglobal.
+     */
     public function getPostData(): array
     {
         return $_POST;
     }
 
+    /**
+     * Creates an instance of HttpRequest from global variables.
+     */
     public static function fromGlobals(): self
     {
         return new self(

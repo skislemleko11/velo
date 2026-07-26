@@ -3,8 +3,14 @@ declare(strict_types=1);
 
 namespace Velo\Http;
 
+/**
+ * Renders HttpResponses.
+ */
 class ResponseRenderer
 {
+    /**
+     * Renders the given HttpResponse.
+     */
     public function render(HttpResponse $httpResponse): void
     {
         $this->setStatusCode($httpResponse->statusCode);
@@ -21,7 +27,10 @@ class ResponseRenderer
         }
     }
 
-    public function sendHeaders(array $headers): void
+    /**
+     * Sends HTTP headers from the given array of headers.
+     */
+    private function sendHeaders(array $headers): void
     {
         if (headers_sent()) {
             return;
@@ -32,19 +41,28 @@ class ResponseRenderer
         }
     }
 
+    /**
+     * Renders the view for the given HttpResponse.
+     */
     protected function renderView(HttpResponse $httpResponse): void
     {
         // creating a copy cuz it doesn't work with readonly properties
-        $this->requireView($httpResponse->viewPath, $httpResponse->data + []);
+        $this->extractDataAndRequireView($httpResponse->viewPath, $httpResponse->data + []);
         $this->terminate();
     }
 
-    protected function requireView(string $viewPathToRequireLongNameToAvoidCollison, array $data): void
+    /**
+     * Extracts data and requires the view.
+     */
+    protected function extractDataAndRequireView(string $viewPathToRequireLongNameToAvoidCollison, array $data): void
     {
         extract($data, EXTR_SKIP);
         require $viewPathToRequireLongNameToAvoidCollison;
     }
 
+    /**
+     * Sets headers and echos JSON response.
+     */
     protected function echoApiResponse(HttpResponse $httpResponse): void
     {
         $this->setHeader('Content-Type: application/json');
@@ -52,6 +70,9 @@ class ResponseRenderer
         $this->terminate();
     }
 
+    /**
+     * Sets header if it's not set.
+     */
     protected function setHeader(string $header): void
     {
         if (!headers_sent()) {
@@ -59,6 +80,9 @@ class ResponseRenderer
         }
     }
 
+    /**
+     * Sets status code if headers are not sent.
+     */
     protected function setStatusCode(int $statusCode): void
     {
         if (!headers_sent()) {
@@ -66,6 +90,9 @@ class ResponseRenderer
         }
     }
 
+    /**
+     * Terminates the script.
+     */
     protected function terminate(): void
     {
         exit;

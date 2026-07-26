@@ -6,6 +6,9 @@ namespace Velo\Database;
 use PDO, PDOStatement;
 use Velo\Database\Interfaces\DatabaseInterface;
 
+/**
+ * Facade for PDO.
+ */
 readonly class Database implements DatabaseInterface
 {
     public function __construct(protected PDO $pdo)

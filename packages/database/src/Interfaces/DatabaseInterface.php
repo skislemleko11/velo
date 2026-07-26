@@ -5,6 +5,9 @@ namespace Velo\Database\Interfaces;
 
 use PDO, PDOStatement;
 
+/**
+ * Database Interface forcing basic features implementation.
+ */
 interface DatabaseInterface
 {
     public function getPDO(): PDO;

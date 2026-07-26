@@ -6,12 +6,13 @@ namespace Velo\Tests\Core;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use Velo\Container\Container;
 use Velo\Core\App;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
-use Velo\Http\Interfaces\MiddlewareInterface;
 use Velo\Http\ResponseRenderer;
+use Velo\Router\Middlewares\MiddlewareInterface;
 use Velo\Router\Pipeline\Pipeline;
 use Velo\Router\Router\Router;
 
@@ -40,6 +41,13 @@ class AppTest extends TestCase
                     default => null,
                 };
             });
+    }
+
+    private function getProperty(object $obj, string $property): mixed
+    {
+        $reflection = new ReflectionClass($obj);
+        $property = $reflection->getProperty($property);
+        return $property->getValue($obj);
     }
 
     #[Test]

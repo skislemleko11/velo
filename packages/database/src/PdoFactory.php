@@ -4,10 +4,17 @@ declare(strict_types=1);
 namespace Velo\Database;
 
 use PDO;
+use PDOException;
 use SensitiveParameter;
 
+/**
+ * Little PDO Factory for easier and faster PDO creation.
+ */
 class PdoFactory
 {
+    /**
+     * @throws PDOException
+     */
     public static function create(
         string                       $host = 'localhost',
         string                       $sql = 'mysql',

@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace Velo\Http;
 
+/**
+ * Represents an HTTP Response.
+ */
 readonly class HttpResponse
 {
     public function __construct(
@@ -14,6 +17,9 @@ readonly class HttpResponse
     {
     }
 
+    /**
+     * Returns a redirect response.
+     */
     public static function redirect(string $url, int $statuCode = 302): self
     {
         return new self(

@@ -18,6 +18,9 @@ use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterNoDefaultValue
 use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterUnionTypeHintException;
 use Velo\Container\Exceptions\IsNotInstantiableException;
 
+/**
+ * Dependency Injection Container
+ */
 class Container implements ContainerInterface
 {
     /**
@@ -31,17 +34,14 @@ class Container implements ContainerInterface
     private array $instances = [];
 
     /**
-     * Binds a service, factory, or instantiated object to the container.
+     * Binds an alias/interface, a factory, or an instantiated object to the container.
      *
-     * @param string $id Service class name or interface identifier.
-     * @param object|callable|class-string $concrete Instance, factory function, or class name.
-     *
-     * @note Passing already instantiated objects is optimal only when You've already used it.
+     * @param string $id Dependency ID - class name or alias/interface.
+     * @param object|callable|class-string $concrete Instance, factory function, or class name. Passing already instantiated objects is optimal only when You've already used it.
      * Don't create objects just to pass them, using functions (lazy loading) is way more efficient.
      */
     public function set(string $id, object|callable|string $concrete): void
     {
-
         if (is_object($concrete) && !$concrete instanceof Closure) {
             $this->instances[$id] = $concrete;
             unset($this->entries[$id]);
@@ -52,9 +52,8 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Givent the id, it gets an aproperiate object.
-     * @param string $id
-     * @return mixed
+     * It gets an object of the requested id.
+     *
      * @throws InvalidParameterException
      * @throws IsNotInstantiableException
      * @throws NotFoundExceptionInterface
@@ -64,7 +63,7 @@ class Container implements ContainerInterface
      * @throws ParameterUnionTypeHintException
      * @throws ReflectionException
      */
-    public function get(string $id): mixed
+    public function get(string $id): object
     {
         if (isset($this->instances[$id]))
             return $this->instances[$id];
@@ -106,8 +105,8 @@ class Container implements ContainerInterface
 
     /**
      * Checks if the given id is set in entries or instances arrays.
-     * @param string $id
-     * @return bool
+     *
+     * @param string $id Dependency ID - class name or alias/interface.
      */
     public function has(string $id): bool
     {
@@ -115,9 +114,10 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Resolves the dependency with the given id.
-     * @param string $id
-     * @return object
+     * It resolves unbound dependency.
+     *
+     * @param string $id Dependency ID - class name or alias/interface.
+     *
      * @throws InvalidParameterException
      * @throws IsNotInstantiableException
      * @throws NotFoundExceptionInterface
