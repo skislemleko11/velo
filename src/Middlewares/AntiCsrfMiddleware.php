@@ -12,8 +12,18 @@ use Velo\Router\Middlewares\MiddlewareInterface;
 use Velo\Router\PathResolver\Exceptions\PathNotFoundException;
 use Velo\Router\PathResolver\PathResolver;
 
+/**
+ * Protects against CSRF attacks.
+ *
+ * Anti CSRF protection is based on sessions and tokens.
+ * Anti CSRF token is stored in $_SESSION['csrf_token'].
+ * The token in the POST form should be called 'csrf_token'.
+ */
 readonly class AntiCsrfMiddleware implements MiddlewareInterface
 {
+    /**
+     * @param Closure|null $customResponseHandler Closure should take 1 argument - HttpRequest request.
+     */
     public function __construct(
         private PathResolver $pathResolver,
         private ?Closure     $customResponseHandler = null,
@@ -22,6 +32,12 @@ readonly class AntiCsrfMiddleware implements MiddlewareInterface
     }
 
     /**
+     * Handles the given HttpRequest.
+     *
+     * You cannot use it with GET method, it will result in InvalidRequestMethodMiddlewareException.
+     * If the CSRF token is invalid, it will be regenerated and the result of getInvalidTokenResponse(request) will be returned.
+     * If the CSRF token is valid, the request will be passed to the next middleware.
+     *
      * @throws PathNotFoundException
      * @throws RandomException
      * @throws InvalidRequestMethodMiddlewareException
@@ -46,6 +62,10 @@ readonly class AntiCsrfMiddleware implements MiddlewareInterface
     }
 
     /**
+     * Returns the HttpResponse for an invalid CSRF token.
+     * Uses custom handler if provided,
+     * otherwise returns the HttpResponse with viewPath: error403, statusCode: 403 and data: ['error' => 'Invalid anti CSRF token!']
+     *
      * @throws PathNotFoundException
      */
     private function getInvalidTokenResponse(HttpRequest $request): HttpResponse
