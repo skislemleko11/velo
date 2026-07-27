@@ -9,7 +9,7 @@ use Velo\Http\HttpResponse;
 use Velo\Router\Middlewares\MiddlewareInterface;
 
 /**
- * Auth Middleware for API.
+ * Auth Middleware for API. It's the opposite of ApiGuestMiddleware.
  *
  * Authentication is handled with session-based User IDs.
  * User ID is stored in $_SESSION['user_id'].
@@ -26,10 +26,8 @@ readonly class ApiAuthMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Handles the given HttpRequest - if the user is authenticated (with user_id in $_SESSION), returns the result of next(request),
-     * otherwise, calls getUnauthenticatedResponse(request, responseForUnauthenticatedUser).
-     *
-     * @param callable $next Should take HttpRequest.
+     * Handles the given HttpRequest - if the user is authenticated (with 'user_id' in $_SESSION), returns the result of next(request),
+     * otherwise, calls getResponseForUnauthenticatedUser(request, responseForUnauthenticatedUser).
      */
     public function handle(
         HttpRequest $request,
@@ -38,7 +36,7 @@ readonly class ApiAuthMiddleware implements MiddlewareInterface
     ): HttpResponse
     {
         if (!isset($_SESSION['user_id'])) {
-            return $this->getUnauthenticatedResponse($request, $responseForUnauthenticatedUser);
+            return $this->getResponseForUnauthenticatedUser($request, $responseForUnauthenticatedUser);
         }
 
         return $next($request);
@@ -50,7 +48,7 @@ readonly class ApiAuthMiddleware implements MiddlewareInterface
      * Returns customResponseHandler(request, response) if provided in constructor,
      * otherwise returns the HttpResponse with statusCode: 401 and data: response.
      */
-    private function getUnauthenticatedResponse(HttpRequest $request, array $response): HttpResponse
+    private function getResponseForUnauthenticatedUser(HttpRequest $request, array $response): HttpResponse
     {
         if ($this->customResponseHandler) {
             return ($this->customResponseHandler)($request, $response);

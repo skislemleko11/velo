@@ -9,7 +9,7 @@ use Velo\Http\HttpResponse;
 use Velo\Router\Middlewares\MiddlewareInterface;
 
 /**
- * Auth Middleware for Web.
+ * Auth Middleware for Web. It's the opposite of WebGuestMiddleware.
  *
  * Authentication is handled with session-based User IDs.
  * User ID is stored in $_SESSION['user_id'].
@@ -26,10 +26,8 @@ readonly class WebAuthMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Handles the given HttpRequest - if the user is authenticated (with user_id in $_SESSION), returns the result of next(request),
-     * otherwise, calls getUnauthenticatedResponse(request, redirectUnauthenticatedUserTo).
-     *
-     * @param callable $next Should take HttpRequest.
+     * Handles the given HttpRequest - if the user is authenticated (with 'user_id' in $_SESSION), returns the result of next(request),
+     * otherwise, calls getResponseForUnauthenticatedUser(request, redirectUnauthenticatedUserTo).
      */
     public function handle(
         HttpRequest $request,
@@ -49,6 +47,7 @@ readonly class WebAuthMiddleware implements MiddlewareInterface
      *
      * Returns customResponseHandler(request, redirectUrl) if provided in constructor,
      * otherwise returns the HttpResponse::redirect(redirectUrl) result.
+     * Sets 'redirect_after_login' in $_SESSION to request->url for redirecting after successful login.
      */
     private function getResponseForUnauthenticatedUser(HttpRequest $request, string $redirectUrl): HttpResponse
     {
