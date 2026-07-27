@@ -8,14 +8,29 @@ use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
 use Velo\Router\Middlewares\MiddlewareInterface;
 
+/**
+ * Auth Middleware for API.
+ *
+ * Authentication is handled with session-based User IDs.
+ * User ID is stored in $_SESSION['user_id'].
+ */
 readonly class ApiAuthMiddleware implements MiddlewareInterface
 {
+    /**
+     * @param Closure|null $customResponseHandler Closure should take 2 arguments - HttpRequest request and array response.
+     */
     public function __construct(
         private ?Closure $customResponseHandler = null,
     )
     {
     }
 
+    /**
+     * Handles the given HttpRequest - if the user is authenticated (with user_id in $_SESSION), returns the result of next(request),
+     * otherwise, calls getUnauthenticatedResponse(request, responseForUnauthenticatedUser).
+     *
+     * @param callable $next Should take HttpRequest.
+     */
     public function handle(
         HttpRequest $request,
         callable    $next,
@@ -29,6 +44,12 @@ readonly class ApiAuthMiddleware implements MiddlewareInterface
         return $next($request);
     }
 
+    /**
+     * Returns the HttpResponse for an unauthenticated user.
+     *
+     * Returns customResponseHandler(request, response) if provided in constructor,
+     * otherwise returns the HttpResponse with statusCode: 401 and data: response.
+     */
     private function getUnauthenticatedResponse(HttpRequest $request, array $response): HttpResponse
     {
         if ($this->customResponseHandler) {

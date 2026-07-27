@@ -18,7 +18,7 @@ class LogTextFormatter implements LogFormatter
     /**
      * Formats a log message with the given level, message, and context.
      *
-     * @param string $level should be a value from Psr\Log\LogLevel or eventaully custom defined log level.
+     * @param string $level Should be a value from Psr\Log\LogLevel or eventaully custom defined log level.
      */
     public function format(string $level, string $message, array $context = []): string
     {

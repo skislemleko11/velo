@@ -23,7 +23,7 @@ class Logger extends AbstractLogger
     /**
      * Logs a message with context at the given level.
      *
-     * @param string $level should be a value from Psr\Log\LogLevel or eventaully custom defined log level.
+     * @param string $level Should be a value from Psr\Log\LogLevel or eventaully custom defined log level.
      */
     public function log($level, string|Stringable $message, array $context = []): void
     {
