@@ -25,7 +25,7 @@ class ControllerTest extends TestCase
         $this->controller = new class($this->pathResolverMock) extends Controller {
             public function triggerResponse(?string $view, int $statusCode = 200, array $data = []): HttpResponse
             {
-                return $this->returnResopnse($view, $data, $statusCode);
+                return $this->returnResponse($view, $data, $statusCode);
             }
         };
     }

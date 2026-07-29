@@ -24,7 +24,7 @@ abstract class Controller
      * @throws PathNotFoundException
      * @throws PageNotFoundException
      */
-    protected function returnResopnse(?string $viewName = null, array $data = [], int $responseCode = 200): HttpResponse
+    protected function returnResponse(?string $viewName = null, array $data = [], int $responseCode = 200): HttpResponse
     {
         if (!$viewName) {
             return new HttpResponse(null, $responseCode, $data);

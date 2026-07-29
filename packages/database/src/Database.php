@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Velo\Database;
 
+use Generator;
 use PDO, PDOStatement;
 use Velo\Database\Interfaces\DatabaseInterface;
 
@@ -47,6 +48,20 @@ readonly class Database implements DatabaseInterface
         $stmt->execute($params);
 
         return $stmt->fetchAll();
+    }
+
+    public function fetchAllLazy(string $query, array $params = []): Generator
+    {
+        $stmt = $this->prepare($query);
+        $stmt->execute($params);
+
+        try {
+            foreach ($stmt as $row) {
+                yield $row;
+            }
+        } finally { // Needed for unbuffered queries if used
+            $stmt->closeCursor();
+        }
     }
 
     public function beginTransaction(): bool

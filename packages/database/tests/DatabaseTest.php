@@ -67,11 +67,27 @@ class DatabaseTest extends TestCase
     #[Test]
     public function it_fetches_and_returns_multiple_rows(): void
     {
-        $result = $this->db->fetchAll("SELECT * FROM users ORDER BY id");
+        $result = $this->db->fetchAll("SELECT name FROM users ORDER BY id");
 
         $this->assertCount(2, $result);
         $this->assertSame('Jan Kowalski', $result[0]['name']);
         $this->assertSame('Anna Nowak', $result[1]['name']);
+    }
+
+    #[Test]
+    public function it_fetches_lazy(): void
+    {
+        $result = $this->db->fetchAllLazy("SELECT name FROM users ORDER BY id");
+
+        $resArr = [];
+
+        foreach ($result as $row) {
+            $resArr[] = $row;
+        }
+
+        $this->assertCount(2, $resArr);
+        $this->assertSame('Jan Kowalski', $resArr[0]['name']);
+        $this->assertSame('Anna Nowak', $resArr[1]['name']);
     }
 
     #[Test]
