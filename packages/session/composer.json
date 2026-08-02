@@ -1,6 +1,6 @@
 {
   "name": "skislemleko11/velo-session",
-  "description": "Session component for Velo framework",
+  "description": "Session package for Velo framework",
   "type": "library",
   "license": "LGPL-3.0",
   "minimum-stability": "dev",

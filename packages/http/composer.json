@@ -1,6 +1,6 @@
 {
   "name": "skislemleko11/velo-http",
-  "description": "HTTP component for Velo framework",
+  "description": "HTTP package for Velo framework",
   "type": "library",
   "license": "LGPL-3.0",
   "require": {

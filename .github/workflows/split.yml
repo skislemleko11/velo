@@ -28,6 +28,8 @@ jobs:
             split_repository: 'velo-logger'
           - local_path: 'router'
             split_repository: 'velo-router'
+          - local_path: 'session'
+            split_repository: 'velo-session'
 
     steps:
       - uses: actions/checkout@v4
