@@ -3,58 +3,118 @@ declare(strict_types=1);
 
 namespace Velo\Http\Tests;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Velo\Http\ResponseRenderer;
+use RuntimeException;
+use Velo\Http\Emitter\Interfaces\EmitterInterface;
 use Velo\Http\HttpResponse;
+use Velo\Http\ResponseRenderer;
+use Velo\Session\FlashMessages\Interfaces\FlashMessagesInterface;
+use Velo\Session\Session\Interfaces\SessionInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 class ResponseRendererTest extends TestCase
 {
-    #[Test]
-    public function it_echos_json_response_sets_headers_and_response_code(): void
+    private SessionInterface $sessionMock;
+    private EmitterInterface $emitterMock;
+    private ResponseRenderer $renderer;
+
+    protected function setUp(): void
     {
-        $response = new HttpResponse(null, 300, ['test' => 'correct']);
+        $this->sessionMock = $this->createMock(SessionInterface::class);
+        $flashMessagesMock = $this->createMock(FlashMessagesInterface::class);
+        $this->emitterMock = $this->createMock(EmitterInterface::class);
 
-        $renderer = $this->getMockBuilder(ResponseRenderer::class)
-            ->onlyMethods(['terminate', 'setHeader', 'setStatusCode'])
-            ->getMock();
-
-        $renderer->expects(self::once())
-            ->method('terminate');
-        $renderer->expects(self::once())
-            ->method('setHeader')
-            ->with('Content-Type: application/json');
-        $renderer->expects(self::once())
-            ->method('setStatusCode')
-            ->with(300);
-
-        $this->expectOutputString(json_encode(['test' => 'correct']));
-
-        $renderer->render($response);
+        $this->renderer = new ResponseRenderer(
+            emitter: $this->emitterMock,
+            session: $this->sessionMock,
+            flashMessages: $flashMessagesMock
+        );
     }
 
     #[Test]
-    public function it_renders_view_extracts_variables_and_sets_response_code(): void
+    public function it_renders_json_response_when_no_view_path_provided(): void
     {
-        $filename = 'ResponseRendererTest_testfile.txt';
-        $response = new HttpResponse($filename, 200, ['test' => 'correct']);
+        $response = new HttpResponse(
+            statusCode: 200,
+            data: ['status' => 'success', 'code' => 200]
+        );
 
-        $renderer = $this->getMockBuilder(ResponseRenderer::class)
-            ->onlyMethods(['terminate', 'setStatusCode'])
-            ->getMock();
+        $this->emitterMock
+            ->expects($this->once())
+            ->method('sendHeader')
+            ->with('Content-Type', 'application/json');
 
+        $this->emitterMock
+            ->expects($this->once())
+            ->method('terminate')
+            ->willThrowException(new RuntimeException('Terminated'));
 
-        $renderer->expects(self::once())
-            ->method('terminate');
-        $renderer->expects(self::once())
-            ->method('setStatusCode')
-            ->with(200);
-        $this->expectOutputString('hehe');
+        ob_start();
+        try {
+            $this->renderer->render($response);
+        } catch (RuntimeException $e) {
+            $this->assertEquals('Terminated', $e->getMessage());
+        }
+        $output = ob_get_clean();
 
-        file_put_contents($filename, 'hehe');
+        $this->assertJsonStringEqualsJsonString(
+            json_encode(['status' => 'success', 'code' => 200]),
+            $output
+        );
+    }
 
-        $renderer->render($response);
+    #[Test]
+    public function it_renders_view_and_passes_session_and_flash_messages(): void
+    {
+        $tempView = sys_get_temp_dir() . '/test_view_' . uniqid() . '.php';
+        file_put_contents(
+            $tempView,
+            '<?php echo "Hello " . $name . "! Session class: " . get_class($session); ?>'
+        );
 
-        unlink($filename);
+        $response = new HttpResponse(
+            viewPath: $tempView,
+            data: ['name' => 'John']
+        );
+
+        $this->emitterMock
+            ->expects($this->once())
+            ->method('terminate')
+            ->willThrowException(new RuntimeException('Terminated'));
+
+        ob_start();
+        try {
+            $this->renderer->render($response);
+        } catch (RuntimeException $e) {
+            $this->assertEquals('Terminated', $e->getMessage());
+        }
+        $output = ob_get_clean();
+
+        unlink($tempView);
+
+        $this->assertStringContainsString('Hello John!', $output);
+        $this->assertStringContainsString(get_class($this->sessionMock), $output);
+    }
+
+    #[Test]
+    public function it_terminates_immediately_on_redirect_header(): void
+    {
+        $response = new HttpResponse(
+            statusCode: 302,
+            headers: ['Location' => '/login']
+        );
+
+        $this->emitterMock
+            ->expects($this->once())
+            ->method('terminate')
+            ->willThrowException(new RuntimeException('Terminated'));
+
+        try {
+            $this->renderer->render($response);
+        } catch (RuntimeException $e) {
+            $this->assertEquals('Terminated', $e->getMessage());
+        }
     }
 }

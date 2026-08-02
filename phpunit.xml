@@ -27,5 +27,8 @@
         <testsuite name="Router Test Suite">
             <directory>packages/router/tests</directory>
         </testsuite>
+        <testsuite name="Session Test Suite">
+            <directory>packages/session/tests</directory>
+        </testsuite>
     </testsuites>
 </phpunit>

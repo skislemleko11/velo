@@ -18,7 +18,8 @@
       "Velo\\Database\\": "packages/database/src/",
       "Velo\\Http\\": "packages/http/src/",
       "Velo\\Logger\\": "packages/logger/src/",
-      "Velo\\Router\\": "packages/router/src/"
+      "Velo\\Router\\": "packages/router/src/",
+      "Velo\\Session\\": "packages/session/src/"
     }
   },
   "require-dev": {
@@ -33,6 +34,7 @@
       "Velo\\Http\\Tests\\": "packages/http/tests/",
       "Velo\\Logger\\Tests\\": "packages/logger/tests/",
       "Velo\\Router\\Tests\\": "packages/router/tests/",
+      "Velo\\Session\\Tests\\": "packages/session/tests/",
 
       "Velo\\Playground\\": "playground/src/"
     }

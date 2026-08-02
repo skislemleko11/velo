@@ -105,7 +105,7 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Checks if the given id is set in entries or instances arrays.
+     * Checks if the given ID is set in entries or instances arrays.
      *
      * @param string $id Dependency ID - class name or alias/interface.
      */
