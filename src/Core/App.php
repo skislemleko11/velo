@@ -8,10 +8,10 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionException;
 use Velo\Container\Exceptions\InvalidParameterExceptions\InvalidParameterException;
-use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterIntersectionTypeHintException;
-use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterMissingTypeHintException;
+use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterIntersectionTypeException;
+use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterMissingTypeDeclarationException;
 use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterNoDefaultValueException;
-use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterUnionTypeHintException;
+use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterUnionTypeException;
 use Velo\Container\Exceptions\IsNotInstantiableException;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
@@ -52,10 +52,10 @@ class App
      * @throws MiddlewareNotFoundException
      * @throws MustImplementMiddlewareInterfaceException
      * @throws NotFoundExceptionInterface
-     * @throws ParameterIntersectionTypeHintException
-     * @throws ParameterMissingTypeHintException
+     * @throws ParameterIntersectionTypeException
+     * @throws ParameterMissingTypeDeclarationException
      * @throws ParameterNoDefaultValueException
-     * @throws ParameterUnionTypeHintException
+     * @throws ParameterUnionTypeException
      * @throws ReflectionException
      */
     public function run(HttpRequest $request): void
@@ -98,10 +98,10 @@ class App
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
      * @throws InvalidParameterException
-     * @throws ParameterIntersectionTypeHintException
-     * @throws ParameterMissingTypeHintException
+     * @throws ParameterIntersectionTypeException
+     * @throws ParameterMissingTypeDeclarationException
      * @throws ParameterNoDefaultValueException
-     * @throws ParameterUnionTypeHintException
+     * @throws ParameterUnionTypeException
      * @throws IsNotInstantiableException
      */
     private function renderResponse(HttpResponse $response): void

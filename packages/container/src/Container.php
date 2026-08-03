@@ -12,10 +12,10 @@ use ReflectionIntersectionType;
 use ReflectionNamedType;
 use ReflectionUnionType;
 use Velo\Container\Exceptions\InvalidParameterExceptions\InvalidParameterException;
-use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterIntersectionTypeHintException;
-use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterMissingTypeHintException;
+use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterIntersectionTypeException;
+use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterMissingTypeDeclarationException;
 use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterNoDefaultValueException;
-use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterUnionTypeHintException;
+use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterUnionTypeException;
 use Velo\Container\Exceptions\IsNotInstantiableException;
 
 /**
@@ -58,10 +58,10 @@ class Container implements ContainerInterface
      * @throws InvalidParameterException
      * @throws IsNotInstantiableException
      * @throws NotFoundExceptionInterface
-     * @throws ParameterIntersectionTypeHintException
-     * @throws ParameterMissingTypeHintException
+     * @throws ParameterIntersectionTypeException
+     * @throws ParameterMissingTypeDeclarationException
      * @throws ParameterNoDefaultValueException
-     * @throws ParameterUnionTypeHintException
+     * @throws ParameterUnionTypeException
      * @throws ReflectionException
      */
     public function get(string $id): object
@@ -122,10 +122,10 @@ class Container implements ContainerInterface
      * @throws InvalidParameterException
      * @throws IsNotInstantiableException
      * @throws NotFoundExceptionInterface
-     * @throws ParameterIntersectionTypeHintException
-     * @throws ParameterMissingTypeHintException
+     * @throws ParameterIntersectionTypeException
+     * @throws ParameterMissingTypeDeclarationException
      * @throws ParameterNoDefaultValueException
-     * @throws ParameterUnionTypeHintException
+     * @throws ParameterUnionTypeException
      * @throws ReflectionException
      */
     private function resolve(string $id): object
@@ -150,16 +150,16 @@ class Container implements ContainerInterface
                 $paramType = $param->getType();
 
                 if (!$paramType) {
-                    throw new ParameterMissingTypeHintException(
-                        'Failed to resolve dependency: "' . $id . '" because "' . $paramName . '" is missing a type hint!');
-                }
-
-                if ($paramType instanceof ReflectionUnionType) {
-                    throw new ParameterUnionTypeHintException(
-                        'Failed to resolve dependency: "' . $id . '" because param"' . $paramName . '" has a union type hint!'
+                    throw new ParameterMissingTypeDeclarationException(
+                        'Failed to resolve dependency: "' . $id . '" because "' . $paramName . '" is missing a type declaration!'
                     );
                 }
 
+                if ($paramType instanceof ReflectionUnionType) {
+                    throw new ParameterUnionTypeException(
+                        'Failed to resolve dependency: "' . $id . '" because param"' . $paramName . '" is of a union type!'
+                    );
+                }
 
                 if ($paramType instanceof ReflectionNamedType) {
                     if ($paramType->isBuiltin()) {
@@ -184,11 +184,11 @@ class Container implements ContainerInterface
                         }
                     }
                 } else if ($paramType instanceof ReflectionIntersectionType) {
-                    throw new ParameterIntersectionTypeHintException(
-                        'Failed to resolve dependency: "' . $id . '" because param"' . $paramName . '" has an intersection type hint!'
+                    throw new ParameterIntersectionTypeException(
+                        'Failed to resolve dependency: "' . $id . '" because param"' . $paramName . '" is of an intersection type!'
                     );
                 } else {
-                    // Probably it's not reachable in current(8.5) PHP, but i'm leaving it in case of future changes or bugs
+                    // Probably it's not reachable in current(8.5) PHP, but I'm leaving it in case of future changes or bugs
                     throw new InvalidParameterException(
                         'Failed to resolve dependency: "' . $id . '" because invalid param"' . $paramName . '"'
                     );
