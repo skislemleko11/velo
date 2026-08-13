@@ -32,7 +32,7 @@ class RequestLoggerMiddlewareTest extends TestCase
         });
 
         $wasCalledNext = 0;
-        $httpResponse = new HttpResponse();
+        $httpResponse = HttpResponse::view('hehe');
         $next = function (HttpRequest $request) use (&$wasCalledNext, $httpResponse) {
             $wasCalledNext++;
             return $httpResponse;
@@ -51,7 +51,7 @@ class RequestLoggerMiddlewareTest extends TestCase
         $middleware = new RequestLoggerMiddleware($this->logger);
 
         $wasCalledNext = 0;
-        $httpResponse = new HttpResponse();
+        $httpResponse = HttpResponse::view('hehe');
         $next = function (HttpRequest $request) use (&$wasCalledNext, $httpResponse) {
             $wasCalledNext++;
             return $httpResponse;

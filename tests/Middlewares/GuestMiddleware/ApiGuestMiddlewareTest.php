@@ -30,7 +30,7 @@ class ApiGuestMiddlewareTest extends TestCase
     public function it_calls_next_when_user_is_unauthenticated(): void
     {
         $request = new HttpRequest(url: '/dashboard', method: 'GET');
-        $expectedResponse = new HttpResponse(null, statusCode: 200);
+        $expectedResponse = HttpResponse::plainText('hehe');
         $middleware = new ApiGuestMiddleware(session: $this->session);
 
         $nextCalled = false;
@@ -84,7 +84,7 @@ class ApiGuestMiddlewareTest extends TestCase
         $_SESSION['user_id'] = 123;
 
         $request = new HttpRequest(url: '/secret', method: 'GET');
-        $customResponse = new HttpResponse(statusCode: 401);
+        $customResponse = HttpResponse::plainText('', statusCode: 401);
 
         $customHandler = function (HttpRequest $req) use ($request, $customResponse) {
             $this->assertSame($request, $req);
@@ -106,11 +106,11 @@ class ApiGuestMiddlewareTest extends TestCase
         $_SESSION['user_id'] = 123;
 
         $request = new HttpRequest(url: '/secret', method: 'GET');
-        $customResponse = new HttpResponse(statusCode: 401, data: ['hehe' => 'hihi']);
+        $customResponse = HttpResponse::json(data: ['hehe' => 'hihi'], statusCode: 401);
 
         $customHandler = function (HttpRequest $req, $data) use ($request, $customResponse) {
             $this->assertSame($request, $req);
-            return new HttpResponse(statusCode: 401, data: $data);
+            return HttpResponse::json(data: $data, statusCode: 401);
         };
 
         $middleware = new ApiGuestMiddleware(session: $this->session, customResponseHandler: $customHandler);

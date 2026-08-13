@@ -1,0 +1,25 @@
+{
+  "name": "skislemleko11/velo-view",
+  "description": "View package for Velo framework",
+  "type": "library",
+  "license": "LGPL-3.0",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "php": ">=8.5",
+    "skislemleko11/velo-file": "velo-filesystem"
+  },
+  "autoload": {
+    "psr-4": {
+      "Velo\\View\\": "src/"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^13"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Velo\\View\\Tests\\": "tests/"
+    }
+  }
+}

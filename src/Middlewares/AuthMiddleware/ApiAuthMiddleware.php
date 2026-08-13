@@ -56,9 +56,9 @@ readonly class ApiAuthMiddleware implements MiddlewareInterface
             return ($this->customResponseHandler)($request, $response);
         }
 
-        return new HttpResponse(
-            statusCode: 401,
-            data: $response
+        return HttpResponse::json(
+            data: $response,
+            statusCode: 401
         );
     }
 }

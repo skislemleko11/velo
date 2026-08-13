@@ -14,12 +14,14 @@
   "autoload": {
     "psr-4": {
       "Velo\\": "src/",
-      "Velo\\Container\\": "packages/container/src/",
-      "Velo\\Database\\": "packages/database/src/",
-      "Velo\\Http\\": "packages/http/src/",
-      "Velo\\Logger\\": "packages/logger/src/",
-      "Velo\\Router\\": "packages/router/src/",
-      "Velo\\Session\\": "packages/session/src/"
+      "Velo\\Container\\": "packages/Container/src/",
+      "Velo\\Database\\": "packages/Database/src/",
+      "Velo\\Http\\": "packages/Http/src/",
+      "Velo\\Logger\\": "packages/Logger/src/",
+      "Velo\\Router\\": "packages/Router/src/",
+      "Velo\\Session\\": "packages/Session/src/",
+      "Velo\\View\\": "packages/View/src/",
+      "Velo\\FileSystem\\": "packages/FileSystem/src/"
     }
   },
   "require-dev": {
@@ -29,12 +31,14 @@
     "psr-4": {
       "Velo\\Tests\\": "tests/",
 
-      "Velo\\Container\\Tests\\": "packages/container/tests/",
-      "Velo\\Database\\Tests\\": "packages/database/tests/",
-      "Velo\\Http\\Tests\\": "packages/http/tests/",
-      "Velo\\Logger\\Tests\\": "packages/logger/tests/",
-      "Velo\\Router\\Tests\\": "packages/router/tests/",
-      "Velo\\Session\\Tests\\": "packages/session/tests/",
+      "Velo\\Container\\Tests\\": "packages/Container/tests/",
+      "Velo\\Database\\Tests\\": "packages/Database/tests/",
+      "Velo\\Http\\Tests\\": "packages/Http/tests/",
+      "Velo\\Logger\\Tests\\": "packages/Logger/tests/",
+      "Velo\\Router\\Tests\\": "packages/Router/tests/",
+      "Velo\\Session\\Tests\\": "packages/Session/tests/",
+      "Velo\\View\\Tests\\": "packages/View/tests/",
+      "Velo\\FileSystem\\Tests\\": "packages/FileSystem/tests/",
 
       "Velo\\Playground\\": "playground/src/"
     }

@@ -6,11 +6,11 @@ namespace Velo\Core;
 use ErrorException;
 use Psr\Log\LoggerInterface;
 use Throwable;
+use Velo\FileSystem\PathResolver\Exceptions\PathNotFoundException;
+use Velo\FileSystem\PathResolver\PathResolver;
 use Velo\Http\HttpResponse;
 use Velo\Http\ResponseRenderer;
 use Velo\Router\Exceptions\Interfaces\HttpExceptionInterface;
-use Velo\Router\PathResolver\Exceptions\PathNotFoundException;
-use Velo\Router\PathResolver\PathResolver;
 
 /**
  * Throwable handler made for global throwable and error handling.
@@ -84,7 +84,7 @@ readonly class ThrowableHandler
             $viewName = 'error500';
         }
 
-        return new HttpResponse($this->pathResolver->getFilePath($viewName), $statusCode);
+        return HttpResponse::view($this->pathResolver->getFilePath($viewName), $statusCode);
     }
 
     /**

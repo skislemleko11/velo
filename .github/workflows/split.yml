@@ -18,18 +18,22 @@ jobs:
       fail-fast: false
       matrix:
         package:
-          - local_path: 'container'
+          - local_path: 'Container'
             split_repository: 'velo-container'
-          - local_path: 'database'
+          - local_path: 'Database'
             split_repository: 'velo-database'
-          - local_path: 'http'
+          - local_path: 'Http'
             split_repository: 'velo-http'
-          - local_path: 'logger'
+          - local_path: 'Logger'
             split_repository: 'velo-logger'
-          - local_path: 'router'
+          - local_path: 'Router'
             split_repository: 'velo-router'
-          - local_path: 'session'
+          - local_path: 'Session'
             split_repository: 'velo-session'
+          - local_path: 'FileSystem'
+            split_repository: 'velo-filesystem'
+          - local_path: 'View'
+            split_repository: 'velo-view'
 
     steps:
       - uses: actions/checkout@v4

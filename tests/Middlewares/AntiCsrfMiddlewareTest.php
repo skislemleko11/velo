@@ -7,11 +7,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Velo\Container\Container;
+use Velo\FileSystem\PathResolver\PathResolver;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
 use Velo\Middlewares\AntiCsrfMiddleware;
 use Velo\Middlewares\Exceptions\InvalidRequestMethodMiddlewareException;
-use Velo\Router\PathResolver\PathResolver;
 use Velo\Session\Session\Interfaces\SessionInterface;
 use Velo\Session\Session\Session;
 
@@ -20,7 +20,6 @@ class AntiCsrfMiddlewareTest extends TestCase
     private AntiCsrfMiddleware $middleware;
     private Container $container;
     private PathResolver $pathResolver;
-
     private Session $session;
 
     protected function setUp(): void
@@ -54,7 +53,7 @@ class AntiCsrfMiddlewareTest extends TestCase
     public function it_throws_exception_with_GET_method(): void
     {
         $this->expectException(InvalidRequestMethodMiddlewareException::class);
-        $this->middleware->handle(new HttpRequest('/hehe', 'GET'), fn() => new HttpResponse());
+        $this->middleware->handle(new HttpRequest('/hehe', 'GET'), fn() => HttpResponse::view('hehe'));
     }
 
     #[Test]
@@ -71,7 +70,7 @@ class AntiCsrfMiddlewareTest extends TestCase
         $nextCalled = false;
         $next = function () use (&$nextCalled) {
             $nextCalled = true;
-            return new HttpResponse('/next', 200);
+            return HttpResponse::view('/next');
         };
 
         $request = new HttpRequest('/hehe', 'POST');
@@ -93,7 +92,7 @@ class AntiCsrfMiddlewareTest extends TestCase
         $_SESSION['csrf_token'] = $validToken;
         $_POST['csrf_token'] = $validToken;
 
-        $nextResponse = new HttpResponse('/success', 200);
+        $nextResponse = HttpResponse::view('/success', 200);
 
         $response = $this->middleware->handle(
             new HttpRequest('/hehe', 'POST'),
@@ -114,7 +113,7 @@ class AntiCsrfMiddlewareTest extends TestCase
             $_POST['csrf_token'] = $postToken;
         }
 
-        $closureResponse = new HttpResponse('/custom-error', 403, ['error' => 'Custom']);
+        $closureResponse = HttpResponse::view('/custom-error', 403, ['error' => 'Custom']);
 
         $middleware = new AntiCsrfMiddleware(
             $this->pathResolver,
@@ -124,7 +123,7 @@ class AntiCsrfMiddlewareTest extends TestCase
 
         $response = $middleware->handle(
             new HttpRequest('/hehe', 'POST'),
-            fn() => new HttpResponse()
+            fn() => HttpResponse::view('hehe')
         );
 
         $this->assertSame($closureResponse, $response);

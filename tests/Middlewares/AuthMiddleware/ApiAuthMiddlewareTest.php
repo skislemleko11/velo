@@ -32,7 +32,7 @@ class ApiAuthMiddlewareTest extends TestCase
         $_SESSION['user_id'] = 123;
 
         $request = new HttpRequest(url: '/dashboard', method: 'GET');
-        $expectedResponse = new HttpResponse(null, statusCode: 200);
+        $expectedResponse = HttpResponse::plainText('hehe');
         $middleware = new ApiAuthMiddleware(session: $this->session);
 
         $nextCalled = false;
@@ -83,7 +83,7 @@ class ApiAuthMiddlewareTest extends TestCase
     public function it_uses_custom_response_handler_when_provided(): void
     {
         $request = new HttpRequest(url: '/secret', method: 'GET');
-        $customResponse = new HttpResponse(null, statusCode: 401);
+        $customResponse = HttpResponse::plainText('', statusCode: 401);
 
         $customHandler = function (HttpRequest $req) use ($request, $customResponse) {
             $this->assertSame($request, $req);
@@ -105,11 +105,11 @@ class ApiAuthMiddlewareTest extends TestCase
     {
         $request = new HttpRequest(url: '/secret', method: 'GET');
 
-        $expectedResponse = new HttpResponse(data: ['hehe' => 'hihi']);
+        $expectedResponse = HttpResponse::json(data: ['hehe' => 'hihi']);
 
         $customHandler = function (HttpRequest $req, $responseForUnauthenticatedUser) use ($request) {
             $this->assertSame($request, $req);
-            return new HttpResponse(data: $responseForUnauthenticatedUser);
+            return HttpResponse::json(data: $responseForUnauthenticatedUser);
         };
 
         $middleware = new ApiAuthMiddleware(session: $this->session, customResponseHandler: $customHandler);

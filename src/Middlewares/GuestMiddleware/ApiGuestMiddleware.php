@@ -58,9 +58,9 @@ readonly class ApiGuestMiddleware implements MiddlewareInterface
             return ($this->customResponseHandler)($request, $response);
         }
 
-        return new HttpResponse(
-            statusCode: 403,
-            data: $response
+        return HttpResponse::json(
+            data: $response,
+            statusCode: 403
         );
     }
 }

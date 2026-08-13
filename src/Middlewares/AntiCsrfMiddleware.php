@@ -5,12 +5,12 @@ namespace Velo\Middlewares;
 
 use Closure;
 use Random\RandomException;
+use Velo\FileSystem\PathResolver\Exceptions\PathNotFoundException;
+use Velo\FileSystem\PathResolver\PathResolver;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
 use Velo\Middlewares\Exceptions\InvalidRequestMethodMiddlewareException;
 use Velo\Router\Middlewares\MiddlewareInterface;
-use Velo\Router\PathResolver\Exceptions\PathNotFoundException;
-use Velo\Router\PathResolver\PathResolver;
 use Velo\Session\Session\Interfaces\SessionInterface;
 
 /**
@@ -81,10 +81,14 @@ readonly class AntiCsrfMiddleware implements MiddlewareInterface
             return ($this->customResponseHandler)($request);
         }
 
-        return new HttpResponse(
-            $this->pathResolver->getFilePath('error403'),
-            403,
-            ['error' => 'Invalid anti CSRF token!']
-        );
+        if ($viewPath = $this->pathResolver->getFilePath('error403')) {
+            return HttpResponse::view(
+                $viewPath,
+                403,
+                ['error' => 'Invalid anti CSRF token!']
+            );
+        } else {
+            return HttpResponse::json(['error' => 'Invalid anti CSRF token!'], 403);
+        }
     }
 }

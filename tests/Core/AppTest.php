@@ -54,7 +54,7 @@ class AppTest extends TestCase
     public function it_calls_router_resolve_method(): void
     {
         $request = new HttpRequest('/', 'GET');
-        $httpResponse = new HttpResponse();
+        $httpResponse = HttpResponse::view('hehe');
 
         $app = new App($this->router, $this->container);
 
@@ -74,7 +74,7 @@ class AppTest extends TestCase
     public function it_calls_ResponseRenderer_render_method(): void
     {
         $request = new HttpRequest('/', 'GET');
-        $httpResponse = new HttpResponse();
+        $httpResponse = HttpResponse::view('hehe');
 
         $app = new App($this->router, $this->container);
 
@@ -94,7 +94,7 @@ class AppTest extends TestCase
     public function it_executes_global_middlewares_before_resolving_route(): void
     {
         $request = new HttpRequest('/', 'GET');
-        $expectedResponse = new HttpResponse(data: ['middleware' => 'executed']);
+        $expectedResponse = HttpResponse::json(data: ['middleware' => 'executed']);
 
         $middleware = $this->createMock(MiddlewareInterface::class);
 

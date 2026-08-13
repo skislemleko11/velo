@@ -10,11 +10,11 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Velo\Core\ThrowableHandler;
+use Velo\FileSystem\PathResolver\PathResolver;
 use Velo\Http\HttpResponse;
 use Velo\Http\ResponseRenderer;
 use Velo\Router\Exceptions\Interfaces\HttpExceptionInterface;
 use Velo\Router\Exceptions\PageNotFoundException;
-use Velo\Router\PathResolver\PathResolver;
 
 #[AllowMockObjectsWithoutExpectations]
 class ThrowableHandlerTest extends TestCase

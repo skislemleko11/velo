@@ -30,7 +30,7 @@ class WebGuestMiddlewareTest extends TestCase
     public function it_calls_next_when_user_is_unauthenticated(): void
     {
         $request = new HttpRequest(url: '/dashboard', method: 'GET');
-        $expectedResponse = new HttpResponse('/views/dashboard.php');
+        $expectedResponse = HttpResponse::view('/views/dashboard.php');
         $middleware = new WebGuestMiddleware(session: $this->session);
 
         $nextCalled = false;
@@ -83,7 +83,7 @@ class WebGuestMiddlewareTest extends TestCase
         $_SESSION['user_id'] = 1;
 
         $request = new HttpRequest(url: '/secret', method: 'GET');
-        $customResponse = new HttpResponse('/views/custom-error.php', statusCode: 401);
+        $customResponse = HttpResponse::view('/views/custom-error.php', statusCode: 401);
 
         $customHandler = function (HttpRequest $req) use ($request, $customResponse) {
             $this->assertSame($request, $req);
@@ -105,11 +105,11 @@ class WebGuestMiddlewareTest extends TestCase
         $_SESSION['user_id'] = 1;
 
         $request = new HttpRequest(url: '/secret', method: 'GET');
-        $customResponse = new HttpResponse('/views/custom-error.php', statusCode: 401);
+        $customResponse = HttpResponse::view('/views/custom-error.php', statusCode: 401);
 
         $customHandler = function (HttpRequest $req, $url) use ($request, $customResponse) {
             $this->assertSame($request, $req);
-            return new HttpResponse($url, statusCode: 401);
+            return HttpResponse::view($url, statusCode: 401);
         };
 
         $middleware = new WebGuestMiddleware(session: $this->session, customResponseHandler: $customHandler);

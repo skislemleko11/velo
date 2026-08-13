@@ -32,7 +32,7 @@ class WebAuthMiddlewareTest extends TestCase
         $_SESSION['user_id'] = 123;
 
         $request = new HttpRequest(url: '/dashboard', method: 'GET');
-        $expectedResponse = new HttpResponse('/views/dashboard.php');
+        $expectedResponse = HttpResponse::view('/views/dashboard.php');
         $middleware = new WebAuthMiddleware(session: $this->session);
 
         $nextCalled = false;
@@ -80,7 +80,7 @@ class WebAuthMiddlewareTest extends TestCase
     public function it_uses_custom_response_handler_when_provided(): void
     {
         $request = new HttpRequest(url: '/secret', method: 'GET');
-        $customResponse = new HttpResponse('/views/custom-error.php', statusCode: 401);
+        $customResponse = HttpResponse::view('/views/custom-error.php', statusCode: 401);
 
         $customHandler = function (HttpRequest $req) use ($request, $customResponse) {
             $this->assertSame($request, $req);
@@ -100,11 +100,11 @@ class WebAuthMiddlewareTest extends TestCase
     public function it_uses_custom_response_handler_with_custom_response_when_provided(): void
     {
         $request = new HttpRequest(url: '/secret', method: 'GET');
-        $customResponse = new HttpResponse('/views/custom-error.php?redirect=%2Fsecret', statusCode: 401);
+        $customResponse = HttpResponse::view('/views/custom-error.php?redirect=%2Fsecret', statusCode: 401);
 
         $customHandler = function (HttpRequest $req, $responseForUnauthenticatedUser) use ($request) {
             $this->assertSame($request, $req);
-            return new HttpResponse($responseForUnauthenticatedUser, statusCode: 401);
+            return HttpResponse::view($responseForUnauthenticatedUser, statusCode: 401);
         };
 
         $middleware = new WebAuthMiddleware(session: $this->session, customResponseHandler: $customHandler);
