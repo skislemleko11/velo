@@ -7,7 +7,7 @@
   "prefer-stable": true,
   "require": {
     "php": ">=8.5",
-    "skislemleko11/velo-file": "velo-filesystem"
+    "skislemleko11/velo-filesystem": "*"
   },
   "autoload": {
     "psr-4": {
