@@ -8,12 +8,17 @@ use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
 use Velo\Middlewares\GuestMiddleware\ApiGuestMiddleware;
 use PHPUnit\Framework\TestCase;
+use Velo\Session\Session\Interfaces\SessionInterface;
+use Velo\Session\Session\Session;
 
 class ApiGuestMiddlewareTest extends TestCase
 {
+    private SessionInterface $session;
+
     protected function setUp(): void
     {
         $_SESSION = [];
+        $this->session = new Session();
     }
 
     protected function tearDown(): void
@@ -26,7 +31,7 @@ class ApiGuestMiddlewareTest extends TestCase
     {
         $request = new HttpRequest(url: '/dashboard', method: 'GET');
         $expectedResponse = new HttpResponse(null, statusCode: 200);
-        $middleware = new ApiGuestMiddleware();
+        $middleware = new ApiGuestMiddleware(session: $this->session);
 
         $nextCalled = false;
         $next = function (HttpRequest $req) use (&$nextCalled, $expectedResponse) {
@@ -46,7 +51,7 @@ class ApiGuestMiddlewareTest extends TestCase
         $_SESSION['user_id'] = 123;
 
         $request = new HttpRequest(url: '/protected-page', method: 'GET');
-        $middleware = new ApiGuestMiddleware();
+        $middleware = new ApiGuestMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
 
@@ -62,7 +67,7 @@ class ApiGuestMiddlewareTest extends TestCase
         $_SESSION['user_id'] = 123;
 
         $request = new HttpRequest(url: '/admin/settings', method: 'GET');
-        $middleware = new ApiGuestMiddleware();
+        $middleware = new ApiGuestMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
 
@@ -86,7 +91,7 @@ class ApiGuestMiddlewareTest extends TestCase
             return $customResponse;
         };
 
-        $middleware = new ApiGuestMiddleware(customResponseHandler: $customHandler);
+        $middleware = new ApiGuestMiddleware(session: $this->session, customResponseHandler: $customHandler);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
 
@@ -108,7 +113,7 @@ class ApiGuestMiddlewareTest extends TestCase
             return new HttpResponse(statusCode: 401, data: $data);
         };
 
-        $middleware = new ApiGuestMiddleware(customResponseHandler: $customHandler);
+        $middleware = new ApiGuestMiddleware(session: $this->session, customResponseHandler: $customHandler);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
 

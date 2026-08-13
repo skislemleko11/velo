@@ -7,6 +7,8 @@ use Closure;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
 use Velo\Router\Middlewares\MiddlewareInterface;
+use Velo\Session\Session\Interfaces\SessionInterface;
+use Velo\Http\RedirectUrl;
 
 /**
  * Auth Middleware for Web. It's the opposite of WebGuestMiddleware.
@@ -20,7 +22,8 @@ readonly class WebAuthMiddleware implements MiddlewareInterface
      * @param Closure|null $customResponseHandler Closure should take 2 arguments - HttpRequest request and string redirectUrl.
      */
     public function __construct(
-        private ?Closure $customResponseHandler = null,
+        private SessionInterface $session,
+        private ?Closure         $customResponseHandler = null
     )
     {
     }
@@ -35,7 +38,7 @@ readonly class WebAuthMiddleware implements MiddlewareInterface
         string      $redirectUnauthenticatedUserTo = '/login'
     ): HttpResponse
     {
-        if (!isset($_SESSION['user_id'])) {
+        if (!$this->session->has('user_id')) {
             return $this->getResponseForUnauthenticatedUser($request, $redirectUnauthenticatedUserTo);
         }
 
@@ -45,13 +48,13 @@ readonly class WebAuthMiddleware implements MiddlewareInterface
     /**
      * Returns the HttpResponse for an unauthenticated user.
      *
+     * Adds redirect param to redirectUrl, in order to redirect to this page when the user logs in.
      * Returns customResponseHandler(request, redirectUrl) if provided in constructor,
      * otherwise returns the HttpResponse::redirect(redirectUrl) result.
-     * Sets 'redirect_after_login' in $_SESSION to request->url for redirecting after successful login.
      */
     private function getResponseForUnauthenticatedUser(HttpRequest $request, string $redirectUrl): HttpResponse
     {
-        $_SESSION['redirect_after_login'] = $request->url;
+        $redirectUrl = RedirectUrl::withRedirectParam($redirectUrl, $request->url);
 
         if ($this->customResponseHandler) {
             return ($this->customResponseHandler)($request, $redirectUrl);

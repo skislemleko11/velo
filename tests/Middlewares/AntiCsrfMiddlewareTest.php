@@ -12,12 +12,16 @@ use Velo\Http\HttpResponse;
 use Velo\Middlewares\AntiCsrfMiddleware;
 use Velo\Middlewares\Exceptions\InvalidRequestMethodMiddlewareException;
 use Velo\Router\PathResolver\PathResolver;
+use Velo\Session\Session\Interfaces\SessionInterface;
+use Velo\Session\Session\Session;
 
 class AntiCsrfMiddlewareTest extends TestCase
 {
     private AntiCsrfMiddleware $middleware;
     private Container $container;
     private PathResolver $pathResolver;
+
+    private Session $session;
 
     protected function setUp(): void
     {
@@ -34,8 +38,10 @@ class AntiCsrfMiddlewareTest extends TestCase
             error500Path: '/views/error500.php',
         );
 
+        $this->container->set(SessionInterface::class, Session::class);
         $this->container->set(PathResolver::class, fn() => $this->pathResolver);
         $this->middleware = $this->container->get(AntiCsrfMiddleware::class);
+        $this->session = $this->container->get(Session::class);
     }
 
     protected function tearDown(): void
@@ -112,6 +118,7 @@ class AntiCsrfMiddlewareTest extends TestCase
 
         $middleware = new AntiCsrfMiddleware(
             $this->pathResolver,
+            $this->session,
             fn(HttpRequest $req) => $closureResponse
         );
 
@@ -127,11 +134,11 @@ class AntiCsrfMiddlewareTest extends TestCase
     {
         return [
             'missing_session_token' => [null, 'valid_token'],
-            'missing_post_token'    => ['valid_token', null],
-            'mismatched_tokens'     => ['token_a', 'token_b'],
-            'int_session_token'     => ['12345', 2345],
-            'empty_string_post'     => ['valid_token', ''],
-            'boolean_post'          => ['valid_token', true],
+            'missing_post_token' => ['valid_token', null],
+            'mismatched_tokens' => ['token_a', 'token_b'],
+            'int_session_token' => ['12345', 2345],
+            'empty_string_post' => ['valid_token', ''],
+            'boolean_post' => ['valid_token', true],
         ];
     }
 }

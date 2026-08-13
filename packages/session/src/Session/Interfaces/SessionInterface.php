@@ -43,4 +43,9 @@ interface SessionInterface
      * Determines whether a flash key exists.
      */
     public function hasFlash(string $key): bool;
+
+    /**
+     * Stores a CSRF token in the session.
+     */
+    public function setCsrfToken(string $value): self;
 }

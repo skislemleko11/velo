@@ -8,12 +8,17 @@ use PHPUnit\Framework\TestCase;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
 use Velo\Middlewares\AuthMiddleware\ApiAuthMiddleware;
+use Velo\Session\Session\Interfaces\SessionInterface;
+use Velo\Session\Session\Session;
 
 class ApiAuthMiddlewareTest extends TestCase
 {
+    private SessionInterface $session;
+
     protected function setUp(): void
     {
         $_SESSION = [];
+        $this->session = new Session();
     }
 
     protected function tearDown(): void
@@ -28,7 +33,7 @@ class ApiAuthMiddlewareTest extends TestCase
 
         $request = new HttpRequest(url: '/dashboard', method: 'GET');
         $expectedResponse = new HttpResponse(null, statusCode: 200);
-        $middleware = new ApiAuthMiddleware();
+        $middleware = new ApiAuthMiddleware(session: $this->session);
 
         $nextCalled = false;
         $next = function (HttpRequest $req) use (&$nextCalled, $expectedResponse) {
@@ -47,7 +52,7 @@ class ApiAuthMiddlewareTest extends TestCase
     public function it_returns_unauthenticated_response_when_user_is_not_authenticated(): void
     {
         $request = new HttpRequest(url: '/protected-page', method: 'GET');
-        $middleware = new ApiAuthMiddleware();
+        $middleware = new ApiAuthMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
 
@@ -62,7 +67,7 @@ class ApiAuthMiddlewareTest extends TestCase
     public function it_returns_custom_unauthenticated_response_when_provided(): void
     {
         $request = new HttpRequest(url: '/admin/settings', method: 'GET');
-        $middleware = new ApiAuthMiddleware();
+        $middleware = new ApiAuthMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
 
@@ -85,7 +90,7 @@ class ApiAuthMiddlewareTest extends TestCase
             return $customResponse;
         };
 
-        $middleware = new ApiAuthMiddleware(customResponseHandler: $customHandler);
+        $middleware = new ApiAuthMiddleware(session: $this->session, customResponseHandler: $customHandler);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
 
@@ -107,7 +112,7 @@ class ApiAuthMiddlewareTest extends TestCase
             return new HttpResponse(data: $responseForUnauthenticatedUser);
         };
 
-        $middleware = new ApiAuthMiddleware(customResponseHandler: $customHandler);
+        $middleware = new ApiAuthMiddleware(session: $this->session, customResponseHandler: $customHandler);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
 

@@ -20,13 +20,13 @@ class HttpRequestTest extends TestCase
     #[Test]
     public function it_parsed_url_in_constructor(): void
     {
-        $this->assertSame(parse_url(self::URL, PHP_URL_PATH), $this->httpRequest->url);
+        $this->assertSame(parse_url(self::URL, PHP_URL_PATH), $this->httpRequest->urlPath);
     }
 
     #[Test]
     public function it_made_method_name_uppercase(): void
     {
-        $this->assertSame(strtoupper($this->httpRequest->method), $this->httpRequest->method);
+        $this->assertSame(strtoupper($this->httpRequest->requestMethod), $this->httpRequest->requestMethod);
     }
 
     #[Test]

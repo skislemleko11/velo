@@ -7,6 +7,7 @@ use Closure;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
 use Velo\Router\Middlewares\MiddlewareInterface;
+use Velo\Session\Session\Interfaces\SessionInterface;
 
 /**
  * Guest Middleware for API. It's the opposite of ApiAuthMiddleware.
@@ -20,7 +21,8 @@ readonly class ApiGuestMiddleware implements MiddlewareInterface
      * @param Closure|null $customResponseHandler Closure should take 2 arguments - HttpRequest request and array response.
      */
     public function __construct(
-        private ?Closure $customResponseHandler = null,
+        private SessionInterface $session,
+        private ?Closure         $customResponseHandler = null,
     )
     {
     }
@@ -37,7 +39,7 @@ readonly class ApiGuestMiddleware implements MiddlewareInterface
         ]
     ): HttpResponse
     {
-        if (isset($_SESSION['user_id'])) {
+        if ($this->session->has('user_id')) {
             return $this->getResponseForAuthenticatedUser($request, $responseForAuthenticatedUser);
         }
 

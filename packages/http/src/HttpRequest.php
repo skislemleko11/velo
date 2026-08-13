@@ -6,18 +6,26 @@ namespace Velo\Http;
 /**
  * Represents an HTTP request.
  */
-readonly class HttpRequest
+class HttpRequest
 {
-    public string $url;
-    public string $method;
+    /**
+     * @var string $urlPath Clean URL (no GET args)
+     */
+    public readonly string $urlPath;
+    public readonly string $requestMethod;
+    private(set) array $getParams = [];
 
     public function __construct(
-        string $url,
-        string $method
+        public readonly string $url,
+        string                 $method
     )
     {
-        $this->url = parse_url($url, PHP_URL_PATH);
-        $this->method = strtoupper($method);
+        $this->urlPath = parse_url($url, PHP_URL_PATH) ?: '/';
+        $this->requestMethod = strtoupper($method);
+
+        if ($queryString = parse_url($url, PHP_URL_QUERY)) {
+            parse_str($queryString, $this->getParams);
+        }
     }
 
     /**

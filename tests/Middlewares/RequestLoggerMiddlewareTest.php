@@ -62,8 +62,10 @@ class RequestLoggerMiddlewareTest extends TestCase
         $this->logger->expects($this->once())
             ->method('info')
             ->with("Request:\nUrl: {url}\nMethod: {method}", [
-                'url' => $request->url,
-                'method' => $request->method,
+                'url' => $request->urlPath,
+                'url path' => $request->urlPath,
+                'method' => $request->requestMethod,
+                'GET params' => $request->getParams
             ]);
 
 

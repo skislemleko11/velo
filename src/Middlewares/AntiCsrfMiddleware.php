@@ -11,6 +11,7 @@ use Velo\Middlewares\Exceptions\InvalidRequestMethodMiddlewareException;
 use Velo\Router\Middlewares\MiddlewareInterface;
 use Velo\Router\PathResolver\Exceptions\PathNotFoundException;
 use Velo\Router\PathResolver\PathResolver;
+use Velo\Session\Session\Interfaces\SessionInterface;
 
 /**
  * Protects against CSRF attacks.
@@ -21,12 +22,15 @@ use Velo\Router\PathResolver\PathResolver;
  */
 readonly class AntiCsrfMiddleware implements MiddlewareInterface
 {
+    private const string CSRF_TOKEN_NAME = 'csrf_token';
+
     /**
      * @param Closure|null $customResponseHandler Closure should take 1 argument - HttpRequest request.
      */
     public function __construct(
-        private PathResolver $pathResolver,
-        private ?Closure     $customResponseHandler = null,
+        private PathResolver     $pathResolver,
+        private SessionInterface $session,
+        private ?Closure         $customResponseHandler = null
     )
     {
     }
@@ -44,17 +48,20 @@ readonly class AntiCsrfMiddleware implements MiddlewareInterface
      */
     public function handle(HttpRequest $request, callable $next): HttpResponse
     {
-        if ($request->method === 'GET') {
+        if ($request->requestMethod === 'GET') {
             throw new InvalidRequestMethodMiddlewareException(
                 'Cannot use ' . self::class . ' with GET method!',
             );
         }
 
-        $sessionToken = (string)($_SESSION['csrf_token'] ?? '');
-        $requestToken = (string)$request->getPostArg('csrf_token', '');
+        $sessionToken = (string)$this->session->get(self::CSRF_TOKEN_NAME);
+        $requestToken = (string)$request->getPostArg(self::CSRF_TOKEN_NAME);
 
         if (!$sessionToken || !$requestToken || !hash_equals($sessionToken, $requestToken)) {
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+            $this->session->setCsrfToken(
+                bin2hex(random_bytes(32))
+            );
+
             return $this->getInvalidTokenResponse($request);
         }
 

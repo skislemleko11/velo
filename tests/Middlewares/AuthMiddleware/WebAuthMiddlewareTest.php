@@ -8,12 +8,17 @@ use PHPUnit\Framework\TestCase;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
 use Velo\Middlewares\AuthMiddleware\WebAuthMiddleware;
+use Velo\Session\Session\Interfaces\SessionInterface;
+use Velo\Session\Session\Session;
 
 class WebAuthMiddlewareTest extends TestCase
 {
+    private SessionInterface $session;
+
     protected function setUp(): void
     {
         $_SESSION = [];
+        $this->session = new Session();
     }
 
     protected function tearDown(): void
@@ -28,7 +33,7 @@ class WebAuthMiddlewareTest extends TestCase
 
         $request = new HttpRequest(url: '/dashboard', method: 'GET');
         $expectedResponse = new HttpResponse('/views/dashboard.php');
-        $middleware = new WebAuthMiddleware();
+        $middleware = new WebAuthMiddleware(session: $this->session);
 
         $nextCalled = false;
         $next = function (HttpRequest $req) use (&$nextCalled, $expectedResponse) {
@@ -47,30 +52,28 @@ class WebAuthMiddlewareTest extends TestCase
     public function it_redirects_to_default_login_url_and_saves_intended_url_when_unauthenticated(): void
     {
         $request = new HttpRequest(url: '/protected-page', method: 'GET');
-        $middleware = new WebAuthMiddleware();
+        $middleware = new WebAuthMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next);
 
         $this->assertSame(302, $response->statusCode);
-        $this->assertSame('/login', $response->headers['Location'] ?? null);
-        $this->assertSame('/protected-page', $_SESSION['redirect_after_login'] ?? null);
+        $this->assertSame('/login?redirect=%2Fprotected-page', $response->headers['Location'] ?? null);
     }
 
     #[Test]
     public function it_redirects_to_custom_url_when_provided(): void
     {
         $request = new HttpRequest(url: '/admin/settings', method: 'GET');
-        $middleware = new WebAuthMiddleware();
+        $middleware = new WebAuthMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next, redirectUnauthenticatedUserTo: '/custom-login');
 
         $this->assertSame(302, $response->statusCode);
-        $this->assertSame('/custom-login', $response->headers['Location'] ?? null);
-        $this->assertSame('/admin/settings', $_SESSION['redirect_after_login'] ?? null);
+        $this->assertSame('/custom-login?redirect=%2Fadmin%2Fsettings', $response->headers['Location'] ?? null);
     }
 
     #[Test]
@@ -84,34 +87,32 @@ class WebAuthMiddlewareTest extends TestCase
             return $customResponse;
         };
 
-        $middleware = new WebAuthMiddleware(customResponseHandler: $customHandler);
+        $middleware = new WebAuthMiddleware(session: $this->session, customResponseHandler: $customHandler);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next);
 
         $this->assertSame($customResponse, $response);
-        $this->assertSame('/secret', $_SESSION['redirect_after_login'] ?? null);
     }
 
     #[Test]
     public function it_uses_custom_response_handler_with_custom_response_when_provided(): void
     {
         $request = new HttpRequest(url: '/secret', method: 'GET');
-        $customResponse = new HttpResponse('/views/custom-error.php', statusCode: 401);
+        $customResponse = new HttpResponse('/views/custom-error.php?redirect=%2Fsecret', statusCode: 401);
 
         $customHandler = function (HttpRequest $req, $responseForUnauthenticatedUser) use ($request) {
             $this->assertSame($request, $req);
             return new HttpResponse($responseForUnauthenticatedUser, statusCode: 401);
         };
 
-        $middleware = new WebAuthMiddleware(customResponseHandler: $customHandler);
+        $middleware = new WebAuthMiddleware(session: $this->session, customResponseHandler: $customHandler);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next, '/views/custom-error.php');
 
         $this->assertEquals($customResponse, $response);
-        $this->assertSame('/secret', $_SESSION['redirect_after_login'] ?? null);
     }
 }
