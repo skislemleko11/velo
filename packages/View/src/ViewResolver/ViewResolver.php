@@ -22,12 +22,17 @@ readonly class ViewResolver
      */
     public function resolve(string $viewName): string
     {
-        $viewPath = $this->pathResolver->getDirPath('views') . $viewName . '.php';
+        $viewPathWithoutExt = $this->pathResolver->getDirPath('views') . $viewName;
 
-        if (!file_exists($viewPath)) {
-            throw new ViewNotFoundException(
-                "The requested view file '$viewPath' does not exist."
-            );
+        if (!file_exists($viewPathWithoutExt . '.php')) {
+            if (!file_exists($viewPathWithoutExt . '.html')) {
+                throw new ViewNotFoundException(
+                    "The requested view file '$viewPathWithoutExt.php' or '$viewPathWithoutExt.html' does not exist."
+                );
+            }
+            $viewPath = $viewPathWithoutExt . '.html';
+        } else {
+            $viewPath = $viewPathWithoutExt . '.php';
         }
 
         return $viewPath;

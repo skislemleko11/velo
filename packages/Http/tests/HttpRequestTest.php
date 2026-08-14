@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Velo\Http\HttpRequest;
 use PHPUnit\Framework\TestCase;
 
-class HttpRequestTest extends TestCase
+final class HttpRequestTest extends TestCase
 {
     private const string URL = 'https://example.com/hehe/hihi';
     private HttpRequest $httpRequest;

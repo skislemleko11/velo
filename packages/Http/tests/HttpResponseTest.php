@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Velo\Http\HttpResponse;
 
-class HttpResponseTest extends TestCase
+final class HttpResponseTest extends TestCase
 {
     #[Test]
     public function it_returns_redirect_response()

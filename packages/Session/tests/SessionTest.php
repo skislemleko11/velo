@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Velo\Session\Session\Session;
 
-class SessionTest extends TestCase
+final class SessionTest extends TestCase
 {
     private Session $session;
 

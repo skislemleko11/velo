@@ -30,5 +30,11 @@
         <testsuite name="Session Test Suite">
             <directory>packages/session/tests</directory>
         </testsuite>
+        <testsuite name="FileSystem Test Suite">
+            <directory>packages/FileSystem/tests</directory>
+        </testsuite>
+        <testsuite name="View Test Suite">
+            <directory>packages/view/tests</directory>
+        </testsuite>
     </testsuites>
 </phpunit>

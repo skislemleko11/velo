@@ -15,7 +15,7 @@ use Velo\Middlewares\Exceptions\InvalidRequestMethodMiddlewareException;
 use Velo\Session\Session\Interfaces\SessionInterface;
 use Velo\Session\Session\Session;
 
-class AntiCsrfMiddlewareTest extends TestCase
+final class AntiCsrfMiddlewareTest extends TestCase
 {
     private AntiCsrfMiddleware $middleware;
     private Container $container;
@@ -32,9 +32,10 @@ class AntiCsrfMiddlewareTest extends TestCase
             basePath: '/',
             publicPath: '/public/',
             viewsPath: '/views/',
-            error403Path: null,
-            error404Path: '/views/error404.php',
-            error500Path: '/views/error500.php',
+            errorGeneralPath: 'error',
+            error403Path: 'error403.php',
+            error404Path: 'error404.php',
+            error500Path: 'error500.php'
         );
 
         $this->container->set(SessionInterface::class, Session::class);

@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 use stdClass;
 use Velo\Logger\LogTextFormatter;
 
-class LogTextFormatterTest extends TestCase
+final class LogTextFormatterTest extends TestCase
 {
     private LogTextFormatter $formatter;
 

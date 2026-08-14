@@ -9,7 +9,7 @@
          displayDetailsOnTestsThatTriggerWarnings="true"
 >
     <testsuites>
-        <testsuite name="Router Test Suite">
+        <testsuite name="FileSystem Test Suite">
             <directory>tests</directory>
         </testsuite>
     </testsuites>

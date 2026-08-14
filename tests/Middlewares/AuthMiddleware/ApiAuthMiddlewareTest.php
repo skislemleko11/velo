@@ -11,7 +11,7 @@ use Velo\Middlewares\AuthMiddleware\ApiAuthMiddleware;
 use Velo\Session\Session\Interfaces\SessionInterface;
 use Velo\Session\Session\Session;
 
-class ApiAuthMiddlewareTest extends TestCase
+final class ApiAuthMiddlewareTest extends TestCase
 {
     private SessionInterface $session;
 

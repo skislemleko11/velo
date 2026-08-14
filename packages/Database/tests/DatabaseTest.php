@@ -9,7 +9,7 @@ use Velo\Database\Database;
 use Velo\Database\PdoFactory;
 use PDO;
 
-class DatabaseTest extends TestCase
+final class DatabaseTest extends TestCase
 {
     protected Database $db;
     protected PDO $pdo;

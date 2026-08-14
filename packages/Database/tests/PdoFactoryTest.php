@@ -10,7 +10,7 @@ use Velo\Database\PdoFactory;
 
 use PDO;
 
-class PdoFactoryTest extends TestCase
+final class PdoFactoryTest extends TestCase
 {
     #[Test]
     public function it_can_create_sqlite_connection(): void

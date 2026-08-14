@@ -40,6 +40,8 @@ readonly class ResponseRenderer
         } else {
             $this->echoApiResponse($httpResponse);
         }
+
+        $this->emitter->terminate();
     }
 
     /**
@@ -49,8 +51,6 @@ readonly class ResponseRenderer
     {
         // creating a copy cuz it doesn't work with readonly properties
         $this->extractDataAndRequireView($httpResponse->viewPath, $httpResponse->data + []);
-
-        $this->emitter->terminate();
     }
 
     /**
@@ -78,8 +78,6 @@ readonly class ResponseRenderer
         } else {
             $this->echoPlainTextResponse($httpResponse->data);
         }
-
-        $this->emitter->terminate();
     }
 
     /**

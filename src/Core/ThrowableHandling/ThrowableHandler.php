@@ -1,14 +1,15 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Core;
+namespace Velo\Core\ThrowableHandling;
 
 use ErrorException;
+use JsonException;
 use Psr\Log\LoggerInterface;
 use Throwable;
 use Velo\FileSystem\PathResolver\Exceptions\PathNotFoundException;
-use Velo\FileSystem\PathResolver\PathResolver;
 use Velo\Http\HttpResponse;
+use Velo\Http\ResponseFormat;
 use Velo\Http\ResponseRenderer;
 use Velo\Router\Exceptions\Interfaces\HttpExceptionInterface;
 
@@ -18,9 +19,9 @@ use Velo\Router\Exceptions\Interfaces\HttpExceptionInterface;
 readonly class ThrowableHandler
 {
     public function __construct(
-        protected LoggerInterface  $logger,
-        protected PathResolver     $pathResolver,
-        protected ResponseRenderer $responseRenderer
+        private LoggerInterface        $logger,
+        private ResponseRenderer       $responseRenderer,
+        private ErrorResponseFormatter $errorResponseFormatter
     )
     {
     }
@@ -32,6 +33,7 @@ readonly class ThrowableHandler
      * cleans the buffer and renders aproperiate resopone using returnResponse method and ResponseRenderer render method.
      *
      * @throws PathNotFoundException
+     * @throws JsonException
      */
     public function handleThrowable(Throwable $throwable): void
     {
@@ -40,7 +42,7 @@ readonly class ThrowableHandler
         $this->cleanBuffer();
 
         if (!headers_sent()) {
-            $this->responseRenderer->render($this->returnResponse($throwable));
+            $this->responseRenderer->render($this->formatResponse($throwable));
         } else {
             echo 'Critical error occurred! Headers already sent!';
         }
@@ -71,20 +73,19 @@ readonly class ThrowableHandler
 
     /**
      * Returns HttpResponse for the given Throwable.
+     * Uses errorResponseFormatter to format the response based on the Accept header.
      *
      * @throws PathNotFoundException
      */
-    private function returnResponse(Throwable $throwable): HttpResponse
+    private function formatResponse(Throwable $throwable): HttpResponse
     {
-        $statusCode = $throwable instanceof HttpExceptionInterface ? $throwable->getStatusCode() : 500;
+        $format = ResponseFormat::fromAcceptHeader($_SERVER['HTTP_ACCEPT'] ?? '*/*');
 
-        $viewName = 'error' . $statusCode;
-
-        if (!$this->pathResolver->isFileRegistered($viewName)) {
-            $viewName = 'error500';
-        }
-
-        return HttpResponse::view($this->pathResolver->getFilePath($viewName), $statusCode);
+        return match ($format) {
+            ResponseFormat::HTML => $this->errorResponseFormatter->formatView($throwable),
+            ResponseFormat::PLAIN_TEXT => $this->errorResponseFormatter->formatPlainText($throwable),
+            ResponseFormat::JSON => $this->errorResponseFormatter->formatJson($throwable)
+        };
     }
 
     /**

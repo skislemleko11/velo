@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Velo\Session\FlashMessages\FlashMessages;
 use Velo\Session\Session\Interfaces\SessionInterface;
 
-class FlashMessagesTest extends TestCase
+final class FlashMessagesTest extends TestCase
 {
     private SessionInterface $sessionMock;
     private FlashMessages $flashMessages;

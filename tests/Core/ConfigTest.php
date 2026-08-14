@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Velo\Core\Config;
 
-class ConfigTest extends TestCase
+final class ConfigTest extends TestCase
 {
     #[Test]
     public function it_creates_and_gets_key(): void

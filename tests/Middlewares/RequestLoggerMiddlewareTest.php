@@ -10,7 +10,7 @@ use Velo\Logger\Logger;
 use Velo\Middlewares\RequestLoggerMiddleware;
 use PHPUnit\Framework\TestCase;
 
-class RequestLoggerMiddlewareTest extends TestCase
+final class RequestLoggerMiddlewareTest extends TestCase
 {
     private Logger $logger;
 

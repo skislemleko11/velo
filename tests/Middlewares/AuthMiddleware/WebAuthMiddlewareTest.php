@@ -11,7 +11,7 @@ use Velo\Middlewares\AuthMiddleware\WebAuthMiddleware;
 use Velo\Session\Session\Interfaces\SessionInterface;
 use Velo\Session\Session\Session;
 
-class WebAuthMiddlewareTest extends TestCase
+final class WebAuthMiddlewareTest extends TestCase
 {
     private SessionInterface $session;
 

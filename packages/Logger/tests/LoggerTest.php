@@ -16,7 +16,7 @@ use Velo\Logger\LogTextFormatter;
 use InvalidArgumentException;
 
 #[AllowMockObjectsWithoutExpectations]
-class LoggerTest extends TestCase
+final class LoggerTest extends TestCase
 {
     protected Logger $logger;
     protected LogFormatter $logFormatter;

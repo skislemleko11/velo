@@ -73,7 +73,7 @@ class LogTextFormatter implements LogFormatter
     {
         return sprintf(
             self::THROWABLE_FORMAT,
-            get_class($exception),
+            $exception::class,
             $exception->getMessage(),
             $exception->getFile(),
             $exception->getLine(),

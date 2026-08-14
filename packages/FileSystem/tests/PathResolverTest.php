@@ -6,10 +6,11 @@ namespace Velo\FileSystem\Tests;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use TypeError;
 use Velo\FileSystem\PathResolver\Exceptions\PathNotFoundException;
 use Velo\FileSystem\PathResolver\PathResolver;
 
-class PathResolverTest extends TestCase
+final class PathResolverTest extends TestCase
 {
     private PathResolver $pathResolver;
 
@@ -19,6 +20,7 @@ class PathResolverTest extends TestCase
             basePath: '/',
             publicPath: '/public/',
             viewsPath: '/views/',
+            errorGeneralPath: 'error',
             error403Path: null,
             error404Path: '/views/error404.php',
             error500Path: '/views/error500.php',
@@ -80,17 +82,19 @@ class PathResolverTest extends TestCase
     }
 
     #[Test]
-    public function it_sets_null_file_path(): void
+    public function it_throws_exception_when_tries_to_set_null_file_path(): void
     {
+        $this->expectException(TypeError::class);
+
         $key = 'error999';
         $this->pathResolver->setFilePath($key, null);
-        $this->assertNull($this->getProperty($this->pathResolver, 'filePaths')[$key]);
     }
 
     #[Test]
-    public function it_gets_null_file_path(): void
+    public function it_throws_path_not_found_exception_when_getting_null_file_path(): void
     {
-        $this->assertNull($this->pathResolver->getFilePath('error403'));
+        $this->expectException(PathNotFoundException::class);
+        $this->pathResolver->getFilePath('error403');
     }
 
     #[Test]
@@ -110,9 +114,9 @@ class PathResolverTest extends TestCase
     }
 
     #[Test]
-    public function is_file_with_null_path_registered(): void
+    public function it_checks_if_file_with_null_path_is_considered_as_unregistered(): void
     {
-        $this->assertTrue($this->pathResolver->isFileRegistered('error403'));
+        $this->assertFalse($this->pathResolver->isFileRegistered('error403'));
     }
 
     #[Test]

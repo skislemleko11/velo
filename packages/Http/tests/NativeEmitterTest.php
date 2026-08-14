@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Velo\Http\Emitter\NativeEmitter;
 
-class NativeEmitterTest extends TestCase
+final class NativeEmitterTest extends TestCase
 {
     private NativeEmitter $emitter;
 

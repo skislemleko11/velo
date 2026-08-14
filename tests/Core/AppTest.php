@@ -17,7 +17,7 @@ use Velo\Router\Pipeline\Pipeline;
 use Velo\Router\Router\Router;
 
 #[AllowMockObjectsWithoutExpectations]
-class AppTest extends TestCase
+final class AppTest extends TestCase
 {
     protected Router $router;
     protected Container $container;

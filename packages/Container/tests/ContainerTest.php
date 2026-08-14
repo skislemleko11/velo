@@ -10,7 +10,7 @@ use ReflectionClass;
 use Velo\Container\Container;
 use Velo\Container\Exceptions\ContainerException;
 
-class ContainerTest extends TestCase
+final class ContainerTest extends TestCase
 {
     private Container $container;
 

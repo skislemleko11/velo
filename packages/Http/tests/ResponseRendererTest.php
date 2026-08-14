@@ -14,7 +14,7 @@ use Velo\Session\FlashMessages\Interfaces\FlashMessagesInterface;
 use Velo\Session\Session\Interfaces\SessionInterface;
 
 #[AllowMockObjectsWithoutExpectations]
-class ResponseRendererTest extends TestCase
+final class ResponseRendererTest extends TestCase
 {
     private SessionInterface $sessionMock;
     private EmitterInterface $emitterMock;
@@ -40,14 +40,19 @@ class ResponseRendererTest extends TestCase
 
         $this->emitterMock
             ->expects($this->once())
+            ->method('setStatusCode')
+            ->with(200)
+            ->willReturnSelf();
+
+        $this->emitterMock
+            ->expects($this->once())
             ->method('terminate')
             ->willThrowException(new RuntimeException('Terminated'));
 
-        // TODO: IT DOES NOT PASS, IDK WHY, I'M SO TIRED ALREADY, LET'S FIGHT WITH THAT TOMORROW
-//        $this->emitterMock
-//            ->expects($this->once())
-//            ->method('sendHeaders')
-//            ->with(['Content-Type' => 'application/json']);
+        $this->emitterMock
+            ->expects($this->once())
+            ->method('sendHeaders')
+            ->with(['Content-Type' => 'application/json']);
 
         ob_start();
         try {
