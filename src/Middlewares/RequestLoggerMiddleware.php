@@ -50,7 +50,7 @@ readonly class RequestLoggerMiddleware implements MiddlewareInterface
         $this->logger->info("Request:\nUrl: {url}\nMethod: {method}", [
             'url' => $request->url,
             'url path' => $request->urlPath,
-            'method' => $request->requestMethod,
+            'method' => $request->method->value,
             'GET params' => $request->getParams
         ]);
     }

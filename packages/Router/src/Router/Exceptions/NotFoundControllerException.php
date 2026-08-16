@@ -3,20 +3,15 @@ declare(strict_types=1);
 
 namespace Velo\Router\Router\Exceptions;
 
-use Psr\Container\NotFoundExceptionInterface;
-use Velo\Router\Exceptions\Interfaces\HttpExceptionInterface;
+use Velo\Exceptions\NotFoundException;
+use Velo\Router\Router\Exceptions\Interfaces\RouterExceptionInterface;
 
-class NotFoundControllerException extends RouterException implements NotFoundExceptionInterface, HttpExceptionInterface
+class NotFoundControllerException extends NotFoundException implements RouterExceptionInterface
 {
-    protected $message = "The requested controller was not found.";
-
-    public function getStatusCode(): int
-    {
-        return 404;
-    }
+    protected $message = 'The requested controller was not found.';
 
     public function shouldLogException(): bool
     {
-        return false;
+        return true;
     }
 }

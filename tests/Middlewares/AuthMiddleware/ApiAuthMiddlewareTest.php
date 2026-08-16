@@ -10,6 +10,7 @@ use Velo\Http\HttpResponse;
 use Velo\Middlewares\AuthMiddleware\ApiAuthMiddleware;
 use Velo\Session\Session\Interfaces\SessionInterface;
 use Velo\Session\Session\Session;
+use Velo\Http\RequestMethod;
 
 final class ApiAuthMiddlewareTest extends TestCase
 {
@@ -31,7 +32,7 @@ final class ApiAuthMiddlewareTest extends TestCase
     {
         $_SESSION['user_id'] = 123;
 
-        $request = new HttpRequest(url: '/dashboard', method: 'GET');
+        $request = new HttpRequest(url: '/dashboard', method: RequestMethod::GET);
         $expectedResponse = HttpResponse::plainText('hehe');
         $middleware = new ApiAuthMiddleware(session: $this->session);
 
@@ -51,7 +52,7 @@ final class ApiAuthMiddlewareTest extends TestCase
     #[Test]
     public function it_returns_unauthenticated_response_when_user_is_not_authenticated(): void
     {
-        $request = new HttpRequest(url: '/protected-page', method: 'GET');
+        $request = new HttpRequest(url: '/protected-page', method: RequestMethod::GET);
         $middleware = new ApiAuthMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
@@ -66,7 +67,7 @@ final class ApiAuthMiddlewareTest extends TestCase
     #[Test]
     public function it_returns_custom_unauthenticated_response_when_provided(): void
     {
-        $request = new HttpRequest(url: '/admin/settings', method: 'GET');
+        $request = new HttpRequest(url: '/admin/settings', method: RequestMethod::GET);
         $middleware = new ApiAuthMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
@@ -82,7 +83,7 @@ final class ApiAuthMiddlewareTest extends TestCase
     #[Test]
     public function it_uses_custom_response_handler_when_provided(): void
     {
-        $request = new HttpRequest(url: '/secret', method: 'GET');
+        $request = new HttpRequest(url: '/secret', method: RequestMethod::GET);
         $customResponse = HttpResponse::plainText('', statusCode: 401);
 
         $customHandler = function (HttpRequest $req) use ($request, $customResponse) {
@@ -103,7 +104,7 @@ final class ApiAuthMiddlewareTest extends TestCase
     #[Test]
     public function it_uses_custom_response_handler_with_custom_response_when_provided(): void
     {
-        $request = new HttpRequest(url: '/secret', method: 'GET');
+        $request = new HttpRequest(url: '/secret', method: RequestMethod::GET);
 
         $expectedResponse = HttpResponse::json(data: ['hehe' => 'hihi']);
 

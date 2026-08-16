@@ -33,6 +33,8 @@ readonly class HttpResponse
      */
     public static function view(string $viewPath, int $statusCode = 200, array $data = [], array $headers = []): self
     {
+        $headers['Content-Type'] = 'text/html; charset=utf-8';
+
         return new self(
             viewPath: $viewPath,
             statusCode: $statusCode,

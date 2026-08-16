@@ -22,13 +22,13 @@ final class DatabaseTest extends TestCase
         );
         $this->db = new Database($this->pdo);
 
-        $this->pdo->exec("
+        $this->pdo->exec('
             CREATE TABLE users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 email TEXT NOT NULL
             )
-        ");
+        ');
 
         $this->pdo->exec("INSERT INTO users (name, email) VALUES ('Jan Kowalski', 'jan@wp.pl')");
         $this->pdo->exec("INSERT INTO users (name, email) VALUES ('Anna Nowak', 'anna@o2.pl')");
@@ -44,7 +44,7 @@ final class DatabaseTest extends TestCase
     public function it_fetches_and_returnes_single_row(): void
     {
         $result = $this->db->fetchOne(
-            "SELECT * FROM users WHERE email = :email",
+            'SELECT * FROM users WHERE email = :email',
             ['email' => 'jan@wp.pl']
         );
 
@@ -57,7 +57,7 @@ final class DatabaseTest extends TestCase
     public function it_fetches_and_returns_empty_array_when_no_results(): void
     {
         $result = $this->db->fetchOne(
-            "SELECT * FROM users WHERE email = :email",
+            'SELECT * FROM users WHERE email = :email',
             ['email' => 'nieistnieje@test.pl']
         );
 
@@ -67,7 +67,7 @@ final class DatabaseTest extends TestCase
     #[Test]
     public function it_fetches_and_returns_multiple_rows(): void
     {
-        $result = $this->db->fetchAll("SELECT name FROM users ORDER BY id");
+        $result = $this->db->fetchAll('SELECT name FROM users ORDER BY id');
 
         $this->assertCount(2, $result);
         $this->assertSame('Jan Kowalski', $result[0]['name']);
@@ -77,7 +77,7 @@ final class DatabaseTest extends TestCase
     #[Test]
     public function it_fetches_lazy(): void
     {
-        $result = $this->db->fetchAllLazy("SELECT name FROM users ORDER BY id");
+        $result = $this->db->fetchAllLazy('SELECT name FROM users ORDER BY id');
 
         $resArr = [];
 
@@ -94,7 +94,7 @@ final class DatabaseTest extends TestCase
     public function it_executes_queries_and_returns_row_count(): void
     {
         $rowCount = $this->db->execute(
-            "INSERT INTO users (name, email) VALUES (:name, :email)",
+            'INSERT INTO users (name, email) VALUES (:name, :email)',
             ['name' => 'Tomasz Bat', 'email' => 'tomasz@test.pl'],
             returnRowCount: true
         );
@@ -111,7 +111,7 @@ final class DatabaseTest extends TestCase
         $this->db->beginTransaction();
 
         $this->db->execute(
-            "INSERT INTO users (name, email) VALUES (:name, :email)",
+            'INSERT INTO users (name, email) VALUES (:name, :email)',
             ['name' => 'Błąd Transakcji', 'email' => 'error@test.pl']
         );
 
@@ -127,7 +127,7 @@ final class DatabaseTest extends TestCase
         $this->db->beginTransaction();
 
         $this->db->execute(
-            "INSERT INTO users (name, email) VALUES (:name, :email)",
+            'INSERT INTO users (name, email) VALUES (:name, :email)',
             ['name' => 'Sukces Transakcji', 'email' => 'success@test.pl']
         );
 
@@ -141,7 +141,7 @@ final class DatabaseTest extends TestCase
     public function it_gets_last_insert_id(): void
     {
         $this->db->execute(
-            "INSERT INTO users (name, email) VALUES (:name, :email)",
+            'INSERT INTO users (name, email) VALUES (:name, :email)',
             ['name' => 'Test User', 'email' => 'test@test.pl']
         );
 

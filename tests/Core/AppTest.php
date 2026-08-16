@@ -15,6 +15,7 @@ use Velo\Http\ResponseRenderer;
 use Velo\Router\Middlewares\MiddlewareInterface;
 use Velo\Router\Pipeline\Pipeline;
 use Velo\Router\Router\Router;
+use Velo\Http\RequestMethod;
 
 #[AllowMockObjectsWithoutExpectations]
 final class AppTest extends TestCase
@@ -53,7 +54,7 @@ final class AppTest extends TestCase
     #[Test]
     public function it_calls_router_resolve_method(): void
     {
-        $request = new HttpRequest('/', 'GET');
+        $request = new HttpRequest('/', RequestMethod::GET);
         $httpResponse = HttpResponse::view('hehe');
 
         $app = new App($this->router, $this->container);
@@ -73,7 +74,7 @@ final class AppTest extends TestCase
     #[Test]
     public function it_calls_ResponseRenderer_render_method(): void
     {
-        $request = new HttpRequest('/', 'GET');
+        $request = new HttpRequest('/', RequestMethod::GET);
         $httpResponse = HttpResponse::view('hehe');
 
         $app = new App($this->router, $this->container);
@@ -93,7 +94,7 @@ final class AppTest extends TestCase
     #[Test]
     public function it_executes_global_middlewares_before_resolving_route(): void
     {
-        $request = new HttpRequest('/', 'GET');
+        $request = new HttpRequest('/', RequestMethod::GET);
         $expectedResponse = HttpResponse::json(data: ['middleware' => 'executed']);
 
         $middleware = $this->createMock(MiddlewareInterface::class);

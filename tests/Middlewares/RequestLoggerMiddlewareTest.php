@@ -9,6 +9,7 @@ use Velo\Http\HttpResponse;
 use Velo\Logger\Logger;
 use Velo\Middlewares\RequestLoggerMiddleware;
 use PHPUnit\Framework\TestCase;
+use Velo\Http\RequestMethod;
 
 final class RequestLoggerMiddlewareTest extends TestCase
 {
@@ -38,7 +39,7 @@ final class RequestLoggerMiddlewareTest extends TestCase
             return $httpResponse;
         };
 
-        $request = new HttpRequest('/', 'get');
+        $request = new HttpRequest('/', RequestMethod::GET);
         $this->assertSame($httpResponse, $middleware->handle($request, $next));
 
         $this->assertEquals(1, $wasCalled);
@@ -57,14 +58,14 @@ final class RequestLoggerMiddlewareTest extends TestCase
             return $httpResponse;
         };
 
-        $request = new HttpRequest('/', 'get');
+        $request = new HttpRequest('/', RequestMethod::GET);
 
         $this->logger->expects($this->once())
             ->method('info')
             ->with("Request:\nUrl: {url}\nMethod: {method}", [
                 'url' => $request->urlPath,
                 'url path' => $request->urlPath,
-                'method' => $request->requestMethod,
+                'method' => $request->method->value,
                 'GET params' => $request->getParams
             ]);
 

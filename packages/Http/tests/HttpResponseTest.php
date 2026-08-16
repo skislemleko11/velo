@@ -31,7 +31,7 @@ final class HttpResponseTest extends TestCase
         $this->assertSame('home', $viewResponse->viewPath);
         $this->assertSame(205, $viewResponse->statusCode);
         $this->assertEquals(['hehe'], $viewResponse->data);
-        $this->assertEquals(['hahah'], $viewResponse->headers);
+        $this->assertEquals(['Content-Type' => 'text/html; charset=utf-8', 'hahah'], $viewResponse->headers);
     }
 
     #[Test]

@@ -10,6 +10,7 @@ use Velo\Middlewares\GuestMiddleware\WebGuestMiddleware;
 use PHPUnit\Framework\TestCase;
 use Velo\Session\Session\Interfaces\SessionInterface;
 use Velo\Session\Session\Session;
+use Velo\Http\RequestMethod;
 
 class WebGuestMiddlewareTest extends TestCase
 {
@@ -29,7 +30,7 @@ class WebGuestMiddlewareTest extends TestCase
     #[Test]
     public function it_calls_next_when_user_is_unauthenticated(): void
     {
-        $request = new HttpRequest(url: '/dashboard', method: 'GET');
+        $request = new HttpRequest(url: '/dashboard', method: RequestMethod::GET);
         $expectedResponse = HttpResponse::view('/views/dashboard.php');
         $middleware = new WebGuestMiddleware(session: $this->session);
 
@@ -50,7 +51,7 @@ class WebGuestMiddlewareTest extends TestCase
     public function it_redirects_to_default_login_url_when_authenticated(): void
     {
         $_SESSION['user_id'] = 1;
-        $request = new HttpRequest(url: '/protected-page', method: 'GET');
+        $request = new HttpRequest(url: '/protected-page', method: RequestMethod::GET);
         $middleware = new WebGuestMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
@@ -66,7 +67,7 @@ class WebGuestMiddlewareTest extends TestCase
     {
         $_SESSION['user_id'] = 1;
 
-        $request = new HttpRequest(url: '/admin/settings', method: 'GET');
+        $request = new HttpRequest(url: '/admin/settings', method: RequestMethod::GET);
         $middleware = new WebGuestMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
@@ -82,7 +83,7 @@ class WebGuestMiddlewareTest extends TestCase
     {
         $_SESSION['user_id'] = 1;
 
-        $request = new HttpRequest(url: '/secret', method: 'GET');
+        $request = new HttpRequest(url: '/secret', method: RequestMethod::GET);
         $customResponse = HttpResponse::view('/views/custom-error.php', statusCode: 401);
 
         $customHandler = function (HttpRequest $req) use ($request, $customResponse) {
@@ -104,7 +105,7 @@ class WebGuestMiddlewareTest extends TestCase
     {
         $_SESSION['user_id'] = 1;
 
-        $request = new HttpRequest(url: '/secret', method: 'GET');
+        $request = new HttpRequest(url: '/secret', method: RequestMethod::GET);
         $customResponse = HttpResponse::view('/views/custom-error.php', statusCode: 401);
 
         $customHandler = function (HttpRequest $req, $url) use ($request, $customResponse) {

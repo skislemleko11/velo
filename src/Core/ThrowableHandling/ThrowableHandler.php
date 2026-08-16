@@ -7,11 +7,11 @@ use ErrorException;
 use JsonException;
 use Psr\Log\LoggerInterface;
 use Throwable;
+use Velo\Exceptions\Interfaces\HttpExceptionInterface;
 use Velo\FileSystem\PathResolver\Exceptions\PathNotFoundException;
 use Velo\Http\HttpResponse;
 use Velo\Http\ResponseFormat;
 use Velo\Http\ResponseRenderer;
-use Velo\Router\Exceptions\Interfaces\HttpExceptionInterface;
 
 /**
  * Throwable handler made for global throwable and error handling.

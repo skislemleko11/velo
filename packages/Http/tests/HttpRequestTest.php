@@ -6,6 +6,7 @@ namespace Velo\Http\Tests;
 use PHPUnit\Framework\Attributes\Test;
 use Velo\Http\HttpRequest;
 use PHPUnit\Framework\TestCase;
+use Velo\Http\RequestMethod;
 
 final class HttpRequestTest extends TestCase
 {
@@ -14,19 +15,13 @@ final class HttpRequestTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->httpRequest = new HttpRequest(self::URL, 'get');
+        $this->httpRequest = new HttpRequest(self::URL, RequestMethod::GET);
     }
 
     #[Test]
     public function it_parsed_url_in_constructor(): void
     {
         $this->assertSame(parse_url(self::URL, PHP_URL_PATH), $this->httpRequest->urlPath);
-    }
-
-    #[Test]
-    public function it_made_method_name_uppercase(): void
-    {
-        $this->assertSame(strtoupper($this->httpRequest->requestMethod), $this->httpRequest->requestMethod);
     }
 
     #[Test]

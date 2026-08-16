@@ -122,7 +122,7 @@ final class ResponseRendererTest extends TestCase
     #[Test]
     public function it_terminates_immediately_on_redirect_header(): void
     {
-        $response = HttpResponse::redirect('/login', 302);
+        $response = HttpResponse::redirect('/login');
 
         $this->emitterMock
             ->expects($this->once())

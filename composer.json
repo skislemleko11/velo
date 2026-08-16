@@ -21,7 +21,8 @@
       "Velo\\Router\\": "packages/Router/src/",
       "Velo\\Session\\": "packages/Session/src/",
       "Velo\\View\\": "packages/View/src/",
-      "Velo\\FileSystem\\": "packages/FileSystem/src/"
+      "Velo\\FileSystem\\": "packages/FileSystem/src/",
+      "Velo\\Exceptions\\": "packages/Exceptions/src/"
     }
   },
   "require-dev": {

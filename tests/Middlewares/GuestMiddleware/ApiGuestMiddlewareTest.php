@@ -10,6 +10,7 @@ use Velo\Middlewares\GuestMiddleware\ApiGuestMiddleware;
 use PHPUnit\Framework\TestCase;
 use Velo\Session\Session\Interfaces\SessionInterface;
 use Velo\Session\Session\Session;
+use Velo\Http\RequestMethod;
 
 class ApiGuestMiddlewareTest extends TestCase
 {
@@ -29,7 +30,7 @@ class ApiGuestMiddlewareTest extends TestCase
     #[Test]
     public function it_calls_next_when_user_is_unauthenticated(): void
     {
-        $request = new HttpRequest(url: '/dashboard', method: 'GET');
+        $request = new HttpRequest(url: '/dashboard', method: RequestMethod::GET);
         $expectedResponse = HttpResponse::plainText('hehe');
         $middleware = new ApiGuestMiddleware(session: $this->session);
 
@@ -50,7 +51,7 @@ class ApiGuestMiddlewareTest extends TestCase
     {
         $_SESSION['user_id'] = 123;
 
-        $request = new HttpRequest(url: '/protected-page', method: 'GET');
+        $request = new HttpRequest(url: '/protected-page', method: RequestMethod::GET);
         $middleware = new ApiGuestMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
@@ -66,7 +67,7 @@ class ApiGuestMiddlewareTest extends TestCase
     {
         $_SESSION['user_id'] = 123;
 
-        $request = new HttpRequest(url: '/admin/settings', method: 'GET');
+        $request = new HttpRequest(url: '/admin/settings', method: RequestMethod::GET);
         $middleware = new ApiGuestMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
@@ -83,7 +84,7 @@ class ApiGuestMiddlewareTest extends TestCase
     {
         $_SESSION['user_id'] = 123;
 
-        $request = new HttpRequest(url: '/secret', method: 'GET');
+        $request = new HttpRequest(url: '/secret', method: RequestMethod::GET);
         $customResponse = HttpResponse::plainText('', statusCode: 401);
 
         $customHandler = function (HttpRequest $req) use ($request, $customResponse) {
@@ -105,7 +106,7 @@ class ApiGuestMiddlewareTest extends TestCase
     {
         $_SESSION['user_id'] = 123;
 
-        $request = new HttpRequest(url: '/secret', method: 'GET');
+        $request = new HttpRequest(url: '/secret', method: RequestMethod::GET);
         $customResponse = HttpResponse::json(data: ['hehe' => 'hihi'], statusCode: 401);
 
         $customHandler = function (HttpRequest $req, $data) use ($request, $customResponse) {

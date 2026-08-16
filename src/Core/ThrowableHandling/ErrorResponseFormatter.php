@@ -4,10 +4,11 @@ declare(strict_types=1);
 namespace Velo\Core\ThrowableHandling;
 
 use Throwable;
+use Velo\Exceptions\Interfaces\HttpExceptionInterface;
+use Velo\Exceptions\Interfaces\HttpExceptionWithHeadersInterface;
 use Velo\FileSystem\PathResolver\Exceptions\PathNotFoundException;
 use Velo\FileSystem\PathResolver\PathResolver;
 use Velo\Http\HttpResponse;
-use Velo\Router\Exceptions\Interfaces\HttpExceptionInterface;
 
 /**
  * Formats Error Responses.
@@ -17,7 +18,11 @@ use Velo\Router\Exceptions\Interfaces\HttpExceptionInterface;
  */
 class ErrorResponseFormatter
 {
-    public function __construct(protected readonly PathResolver $pathResolver)
+    public const string DEFAULT_ERROR_MESSAGE = 'An error occurred';
+
+    public function __construct(
+        protected PathResolver $pathResolver
+    )
     {
     }
 
@@ -28,11 +33,17 @@ class ErrorResponseFormatter
         $result = [
             'error' => [
                 'statusCode' => $statusCode,
-                'message' => 'An error occurred',
+                'message' => $this->getPublicMessage($throwable),
             ]
         ];
 
-        return HttpResponse::json($result, $statusCode);
+        $headers = $this->getHeaders($throwable);
+
+        return HttpResponse::json(
+            data: $result,
+            statusCode: $statusCode,
+            headers: $headers
+        );
     }
 
     /**
@@ -41,6 +52,7 @@ class ErrorResponseFormatter
     public function formatView(Throwable $throwable): HttpResponse
     {
         $statusCode = $this->getStatusCode($throwable);
+
         $viewName = 'error' . $statusCode;
 
         if (!$this->pathResolver->isFileRegistered($viewName)) {
@@ -51,20 +63,42 @@ class ErrorResponseFormatter
             }
         }
 
-        return HttpResponse::view($this->pathResolver->getFilePath($viewName), $statusCode);
+        $headers = $this->getHeaders($throwable);
+
+        return HttpResponse::view(
+            viewPath: $this->pathResolver->getFilePath($viewName),
+            statusCode: $statusCode,
+            headers: $headers
+        );
     }
 
     public function formatPlainText(Throwable $throwable): HttpResponse
     {
-        $content = 'An error occurred';
+        $content = $this->getPublicMessage($throwable);
 
         $statusCode = $this->getStatusCode($throwable);
 
-        return HttpResponse::plainText($content, $statusCode);
+        $headers = $this->getHeaders($throwable);
+
+        return HttpResponse::plainText(
+            content: $content,
+            statusCode: $statusCode,
+            headers: $headers
+        );
     }
 
     protected function getStatusCode(Throwable $throwable): int
     {
         return $throwable instanceof HttpExceptionInterface ? $throwable->getStatusCode() : 500;
+    }
+
+    protected function getPublicMessage(Throwable $throwable): string
+    {
+        return $throwable instanceof HttpExceptionInterface ? $throwable->getPublicMessage() : self::DEFAULT_ERROR_MESSAGE;
+    }
+
+    protected function getHeaders(Throwable $throwable): array
+    {
+        return $throwable instanceof HttpExceptionWithHeadersInterface ? $throwable->getHeaders() : [];
     }
 }

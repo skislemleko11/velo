@@ -34,6 +34,8 @@ jobs:
             split_repository: 'velo-filesystem'
           - local_path: 'View'
             split_repository: 'velo-view'
+          - local_path: 'Exceptions'
+            split_repository: 'velo-exceptions'
 
     steps:
       - uses: actions/checkout@v4

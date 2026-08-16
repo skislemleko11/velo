@@ -35,7 +35,6 @@ final class PdoFactoryTest extends TestCase
         PdoFactory::create(
             sql: 'invalid_driver',
             dbname: 'test',
-            host: 'localhost',
             username: 'root',
             password: 'a'
         );

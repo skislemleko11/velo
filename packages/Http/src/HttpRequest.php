@@ -12,16 +12,14 @@ class HttpRequest
      * @var string $urlPath Clean URL (no GET args)
      */
     public readonly string $urlPath;
-    public readonly string $requestMethod;
     private(set) array $getParams = [];
 
     public function __construct(
-        public readonly string $url,
-        string                 $method
+        public readonly string        $url,
+        public readonly RequestMethod $method
     )
     {
         $this->urlPath = parse_url($url, PHP_URL_PATH) ?: '/';
-        $this->requestMethod = strtoupper($method);
 
         if ($queryString = parse_url($url, PHP_URL_QUERY)) {
             parse_str($queryString, $this->getParams);
@@ -51,7 +49,7 @@ class HttpRequest
     {
         return new self(
             $_SERVER['REQUEST_URI'],
-            $_SERVER['REQUEST_METHOD']
+            RequestMethod::fromString($_SERVER['REQUEST_METHOD'])
         );
     }
 }

@@ -1,0 +1,16 @@
+{
+  "name": "skislemleko11/velo-exceptions",
+  "description": "Exceptions package for Velo framework",
+  "type": "library",
+  "license": "LGPL-3.0",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "php": ">=8.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "Velo\\Exceptions\\": "src/"
+    }
+  }
+}

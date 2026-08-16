@@ -10,6 +10,7 @@ use Velo\Http\HttpResponse;
 use Velo\Middlewares\AuthMiddleware\WebAuthMiddleware;
 use Velo\Session\Session\Interfaces\SessionInterface;
 use Velo\Session\Session\Session;
+use Velo\Http\RequestMethod;
 
 final class WebAuthMiddlewareTest extends TestCase
 {
@@ -31,7 +32,7 @@ final class WebAuthMiddlewareTest extends TestCase
     {
         $_SESSION['user_id'] = 123;
 
-        $request = new HttpRequest(url: '/dashboard', method: 'GET');
+        $request = new HttpRequest(url: '/dashboard', method: RequestMethod::GET);
         $expectedResponse = HttpResponse::view('/views/dashboard.php');
         $middleware = new WebAuthMiddleware(session: $this->session);
 
@@ -51,7 +52,7 @@ final class WebAuthMiddlewareTest extends TestCase
     #[Test]
     public function it_redirects_to_default_login_url_and_saves_intended_url_when_unauthenticated(): void
     {
-        $request = new HttpRequest(url: '/protected-page', method: 'GET');
+        $request = new HttpRequest(url: '/protected-page', method: RequestMethod::GET);
         $middleware = new WebAuthMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
@@ -65,7 +66,7 @@ final class WebAuthMiddlewareTest extends TestCase
     #[Test]
     public function it_redirects_to_custom_url_when_provided(): void
     {
-        $request = new HttpRequest(url: '/admin/settings', method: 'GET');
+        $request = new HttpRequest(url: '/admin/settings', method: RequestMethod::GET);
         $middleware = new WebAuthMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
@@ -79,7 +80,7 @@ final class WebAuthMiddlewareTest extends TestCase
     #[Test]
     public function it_uses_custom_response_handler_when_provided(): void
     {
-        $request = new HttpRequest(url: '/secret', method: 'GET');
+        $request = new HttpRequest(url: '/secret', method: RequestMethod::GET);
         $customResponse = HttpResponse::view('/views/custom-error.php', statusCode: 401);
 
         $customHandler = function (HttpRequest $req) use ($request, $customResponse) {
@@ -99,7 +100,7 @@ final class WebAuthMiddlewareTest extends TestCase
     #[Test]
     public function it_uses_custom_response_handler_with_custom_response_when_provided(): void
     {
-        $request = new HttpRequest(url: '/secret', method: 'GET');
+        $request = new HttpRequest(url: '/secret', method: RequestMethod::GET);
         $customResponse = HttpResponse::view('/views/custom-error.php?redirect=%2Fsecret', statusCode: 401);
 
         $customHandler = function (HttpRequest $req, $responseForUnauthenticatedUser) use ($request) {

@@ -9,9 +9,10 @@ use Velo\FileSystem\PathResolver\Exceptions\PathNotFoundException;
 use Velo\FileSystem\PathResolver\PathResolver;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
-use Velo\Middlewares\Exceptions\InvalidRequestMethodMiddlewareException;
+use Velo\Middlewares\Exceptions\InvalidRequestMethodMiddlewareExceptionInterface;
 use Velo\Router\Middlewares\MiddlewareInterface;
 use Velo\Session\Session\Interfaces\SessionInterface;
+use Velo\Http\RequestMethod;
 
 /**
  * Protects against CSRF attacks.
@@ -44,12 +45,12 @@ readonly class AntiCsrfMiddleware implements MiddlewareInterface
      *
      * @throws PathNotFoundException
      * @throws RandomException
-     * @throws InvalidRequestMethodMiddlewareException
+     * @throws InvalidRequestMethodMiddlewareExceptionInterface
      */
     public function handle(HttpRequest $request, callable $next): HttpResponse
     {
-        if ($request->requestMethod === 'GET') {
-            throw new InvalidRequestMethodMiddlewareException(
+        if ($request->method === RequestMethod::GET) {
+            throw new InvalidRequestMethodMiddlewareExceptionInterface(
                 'Cannot use ' . self::class . ' with GET method!',
             );
         }

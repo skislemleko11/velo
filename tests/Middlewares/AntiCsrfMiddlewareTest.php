@@ -11,14 +11,14 @@ use Velo\FileSystem\PathResolver\PathResolver;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
 use Velo\Middlewares\AntiCsrfMiddleware;
-use Velo\Middlewares\Exceptions\InvalidRequestMethodMiddlewareException;
+use Velo\Middlewares\Exceptions\InvalidRequestMethodMiddlewareExceptionInterface;
 use Velo\Session\Session\Interfaces\SessionInterface;
 use Velo\Session\Session\Session;
+use Velo\Http\RequestMethod;
 
 final class AntiCsrfMiddlewareTest extends TestCase
 {
     private AntiCsrfMiddleware $middleware;
-    private Container $container;
     private PathResolver $pathResolver;
     private Session $session;
 
@@ -27,7 +27,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
         $_SESSION = [];
         $_POST = [];
 
-        $this->container = new Container();
+        $container = new Container();
         $this->pathResolver = new PathResolver(
             basePath: '/',
             publicPath: '/public/',
@@ -38,10 +38,10 @@ final class AntiCsrfMiddlewareTest extends TestCase
             error500Path: 'error500.php'
         );
 
-        $this->container->set(SessionInterface::class, Session::class);
-        $this->container->set(PathResolver::class, fn() => $this->pathResolver);
-        $this->middleware = $this->container->get(AntiCsrfMiddleware::class);
-        $this->session = $this->container->get(Session::class);
+        $container->set(SessionInterface::class, Session::class);
+        $container->set(PathResolver::class, fn() => $this->pathResolver);
+        $this->middleware = $container->get(AntiCsrfMiddleware::class);
+        $this->session = $container->get(Session::class);
     }
 
     protected function tearDown(): void
@@ -53,8 +53,8 @@ final class AntiCsrfMiddlewareTest extends TestCase
     #[Test]
     public function it_throws_exception_with_GET_method(): void
     {
-        $this->expectException(InvalidRequestMethodMiddlewareException::class);
-        $this->middleware->handle(new HttpRequest('/hehe', 'GET'), fn() => HttpResponse::view('hehe'));
+        $this->expectException(InvalidRequestMethodMiddlewareExceptionInterface::class);
+        $this->middleware->handle(new HttpRequest('/hehe', RequestMethod::GET), fn() => HttpResponse::view('hehe'));
     }
 
     #[Test]
@@ -74,7 +74,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
             return HttpResponse::view('/next');
         };
 
-        $request = new HttpRequest('/hehe', 'POST');
+        $request = new HttpRequest('/hehe', RequestMethod::POST);
         $response = $this->middleware->handle($request, $next);
 
         $this->assertFalse($nextCalled, 'Next middleware/controller should NOT be called on CSRF failure');
@@ -93,10 +93,10 @@ final class AntiCsrfMiddlewareTest extends TestCase
         $_SESSION['csrf_token'] = $validToken;
         $_POST['csrf_token'] = $validToken;
 
-        $nextResponse = HttpResponse::view('/success', 200);
+        $nextResponse = HttpResponse::view('/success');
 
         $response = $this->middleware->handle(
-            new HttpRequest('/hehe', 'POST'),
+            new HttpRequest('/hehe', RequestMethod::POST),
             fn() => $nextResponse
         );
 
@@ -123,7 +123,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
         );
 
         $response = $middleware->handle(
-            new HttpRequest('/hehe', 'POST'),
+            new HttpRequest('/hehe', RequestMethod::POST),
             fn() => HttpResponse::view('hehe')
         );
 

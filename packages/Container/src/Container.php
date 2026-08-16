@@ -11,7 +11,7 @@ use ReflectionException;
 use ReflectionIntersectionType;
 use ReflectionNamedType;
 use ReflectionUnionType;
-use Velo\Container\Exceptions\InvalidParameterExceptions\InvalidParameterException;
+use Velo\Container\Exceptions\InvalidParameterExceptions\UnexpectedInvalidParameterException;
 use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterIntersectionTypeException;
 use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterMissingTypeDeclarationException;
 use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterNoDefaultValueException;
@@ -55,7 +55,7 @@ class Container implements ContainerInterface
     /**
      * It gets an object of the requested id.
      *
-     * @throws InvalidParameterException
+     * @throws UnexpectedInvalidParameterException
      * @throws IsNotInstantiableException
      * @throws NotFoundExceptionInterface
      * @throws ParameterIntersectionTypeException
@@ -119,7 +119,7 @@ class Container implements ContainerInterface
      *
      * @param string $id Dependency ID - class name or alias/interface.
      *
-     * @throws InvalidParameterException
+     * @throws UnexpectedInvalidParameterException
      * @throws IsNotInstantiableException
      * @throws NotFoundExceptionInterface
      * @throws ParameterIntersectionTypeException
@@ -175,21 +175,21 @@ class Container implements ContainerInterface
 
                         if ($this->has($typeName)) {
                             $dependencies[] = $this->get($typeName);
-                        } else if ($param->isDefaultValueAvailable()) {
+                        } elseif ($param->isDefaultValueAvailable()) {
                             $dependencies[] = $param->getDefaultValue();
-                        } else if ($paramType->allowsNull()) {
+                        } elseif ($paramType->allowsNull()) {
                             $dependencies[] = null;
                         } else {
                             $dependencies[] = $this->get($typeName);
                         }
                     }
-                } else if ($paramType instanceof ReflectionIntersectionType) {
+                } elseif ($paramType instanceof ReflectionIntersectionType) {
                     throw new ParameterIntersectionTypeException(
                         'Failed to resolve dependency: "' . $id . '" because param"' . $paramName . '" is of an intersection type!'
                     );
                 } else {
                     // Probably it's not reachable in current(8.5) PHP, but I'm leaving it in case of future changes or bugs
-                    throw new InvalidParameterException(
+                    throw new UnexpectedInvalidParameterException(
                         'Failed to resolve dependency: "' . $id . '" because invalid param"' . $paramName . '"'
                     );
                 }

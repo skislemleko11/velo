@@ -12,9 +12,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Velo\Core\ThrowableHandling\ErrorResponseFormatter;
 use Velo\Core\ThrowableHandling\ThrowableHandler;
+use Velo\Exceptions\Interfaces\HttpExceptionInterface;
 use Velo\Http\HttpResponse;
 use Velo\Http\ResponseRenderer;
-use Velo\Router\Exceptions\Interfaces\HttpExceptionInterface;
 
 #[AllowMockObjectsWithoutExpectations]
 final class ThrowableHandlerTest extends TestCase
@@ -102,6 +102,11 @@ final class ThrowableHandlerTest extends TestCase
             {
                 return true;
             }
+
+            public function getPublicMessage(): string
+            {
+                return 'hehe';
+            }
         };
 
         $response = $this->createStub(HttpResponse::class);
@@ -151,6 +156,11 @@ final class ThrowableHandlerTest extends TestCase
             public function shouldLogException(): bool
             {
                 return false;
+            }
+
+            public function getPublicMessage(): string
+            {
+                return 'hehe';
             }
         };
 

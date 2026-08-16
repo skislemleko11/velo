@@ -7,7 +7,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionException;
-use Velo\Container\Exceptions\InvalidParameterExceptions\InvalidParameterException;
+use Velo\Container\Exceptions\InvalidParameterExceptions\UnexpectedInvalidParameterException;
 use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterIntersectionTypeException;
 use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterMissingTypeDeclarationException;
 use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterNoDefaultValueException;
@@ -16,14 +16,16 @@ use Velo\Container\Exceptions\IsNotInstantiableException;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
 use Velo\Http\ResponseRenderer;
-use Velo\Router\Exceptions\PageNotFoundException;
 use Velo\Router\Middlewares\AddMiddlewaresTrait;
 use Velo\Router\Pipeline\Exceptions\ControllerMethodInvalidReturnTypeException;
 use Velo\Router\Pipeline\Exceptions\MiddlewareNotFoundException;
 use Velo\Router\Pipeline\Exceptions\MustImplementMiddlewareInterfaceException;
 use Velo\Router\Pipeline\Pipeline;
+use Velo\Router\Router\Exceptions\MethodNotAllowedException;
+use Velo\Router\Router\Exceptions\MissingRequiredArgumentException;
 use Velo\Router\Router\Exceptions\NotFoundControllerException;
-use Velo\Router\Router\Exceptions\NotFoundMethodException;
+use Velo\Router\Router\Exceptions\NotFoundControllerMethodException;
+use Velo\Router\Router\Exceptions\RouteNotFound;
 use Velo\Router\Router\Router;
 
 /**
@@ -47,7 +49,7 @@ class App
      * Runs the application with the given HttpRequest.
      *
      * @throws ContainerExceptionInterface
-     * @throws InvalidParameterException
+     * @throws UnexpectedInvalidParameterException
      * @throws IsNotInstantiableException
      * @throws MiddlewareNotFoundException
      * @throws MustImplementMiddlewareInterfaceException
@@ -77,15 +79,23 @@ class App
     /**
      * Resolves the given HttpRequest, it uses Router's resolve method.
      *
-     * @throws NotFoundControllerException
-     * @throws MustImplementMiddlewareInterfaceException
-     * @throws NotFoundExceptionInterface
-     * @throws NotFoundMethodException
-     * @throws ControllerMethodInvalidReturnTypeException
+     * @param HttpRequest $request
+     * @return HttpResponse
      * @throws ContainerExceptionInterface
-     * @throws PageNotFoundException
-     * @throws ReflectionException
+     * @throws ControllerMethodInvalidReturnTypeException
      * @throws MiddlewareNotFoundException
+     * @throws MustImplementMiddlewareInterfaceException
+     * @throws NotFoundControllerException
+     * @throws NotFoundExceptionInterface
+     * @throws NotFoundControllerMethodException
+     * @throws RouteNotFound
+     * @throws ReflectionException
+     * @throws \Velo\Router\Router\Exceptions\InvalidParameterExceptions\UnexpectedInvalidParameterException
+     * @throws \Velo\Router\Router\Exceptions\InvalidParameterExceptions\ParameterMissingTypeDeclarationException
+     * @throws \Velo\Router\Router\Exceptions\InvalidParameterExceptions\ParameterUnionTypeException
+     * @throws MethodNotAllowedException
+     * @throws MissingRequiredArgumentException
+     * @throws \Velo\Router\Router\Exceptions\InvalidParameterExceptions\ParameterIntersectionTypeException
      */
     private function resolve(HttpRequest $request): HttpResponse
     {
@@ -97,12 +107,13 @@ class App
      *
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
-     * @throws InvalidParameterException
+     * @throws UnexpectedInvalidParameterException
      * @throws ParameterIntersectionTypeException
      * @throws ParameterMissingTypeDeclarationException
      * @throws ParameterNoDefaultValueException
      * @throws ParameterUnionTypeException
      * @throws IsNotInstantiableException
+     * @throws ContainerExceptionInterface
      */
     private function renderResponse(HttpResponse $response): void
     {
