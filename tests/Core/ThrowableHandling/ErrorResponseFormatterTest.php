@@ -35,7 +35,7 @@ final class ErrorResponseFormatterTest extends TestCase
                     'message' => ErrorResponseFormatter::DEFAULT_ERROR_MESSAGE
                 ],
             ],
-            $response->data
+            $response->body
         );
         $this->assertSame(
             ['Content-Type' => 'application/json'],
@@ -77,7 +77,7 @@ final class ErrorResponseFormatterTest extends TestCase
                     'message' => 'hehe',
                 ],
             ],
-            $response->data
+            $response->body
         );
         $this->assertSame(
             ['Content-Type' => 'application/json'],
@@ -124,7 +124,7 @@ final class ErrorResponseFormatterTest extends TestCase
                     'message' => 'hehe'
                 ],
             ],
-            $response->data
+            $response->body
         );
         $this->assertEquals(
             ['Content-Type' => 'application/json', 'X-Custom-Header' => 'Custom Value'],
@@ -145,7 +145,7 @@ final class ErrorResponseFormatterTest extends TestCase
         $response = $formatter->formatPlainText($throwable);
 
         $this->assertSame(500, $response->statusCode);
-        $this->assertSame(ErrorResponseFormatter::DEFAULT_ERROR_MESSAGE, $response->data);
+        $this->assertSame(ErrorResponseFormatter::DEFAULT_ERROR_MESSAGE, $response->body);
         $this->assertSame(
             ['Content-Type' => 'text/plain'],
             $response->headers
@@ -179,7 +179,7 @@ final class ErrorResponseFormatterTest extends TestCase
         $response = $formatter->formatPlainText($throwable);
 
         $this->assertSame(403, $response->statusCode);
-        $this->assertSame('hehe', $response->data);
+        $this->assertSame('hehe', $response->body);
         $this->assertEquals(
             ['Content-Type' => 'text/plain'],
             $response->headers
@@ -218,7 +218,7 @@ final class ErrorResponseFormatterTest extends TestCase
         $response = $formatter->formatPlainText($throwable);
 
         $this->assertSame(403, $response->statusCode);
-        $this->assertSame('hehe', $response->data);
+        $this->assertSame('hehe', $response->body);
         $this->assertEquals(
             ['Content-Type' => 'text/plain', 'X-Custom-Header' => 'Custom Value'],
             $response->headers
@@ -271,7 +271,7 @@ final class ErrorResponseFormatterTest extends TestCase
 
         $this->assertSame(404, $response->statusCode);
         $this->assertSame('/views/error404.php', $response->viewPath);
-        $this->assertSame([], $response->data);
+        $this->assertSame([], $response->body);
         $this->assertEquals(['Content-Type' => 'text/html; charset=utf-8', 'X-Custom-Header' => 'Custom Value'], $response->headers);
     }
 
@@ -322,7 +322,7 @@ final class ErrorResponseFormatterTest extends TestCase
 
         $this->assertSame(404, $response->statusCode);
         $this->assertSame('/views/error.php', $response->viewPath);
-        $this->assertSame([], $response->data);
+        $this->assertSame([], $response->body);
         $this->assertEquals(['Content-Type' => 'text/html; charset=utf-8', 'X-Custom-Header' => 'Custom Value'], $response->headers);
     }
 

@@ -15,17 +15,12 @@ use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterUnionTypeExcep
 use Velo\Container\Exceptions\IsNotInstantiableException;
 use Velo\Http\HttpRequest;
 use Velo\Http\HttpResponse;
+use Velo\Http\RequestMethod;
 use Velo\Http\ResponseRenderer;
 use Velo\Router\Middlewares\AddMiddlewaresTrait;
-use Velo\Router\Pipeline\Exceptions\ControllerMethodInvalidReturnTypeException;
 use Velo\Router\Pipeline\Exceptions\MiddlewareNotFoundException;
 use Velo\Router\Pipeline\Exceptions\MustImplementMiddlewareInterfaceException;
 use Velo\Router\Pipeline\Pipeline;
-use Velo\Router\Router\Exceptions\MethodNotAllowedException;
-use Velo\Router\Router\Exceptions\MissingRequiredArgumentException;
-use Velo\Router\Router\Exceptions\NotFoundControllerException;
-use Velo\Router\Router\Exceptions\NotFoundControllerMethodException;
-use Velo\Router\Router\Exceptions\RouteNotFound;
 use Velo\Router\Router\Router;
 
 /**
@@ -67,39 +62,23 @@ class App
          */
         $pipeline = $this->container->get(Pipeline::class);
 
-        $response = $pipeline->executeMiddlewaresChain(
-            $request,
-            $this->middlewares,
-            fn() => $this->resolve($request)
-        );
+        $response = $this->executeMiddlewaresChainAndResolveRequest($request, $pipeline);
 
-        $this->renderResponse($response);
+        $this->renderResponse($response, $request->method);
     }
 
     /**
-     * Resolves the given HttpRequest, it uses Router's resolve method.
-     *
-     * @param HttpRequest $request
-     * @return HttpResponse
      * @throws ContainerExceptionInterface
-     * @throws ControllerMethodInvalidReturnTypeException
-     * @throws MiddlewareNotFoundException
      * @throws MustImplementMiddlewareInterfaceException
-     * @throws NotFoundControllerException
-     * @throws NotFoundExceptionInterface
-     * @throws NotFoundControllerMethodException
-     * @throws RouteNotFound
-     * @throws ReflectionException
-     * @throws \Velo\Router\Router\Exceptions\InvalidParameterExceptions\UnexpectedInvalidParameterException
-     * @throws \Velo\Router\Router\Exceptions\InvalidParameterExceptions\ParameterMissingTypeDeclarationException
-     * @throws \Velo\Router\Router\Exceptions\InvalidParameterExceptions\ParameterUnionTypeException
-     * @throws MethodNotAllowedException
-     * @throws MissingRequiredArgumentException
-     * @throws \Velo\Router\Router\Exceptions\InvalidParameterExceptions\ParameterIntersectionTypeException
+     * @throws MiddlewareNotFoundException
      */
-    private function resolve(HttpRequest $request): HttpResponse
+    private function executeMiddlewaresChainAndResolveRequest(HttpRequest $request, Pipeline $pipeline): HttpResponse
     {
-        return $this->router->resolve($request);
+        return $pipeline->executeMiddlewaresChain(
+            $request,
+            $this->middlewares,
+            fn() => $this->router->resolve($request)
+        );
     }
 
     /**
@@ -115,9 +94,9 @@ class App
      * @throws IsNotInstantiableException
      * @throws ContainerExceptionInterface
      */
-    private function renderResponse(HttpResponse $response): void
+    private function renderResponse(HttpResponse $response, RequestMethod $requestMethod): void
     {
         $this->container->get(ResponseRenderer::class)
-            ->render($response);
+            ->render($response, $requestMethod);
     }
 }

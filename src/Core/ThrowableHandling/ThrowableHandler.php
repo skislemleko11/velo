@@ -79,7 +79,7 @@ readonly class ThrowableHandler
      */
     private function formatResponse(Throwable $throwable): HttpResponse
     {
-        $format = ResponseFormat::fromAcceptHeader($_SERVER['HTTP_ACCEPT'] ?? '*/*');
+        $format = ResponseFormat::fromGlobalAcceptHeader();
 
         return match ($format) {
             ResponseFormat::HTML => $this->errorResponseFormatter->formatView($throwable),

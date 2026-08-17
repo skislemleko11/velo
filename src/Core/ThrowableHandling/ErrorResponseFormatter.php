@@ -40,7 +40,7 @@ class ErrorResponseFormatter
         $headers = $this->getHeaders($throwable);
 
         return HttpResponse::json(
-            data: $result,
+            body: $result,
             statusCode: $statusCode,
             headers: $headers
         );

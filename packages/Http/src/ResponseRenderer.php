@@ -26,19 +26,29 @@ readonly class ResponseRenderer
      *
      * @throws JsonException
      */
-    public function render(HttpResponse $httpResponse): void
+    public function render(HttpResponse $httpResponse, RequestMethod $requestMethod = RequestMethod::GET): void
     {
+        ob_start();
+
+        if (!isset($httpResponse->headers['Location'])) {
+            if ($httpResponse->viewPath) {
+                $this->renderView($httpResponse);
+            } else {
+                echo $this->getApiResponse($httpResponse);
+            }
+        }
+
+        $content = ob_get_clean();
+
+        if (!isset($httpResponse->headers['Content-Length'])) {
+            $httpResponse->setHeader('Content-Length', (string) strlen($content));
+        }
+
         $this->emitter->setStatusCode($httpResponse->statusCode)
             ->sendHeaders($httpResponse->headers);
 
-        if (isset($httpResponse->headers['Location'])) {
-            $this->emitter->terminate();
-        }
-
-        if ($httpResponse->viewPath) {
-            $this->renderView($httpResponse);
-        } else {
-            $this->echoApiResponse($httpResponse);
+        if ($requestMethod !== RequestMethod::HEAD) {
+            echo $content;
         }
 
         $this->emitter->terminate();
@@ -50,7 +60,7 @@ readonly class ResponseRenderer
     private function renderView(HttpResponse $httpResponse): void
     {
         // creating a copy cuz it doesn't work with readonly properties
-        $this->extractDataAndRequireView($httpResponse->viewPath, $httpResponse->data + []);
+        $this->extractDataAndRequireView($httpResponse->viewPath, $httpResponse->body + []);
     }
 
     /**
@@ -67,29 +77,18 @@ readonly class ResponseRenderer
     }
 
     /**
-     * Sets headers and echos JSON response.
-     *
      * @throws JsonException
      */
-    private function echoApiResponse(HttpResponse $httpResponse): void
+    private function getApiResponse(HttpResponse $httpResponse): string
     {
-        if (is_array($httpResponse->data)) {
-            $this->echoJsonApiResponse($httpResponse->data);
-        } else {
-            $this->echoPlainTextResponse($httpResponse->data);
-        }
+        return is_array($httpResponse->body) ? $this->getJsonApiResponse($httpResponse->body) : $httpResponse->body;
     }
 
     /**
      * @throws JsonException
      */
-    private function echoJsonApiResponse(array $data): void
+    private function getJsonApiResponse(array $data): string
     {
-        echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
-    }
-
-    private function echoPlainTextResponse(string $content): void
-    {
-        echo $content;
+        return json_encode($data, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
     }
 }

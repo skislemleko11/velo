@@ -77,7 +77,7 @@ final class ApiAuthMiddlewareTest extends TestCase
         $this->assertSame(401, $response->statusCode);
         $this->assertNull($response->headers['Location'] ?? null);
         $this->assertArrayNotHasKey('redirect_after_login', $_SESSION);
-        $this->assertSame(['error' => 'hehe'], $response->data);
+        $this->assertSame(['error' => 'hehe'], $response->body);
     }
 
     #[Test]
@@ -106,11 +106,11 @@ final class ApiAuthMiddlewareTest extends TestCase
     {
         $request = new HttpRequest(url: '/secret', method: RequestMethod::GET);
 
-        $expectedResponse = HttpResponse::json(data: ['hehe' => 'hihi']);
+        $expectedResponse = HttpResponse::json(body: ['hehe' => 'hihi']);
 
         $customHandler = function (HttpRequest $req, $responseForUnauthenticatedUser) use ($request) {
             $this->assertSame($request, $req);
-            return HttpResponse::json(data: $responseForUnauthenticatedUser);
+            return HttpResponse::json(body: $responseForUnauthenticatedUser);
         };
 
         $middleware = new ApiAuthMiddleware(session: $this->session, customResponseHandler: $customHandler);

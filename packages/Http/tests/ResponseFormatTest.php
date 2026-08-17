@@ -18,7 +18,7 @@ final class ResponseFormatTest extends TestCase
     ): void {
         $this->assertSame(
             $expectedFormat,
-            ResponseFormat::fromAcceptHeader($acceptHeader)
+            ResponseFormat::fromGivenAcceptHeader($acceptHeader)
         );
     }
 

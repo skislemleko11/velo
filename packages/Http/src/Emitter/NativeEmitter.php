@@ -16,7 +16,7 @@ class NativeEmitter implements EmitterInterface
         return $this;
     }
 
-    public function sendHeaders(array $headers): NativeEmitter
+    public function sendHeaders(array $headers): self
     {
         if (!headers_sent()) {
             foreach ($headers as $name => $value) {
@@ -27,7 +27,7 @@ class NativeEmitter implements EmitterInterface
         return $this;
     }
 
-    public function setStatusCode(int $code): NativeEmitter
+    public function setStatusCode(int $code): self
     {
         if (!headers_sent()) {
             http_response_code($code);

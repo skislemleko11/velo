@@ -56,6 +56,9 @@ class HttpRequest
         return $_POST;
     }
 
+    /**
+     * @throws ValueError
+     */
     public function changeMethodFromHeadToGet(): self
     {
         if ($this->method !== RequestMethod::HEAD) {

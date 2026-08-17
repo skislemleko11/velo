@@ -95,7 +95,7 @@ final class AppTest extends TestCase
     public function it_executes_global_middlewares_before_resolving_route(): void
     {
         $request = new HttpRequest('/', RequestMethod::GET);
-        $expectedResponse = HttpResponse::json(data: ['middleware' => 'executed']);
+        $expectedResponse = HttpResponse::json(body: ['middleware' => 'executed']);
 
         $middleware = $this->createMock(MiddlewareInterface::class);
 

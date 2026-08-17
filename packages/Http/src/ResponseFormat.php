@@ -15,7 +15,7 @@ enum ResponseFormat: string
      * It's not a real parser, it uses str_contains to search for the preferred format.
      * It prioritizes HTML, then PLAIN_TEXT and JSON is the default case.
      */
-    public static function fromAcceptHeader(string $acceptHeader): self
+    public static function fromGivenAcceptHeader(string $acceptHeader): self
     {
         if (str_contains($acceptHeader, self::HTML->value)) {
             return self::HTML;
@@ -26,5 +26,14 @@ enum ResponseFormat: string
         }
 
         return self::JSON;
+    }
+
+    /**
+     * Creates a ResponseFormat instance from $_SERVER superblobal's acceptHeader.
+     * It uses fromGivenAcceptHeader method, check its documentation for more details.
+     */
+    public static function fromGlobalAcceptHeader(): self
+    {
+        return self::fromGivenAcceptHeader($_SERVER['HTTP_ACCEPT'] ?? '*/*');
     }
 }

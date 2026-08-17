@@ -59,7 +59,7 @@ readonly class ApiGuestMiddleware implements MiddlewareInterface
         }
 
         return HttpResponse::json(
-            data: $response,
+            body: $response,
             statusCode: 403
         );
     }

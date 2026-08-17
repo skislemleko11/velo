@@ -76,7 +76,7 @@ class ApiGuestMiddlewareTest extends TestCase
 
         $this->assertSame(403, $response->statusCode);
         $this->assertNull($response->headers['Location'] ?? null);
-        $this->assertSame(['error' => 'hehe'], $response->data);
+        $this->assertSame(['error' => 'hehe'], $response->body);
     }
 
     #[Test]
@@ -107,11 +107,11 @@ class ApiGuestMiddlewareTest extends TestCase
         $_SESSION['user_id'] = 123;
 
         $request = new HttpRequest(url: '/secret', method: RequestMethod::GET);
-        $customResponse = HttpResponse::json(data: ['hehe' => 'hihi'], statusCode: 401);
+        $customResponse = HttpResponse::json(body: ['hehe' => 'hihi'], statusCode: 401);
 
         $customHandler = function (HttpRequest $req, $data) use ($request, $customResponse) {
             $this->assertSame($request, $req);
-            return HttpResponse::json(data: $data, statusCode: 401);
+            return HttpResponse::json(body: $data, statusCode: 401);
         };
 
         $middleware = new ApiGuestMiddleware(session: $this->session, customResponseHandler: $customHandler);

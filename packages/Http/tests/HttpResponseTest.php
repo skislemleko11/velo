@@ -18,7 +18,7 @@ final class HttpResponseTest extends TestCase
         $this->assertSame(333, $redirectResponse->statusCode);
         $this->assertEquals(['Location' => '/login'], $redirectResponse->headers);
         $this->assertSame(null, $redirectResponse->viewPath);
-        $this->assertSame([], $redirectResponse->data);
+        $this->assertSame([], $redirectResponse->body);
     }
 
 
@@ -30,7 +30,7 @@ final class HttpResponseTest extends TestCase
         $this->assertInstanceOf(HttpResponse::class, $viewResponse);
         $this->assertSame('home', $viewResponse->viewPath);
         $this->assertSame(205, $viewResponse->statusCode);
-        $this->assertEquals(['hehe'], $viewResponse->data);
+        $this->assertEquals(['hehe'], $viewResponse->body);
         $this->assertEquals(['Content-Type' => 'text/html; charset=utf-8', 'hahah'], $viewResponse->headers);
     }
 
@@ -42,7 +42,7 @@ final class HttpResponseTest extends TestCase
         $this->assertInstanceOf(HttpResponse::class, $jsonResponse);
         $this->assertSame(null, $jsonResponse->viewPath);
         $this->assertSame(205, $jsonResponse->statusCode);
-        $this->assertEquals(['message' => 'Hello, World!'], $jsonResponse->data);
+        $this->assertEquals(['message' => 'Hello, World!'], $jsonResponse->body);
         $this->assertEquals(['Content-Type' => 'application/json', 'he' => 'he'], $jsonResponse->headers);
     }
 
@@ -53,8 +53,20 @@ final class HttpResponseTest extends TestCase
 
         $this->assertInstanceOf(HttpResponse::class, $plainTextResponse);
         $this->assertSame(null, $plainTextResponse->viewPath);
-        $this->assertSame('Hello, World!', $plainTextResponse->data);
+        $this->assertSame('Hello, World!', $plainTextResponse->body);
         $this->assertSame(205, $plainTextResponse->statusCode);
         $this->assertEquals(['hihi' => 'hehe', 'Content-Type' => 'text/plain'], $plainTextResponse->headers);
+    }
+
+    #[Test]
+    public function it_sets_header_and_returns_self()
+    {
+        $response = HttpResponse::plainText('hehe', headers: ['a' => 'b']);
+
+        $result = $response->setHeader('a', 'c')
+            ->setHeader('b', 'd');
+
+        $this->assertSame($response, $result);
+        $this->assertTrue(!array_diff(['a' => 'c', 'b' => 'd'], $response->headers));
     }
 }

@@ -6,15 +6,22 @@ namespace Velo\Http;
 /**
  * Represents an HTTP Response.
  */
-readonly class HttpResponse
+class HttpResponse
 {
     private function __construct(
-        public ?string      $viewPath = null,
-        public int          $statusCode = 200,
-        public array|string $data = [],
-        public array        $headers = []
+        public readonly ?string      $viewPath = null,
+        public readonly int          $statusCode = 200,
+        public readonly array|string $body = [],
+        private(set) array           $headers = []
     )
     {
+    }
+
+    public function setHeader(string $name, string $value): self
+    {
+        $this->headers[$name] = $value;
+
+        return $this;
     }
 
     /**
@@ -38,7 +45,7 @@ readonly class HttpResponse
         return new self(
             viewPath: $viewPath,
             statusCode: $statusCode,
-            data: $data,
+            body: $data,
             headers: $headers
         );
     }
@@ -46,13 +53,13 @@ readonly class HttpResponse
     /**
      * Returns a JSON HttpResponse.
      */
-    public static function json(array $data, int $statusCode = 200, array $headers = []): self
+    public static function json(array $body, int $statusCode = 200, array $headers = []): self
     {
         $headers['Content-Type'] = 'application/json';
 
         return new self(
             statusCode: $statusCode,
-            data: $data,
+            body: $body,
             headers: $headers
         );
     }
@@ -66,7 +73,7 @@ readonly class HttpResponse
 
         return new self(
             statusCode: $statusCode,
-            data: $content,
+            body: $content,
             headers: $headers
         );
     }
