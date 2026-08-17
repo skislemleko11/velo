@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 namespace Velo\Http\Tests;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use Velo\Http\HttpRequest;
 use PHPUnit\Framework\TestCase;
+use ValueError;
+use Velo\Http\HttpRequest;
 use Velo\Http\RequestMethod;
 
 final class HttpRequestTest extends TestCase
@@ -18,10 +20,36 @@ final class HttpRequestTest extends TestCase
         $this->httpRequest = new HttpRequest(self::URL, RequestMethod::GET);
     }
 
+    protected function tearDown(): void
+    {
+        $_POST = [];
+        $_SERVER = [];
+    }
+
     #[Test]
     public function it_parsed_url_in_constructor(): void
     {
-        $this->assertSame(parse_url(self::URL, PHP_URL_PATH), $this->httpRequest->urlPath);
+        $this->assertSame('/hehe/hihi', $this->httpRequest->urlPath);
+        $this->assertEmpty($this->httpRequest->getParams);
+    }
+
+    #[Test]
+    public function it_parses_url_query_parameters(): void
+    {
+        $request = new HttpRequest('https://example.com/search?q=velo&page=2', RequestMethod::GET);
+
+        $this->assertSame('/search', $request->urlPath);
+        $this->assertSame(['q' => 'velo', 'page' => '2'], $request->getParams);
+    }
+
+    #[Test]
+    public function it_overrides_method_from_post_form_key(): void
+    {
+        $_POST[HttpRequest::METHOD_FORM_KEY] = 'PUT';
+
+        $request = new HttpRequest('https://example.com/resource', RequestMethod::POST);
+
+        $this->assertSame(RequestMethod::PUT, $request->method);
     }
 
     #[Test]
@@ -50,5 +78,49 @@ final class HttpRequestTest extends TestCase
     {
         $_POST = ['hehe' => 'hihi', 'key' => 'value'];
         $this->assertSame($_POST, $this->httpRequest->getPostData());
+    }
+
+    #[Test]
+    public function it_changes_method_from_head_to_get(): void
+    {
+        $request = new HttpRequest(self::URL, RequestMethod::HEAD);
+        $result = $request->changeMethodFromHeadToGet();
+
+        $this->assertSame(RequestMethod::GET, $request->method);
+        $this->assertSame($request, $result);
+    }
+
+    #[Test]
+    #[DataProvider('nonHeadMethodsProvider')]
+    public function it_throws_value_error_when_changing_method_from_non_head(RequestMethod $method): void
+    {
+        $request = new HttpRequest(self::URL, $method);
+
+        $this->expectException(ValueError::class);
+        $this->expectExceptionMessageIs("Cannot change HTTP request method: $method->value from get, because it is not HEAD.");
+
+        $request->changeMethodFromHeadToGet();
+    }
+
+    public static function nonHeadMethodsProvider(): array
+    {
+        return array_map(
+            fn(RequestMethod $method) => [$method],
+            array_filter(RequestMethod::cases(), fn(RequestMethod $m) => $m !== RequestMethod::HEAD)
+        );
+    }
+
+    #[Test]
+    public function it_creates_instance_from_globals(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/dashboard?ref=mail';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $request = HttpRequest::fromGlobals();
+
+        $this->assertSame('/dashboard?ref=mail', $request->url);
+        $this->assertSame('/dashboard', $request->urlPath);
+        $this->assertSame(['ref' => 'mail'], $request->getParams);
+        $this->assertSame(RequestMethod::GET, $request->method);
     }
 }
