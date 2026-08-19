@@ -8,7 +8,7 @@ use Exception;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Velo\Core\ThrowableHandling\ErrorResponseFormatter;
+use Velo\Core\ThrowableHandling\ErrorResponseFormatter\ErrorResponseFormatter;
 use Velo\Exceptions\Interfaces\HttpExceptionInterface;
 use Velo\Exceptions\Interfaces\HttpExceptionWithHeadersInterface;
 use Velo\FileSystem\PathResolver\PathResolver;

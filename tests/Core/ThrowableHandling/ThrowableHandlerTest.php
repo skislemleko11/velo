@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Velo\Core\ThrowableHandling\ErrorResponseFormatter;
+use Velo\Core\ThrowableHandling\ErrorResponseFormatter\ErrorResponseFormatter;
 use Velo\Core\ThrowableHandling\ThrowableHandler;
 use Velo\Exceptions\Interfaces\HttpExceptionInterface;
 use Velo\Http\HttpResponse;

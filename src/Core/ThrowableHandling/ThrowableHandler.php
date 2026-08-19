@@ -7,8 +7,8 @@ use ErrorException;
 use JsonException;
 use Psr\Log\LoggerInterface;
 use Throwable;
+use Velo\Core\ThrowableHandling\ErrorResponseFormatter\Interfaces\ErrorResponseFormatterInterface;
 use Velo\Exceptions\Interfaces\HttpExceptionInterface;
-use Velo\FileSystem\PathResolver\Exceptions\PathNotFoundException;
 use Velo\Http\HttpResponse;
 use Velo\Http\ResponseFormat;
 use Velo\Http\ResponseRenderer;
@@ -19,9 +19,9 @@ use Velo\Http\ResponseRenderer;
 readonly class ThrowableHandler
 {
     public function __construct(
-        private LoggerInterface        $logger,
-        private ResponseRenderer       $responseRenderer,
-        private ErrorResponseFormatter $errorResponseFormatter
+        private LoggerInterface                 $logger,
+        private ResponseRenderer                $responseRenderer,
+        private ErrorResponseFormatterInterface $errorResponseFormatter
     )
     {
     }
@@ -31,8 +31,7 @@ readonly class ThrowableHandler
      *
      * It logs exceptions if it's meant to be logged,
      * cleans the buffer and renders aproperiate resopone using returnResponse method and ResponseRenderer render method.
-     *
-     * @throws PathNotFoundException
+
      * @throws JsonException
      */
     public function handleThrowable(Throwable $throwable): void
@@ -73,9 +72,7 @@ readonly class ThrowableHandler
 
     /**
      * Returns HttpResponse for the given Throwable.
-     * Uses errorResponseFormatter to format the response based on the Accept header.
-     *
-     * @throws PathNotFoundException
+     * Uses errorResponseFormatterInterface to format the response based on the Accept header.
      */
     private function formatResponse(Throwable $throwable): HttpResponse
     {

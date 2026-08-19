@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Core\ThrowableHandling;
+namespace Velo\Core\ThrowableHandling\ErrorResponseFormatter;
 
 use Throwable;
+use Velo\Core\ThrowableHandling\ErrorResponseFormatter\Interfaces\ErrorResponseFormatterInterface;
 use Velo\Exceptions\Interfaces\HttpExceptionInterface;
 use Velo\Exceptions\Interfaces\HttpExceptionWithHeadersInterface;
 use Velo\FileSystem\PathResolver\Exceptions\PathNotFoundException;
@@ -16,7 +17,7 @@ use Velo\Http\HttpResponse;
  * It's used in Throwable Handler to return an aproperiate HttpResponse when an error occurs.
  * Feel free to extend this class and override the format methods to provide custom error response handling.
  */
-class ErrorResponseFormatter
+class ErrorResponseFormatter implements ErrorResponseFormatterInterface
 {
     public const string DEFAULT_ERROR_MESSAGE = 'An error occurred';
 
