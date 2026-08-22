@@ -4,8 +4,9 @@ declare(strict_types=1);
 namespace Velo\Middlewares\GuestMiddleware;
 
 use Closure;
-use Velo\Http\HttpRequest;
-use Velo\Http\HttpResponse;
+use Velo\Http\Request;
+use Velo\Http\Responses\Concrete\JsonResponse;
+use Velo\Http\Responses\Response;
 use Velo\Router\Middlewares\MiddlewareInterface;
 use Velo\Session\Session\Interfaces\SessionInterface;
 
@@ -18,7 +19,7 @@ use Velo\Session\Session\Interfaces\SessionInterface;
 readonly class ApiGuestMiddleware implements MiddlewareInterface
 {
     /**
-     * @param Closure|null $customResponseHandler Closure should take 2 arguments - HttpRequest request and array response.
+     * @param Closure|null $customResponseHandler Closure should take 2 arguments - Request request and array response.
      */
     public function __construct(
         private SessionInterface $session,
@@ -28,16 +29,16 @@ readonly class ApiGuestMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Handles the given HttpRequest - if the user is unauthenticated (no 'user_id' in $_SESSION), returns the result of next(request),
+     * Handles the given Request - if the user is unauthenticated (no 'user_id' in $_SESSION), returns the result of next(request),
      * otherwise, calls getResponseForAuthenticatedUser(request, responseForAuthenticatedUser).
      */
     public function handle(
-        HttpRequest $request,
-        callable    $next,
-        array       $responseForAuthenticatedUser = [
+        Request  $request,
+        callable $next,
+        array    $responseForAuthenticatedUser = [
             'error' => 'This is reserved for unauthenticated users.'
         ]
-    ): HttpResponse
+    ): Response
     {
         if ($this->session->has('user_id')) {
             return $this->getResponseForAuthenticatedUser($request, $responseForAuthenticatedUser);
@@ -47,18 +48,18 @@ readonly class ApiGuestMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Returns the HttpResponse for an authenticated user.
+     * Returns the JsonResponse for an authenticated user.
      *
      * Returns customResponseHandler(request, response) if provided in constructor,
-     * otherwise returns the HttpResponse with statusCode: 403 and data: response.
+     * otherwise returns the JsonResponse with statusCode: 403 and data: response.
      */
-    private function getResponseForAuthenticatedUser(HttpRequest $request, array $response): HttpResponse
+    private function getResponseForAuthenticatedUser(Request $request, array $response): Response
     {
         if ($this->customResponseHandler) {
             return ($this->customResponseHandler)($request, $response);
         }
 
-        return HttpResponse::json(
+        return new JsonResponse(
             body: $response,
             statusCode: 403
         );

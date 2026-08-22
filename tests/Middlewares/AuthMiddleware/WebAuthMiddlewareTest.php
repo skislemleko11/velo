@@ -5,8 +5,8 @@ namespace Velo\Tests\Middlewares\AuthMiddleware;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Velo\Http\HttpRequest;
-use Velo\Http\HttpResponse;
+use Velo\Http\Request;
+use Velo\Http\Responses\Concrete\ViewResponse;
 use Velo\Middlewares\AuthMiddleware\WebAuthMiddleware;
 use Velo\Session\Session\Interfaces\SessionInterface;
 use Velo\Session\Session\Session;
@@ -32,12 +32,12 @@ final class WebAuthMiddlewareTest extends TestCase
     {
         $_SESSION['user_id'] = 123;
 
-        $request = new HttpRequest(url: '/dashboard', method: RequestMethod::GET);
-        $expectedResponse = HttpResponse::view('/views/dashboard.php');
+        $request = new Request(url: '/dashboard', method: RequestMethod::GET);
+        $expectedResponse = new ViewResponse('/views/dashboard.php');
         $middleware = new WebAuthMiddleware(session: $this->session);
 
         $nextCalled = false;
-        $next = function (HttpRequest $req) use (&$nextCalled, $expectedResponse) {
+        $next = function (Request $req) use (&$nextCalled, $expectedResponse) {
             $nextCalled = true;
             return $expectedResponse;
         };
@@ -52,7 +52,7 @@ final class WebAuthMiddlewareTest extends TestCase
     #[Test]
     public function it_redirects_to_default_login_url_and_saves_intended_url_when_unauthenticated(): void
     {
-        $request = new HttpRequest(url: '/protected-page', method: RequestMethod::GET);
+        $request = new Request(url: '/protected-page', method: RequestMethod::GET);
         $middleware = new WebAuthMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
@@ -66,7 +66,7 @@ final class WebAuthMiddlewareTest extends TestCase
     #[Test]
     public function it_redirects_to_custom_url_when_provided(): void
     {
-        $request = new HttpRequest(url: '/admin/settings', method: RequestMethod::GET);
+        $request = new Request(url: '/admin/settings', method: RequestMethod::GET);
         $middleware = new WebAuthMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
@@ -80,10 +80,10 @@ final class WebAuthMiddlewareTest extends TestCase
     #[Test]
     public function it_uses_custom_response_handler_when_provided(): void
     {
-        $request = new HttpRequest(url: '/secret', method: RequestMethod::GET);
-        $customResponse = HttpResponse::view('/views/custom-error.php', statusCode: 401);
+        $request = new Request(url: '/secret', method: RequestMethod::GET);
+        $customResponse = new ViewResponse('/views/custom-error.php', statusCode: 401);
 
-        $customHandler = function (HttpRequest $req) use ($request, $customResponse) {
+        $customHandler = function (Request $req) use ($request, $customResponse) {
             $this->assertSame($request, $req);
             return $customResponse;
         };
@@ -100,12 +100,12 @@ final class WebAuthMiddlewareTest extends TestCase
     #[Test]
     public function it_uses_custom_response_handler_with_custom_response_when_provided(): void
     {
-        $request = new HttpRequest(url: '/secret', method: RequestMethod::GET);
-        $customResponse = HttpResponse::view('/views/custom-error.php?redirect=%2Fsecret', statusCode: 401);
+        $request = new Request(url: '/secret', method: RequestMethod::GET);
+        $customResponse = new ViewResponse('/views/custom-error.php?redirect=%2Fsecret', statusCode: 401);
 
-        $customHandler = function (HttpRequest $req, $responseForUnauthenticatedUser) use ($request) {
+        $customHandler = function (Request $req, $responseForUnauthenticatedUser) use ($request) {
             $this->assertSame($request, $req);
-            return HttpResponse::view($responseForUnauthenticatedUser, statusCode: 401);
+            return new ViewResponse($responseForUnauthenticatedUser, statusCode: 401);
         };
 
         $middleware = new WebAuthMiddleware(session: $this->session, customResponseHandler: $customHandler);

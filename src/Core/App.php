@@ -13,8 +13,8 @@ use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterMissingTypeDec
 use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterNoDefaultValueException;
 use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterUnionTypeException;
 use Velo\Container\Exceptions\IsNotInstantiableException;
-use Velo\Http\HttpRequest;
-use Velo\Http\HttpResponse;
+use Velo\Http\Request;
+use Velo\Http\Responses\Response;
 use Velo\Http\RequestMethod;
 use Velo\Http\ResponseRenderer;
 use Velo\Router\Middlewares\AddMiddlewaresTrait;
@@ -41,7 +41,7 @@ class App
     }
 
     /**
-     * Runs the application with the given HttpRequest.
+     * Runs the application with the given Request.
      *
      * @throws ContainerExceptionInterface
      * @throws UnexpectedInvalidParameterException
@@ -55,7 +55,7 @@ class App
      * @throws ParameterUnionTypeException
      * @throws ReflectionException
      */
-    public function run(HttpRequest $request): void
+    public function run(Request $request): void
     {
         /**
          * @var Pipeline $pipeline
@@ -72,7 +72,7 @@ class App
      * @throws MustImplementMiddlewareInterfaceException
      * @throws MiddlewareNotFoundException
      */
-    private function executeMiddlewaresChainAndResolveRequest(HttpRequest $request, Pipeline $pipeline): HttpResponse
+    private function executeMiddlewaresChainAndResolveRequest(Request $request, Pipeline $pipeline): Response
     {
         return $pipeline->executeMiddlewaresChain(
             $request,
@@ -82,7 +82,7 @@ class App
     }
 
     /**
-     * Renders the given HttpResponse with ResponseRenderer's render method.
+     * Renders the given Response with ResponseRenderer's render method.
      *
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -94,7 +94,7 @@ class App
      * @throws IsNotInstantiableException
      * @throws ContainerExceptionInterface
      */
-    private function renderResponse(HttpResponse $response, RequestMethod $requestMethod): void
+    private function renderResponse(Response $response, RequestMethod $requestMethod): void
     {
         $this->container->get(ResponseRenderer::class)
             ->render($response, $requestMethod);

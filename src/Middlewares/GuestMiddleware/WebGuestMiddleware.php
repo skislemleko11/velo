@@ -4,8 +4,9 @@ declare(strict_types=1);
 namespace Velo\Middlewares\GuestMiddleware;
 
 use Closure;
-use Velo\Http\HttpRequest;
-use Velo\Http\HttpResponse;
+use Velo\Http\Request;
+use Velo\Http\Responses\Concrete\RedirectResponse;
+use Velo\Http\Responses\Response;
 use Velo\Router\Middlewares\MiddlewareInterface;
 use Velo\Session\Session\Interfaces\SessionInterface;
 
@@ -18,7 +19,7 @@ use Velo\Session\Session\Interfaces\SessionInterface;
 readonly class WebGuestMiddleware implements MiddlewareInterface
 {
     /**
-     * @param Closure|null $customResponseHandler Closure should take 2 arguments - HttpRequest request and string redirectUrl.
+     * @param Closure|null $customResponseHandler Closure should take 2 arguments - Request request and string redirectUrl.
      */
     public function __construct(
         private SessionInterface $session,
@@ -28,14 +29,14 @@ readonly class WebGuestMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Handles the given HttpRequest - if the user is unauthenticated (no 'user_id' in $_SESSION), returns the result of next(request),
+     * Handles the given Request - if the user is unauthenticated (no 'user_id' in $_SESSION), returns the result of next(request),
      * otherwise, calls getResponseForAuthenticatedUser(request, redirectAuthenticatedUserTo).
      */
     public function handle(
-        HttpRequest $request,
-        callable    $next,
-        string      $redirectAuthenticatedUserTo = '/'
-    ): HttpResponse
+        Request  $request,
+        callable $next,
+        string   $redirectAuthenticatedUserTo = '/'
+    ): Response
     {
         if ($this->session->has('user_id')) {
             return $this->getResponseForAuthenticatedUser($request, $redirectAuthenticatedUserTo);
@@ -45,17 +46,17 @@ readonly class WebGuestMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Returns the HttpResponse for an authenticated user.
+     * Returns the RedirectResponse for an authenticated user.
      *
      * Returns customResponseHandler(request, redirectUrl) if provided in constructor,
-     * otherwise returns the HttpResponse::redirect(redirectUrl) result.
+     * otherwise returns new RedirectResponse(redirectUrl).
      */
-    private function getResponseForAuthenticatedUser(HttpRequest $request, string $redirectUrl): HttpResponse
+    private function getResponseForAuthenticatedUser(Request $request, string $redirectUrl): Response
     {
         if ($this->customResponseHandler) {
             return ($this->customResponseHandler)($request, $redirectUrl);
         }
 
-        return HttpResponse::redirect($redirectUrl);
+        return new RedirectResponse($redirectUrl);
     }
 }

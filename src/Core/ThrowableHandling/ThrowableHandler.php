@@ -4,14 +4,13 @@ declare(strict_types=1);
 namespace Velo\Core\ThrowableHandling;
 
 use ErrorException;
-use JsonException;
 use Psr\Log\LoggerInterface;
 use Throwable;
 use Velo\Core\ThrowableHandling\ErrorResponseFormatter\Interfaces\ErrorResponseFormatterInterface;
-use Velo\Exceptions\Interfaces\HttpExceptionInterface;
-use Velo\Http\HttpResponse;
+use Velo\Exceptions\Interfaces\HttpResponseExceptionInterface;
 use Velo\Http\ResponseFormat;
 use Velo\Http\ResponseRenderer;
+use Velo\Http\Responses\Response;
 
 /**
  * Throwable handler made for global throwable and error handling.
@@ -31,8 +30,6 @@ readonly class ThrowableHandler
      *
      * It logs exceptions if it's meant to be logged,
      * cleans the buffer and renders aproperiate resopone using returnResponse method and ResponseRenderer render method.
-
-     * @throws JsonException
      */
     public function handleThrowable(Throwable $throwable): void
     {
@@ -60,7 +57,7 @@ readonly class ThrowableHandler
             return;
         }
 
-        if ($throwable instanceof HttpExceptionInterface) {
+        if ($throwable instanceof HttpResponseExceptionInterface) {
             if ($throwable->shouldLogException()) {
                 $this->logger->error($throwable);
             }
@@ -74,7 +71,7 @@ readonly class ThrowableHandler
      * Returns HttpResponse for the given Throwable.
      * Uses errorResponseFormatterInterface to format the response based on the Accept header.
      */
-    private function formatResponse(Throwable $throwable): HttpResponse
+    private function formatResponse(Throwable $throwable): Response
     {
         $format = ResponseFormat::fromGlobalAcceptHeader();
 

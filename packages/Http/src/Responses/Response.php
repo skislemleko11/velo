@@ -1,0 +1,30 @@
+<?php
+declare(strict_types=1);
+
+namespace Velo\Http\Responses;
+
+use Velo\Http\RenderContext;
+
+/**
+ * Represents an HTTP response. Concrete response classes must extend it.
+ */
+abstract class Response
+{
+    public const string CONTENT_TYPE_HEADER = 'Content-Type';
+
+    public function __construct(
+        public readonly int $statusCode = 200,
+        private(set) array  $headers = []
+    )
+    {
+    }
+
+    abstract public function render(RenderContext $context): string;
+
+    public function setHeader(string $name, string $value): self
+    {
+        $this->headers[$name] = $value;
+
+        return $this;
+    }
+}

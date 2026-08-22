@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace Velo\Tests\Middlewares\GuestMiddleware;
 
 use PHPUnit\Framework\Attributes\Test;
-use Velo\Http\HttpRequest;
-use Velo\Http\HttpResponse;
+use Velo\Http\Request;
+use Velo\Http\Responses\Concrete\ViewResponse;
 use Velo\Middlewares\GuestMiddleware\WebGuestMiddleware;
 use PHPUnit\Framework\TestCase;
 use Velo\Session\Session\Interfaces\SessionInterface;
@@ -30,12 +30,12 @@ class WebGuestMiddlewareTest extends TestCase
     #[Test]
     public function it_calls_next_when_user_is_unauthenticated(): void
     {
-        $request = new HttpRequest(url: '/dashboard', method: RequestMethod::GET);
-        $expectedResponse = HttpResponse::view('/views/dashboard.php');
+        $request = new Request(url: '/dashboard', method: RequestMethod::GET);
+        $expectedResponse = new ViewResponse('/views/dashboard.php');
         $middleware = new WebGuestMiddleware(session: $this->session);
 
         $nextCalled = false;
-        $next = function (HttpRequest $req) use (&$nextCalled, $expectedResponse) {
+        $next = function (Request $req) use (&$nextCalled, $expectedResponse) {
             $nextCalled = true;
             return $expectedResponse;
         };
@@ -51,7 +51,7 @@ class WebGuestMiddlewareTest extends TestCase
     public function it_redirects_to_default_login_url_when_authenticated(): void
     {
         $_SESSION['user_id'] = 1;
-        $request = new HttpRequest(url: '/protected-page', method: RequestMethod::GET);
+        $request = new Request(url: '/protected-page', method: RequestMethod::GET);
         $middleware = new WebGuestMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
@@ -67,7 +67,7 @@ class WebGuestMiddlewareTest extends TestCase
     {
         $_SESSION['user_id'] = 1;
 
-        $request = new HttpRequest(url: '/admin/settings', method: RequestMethod::GET);
+        $request = new Request(url: '/admin/settings', method: RequestMethod::GET);
         $middleware = new WebGuestMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
@@ -83,10 +83,10 @@ class WebGuestMiddlewareTest extends TestCase
     {
         $_SESSION['user_id'] = 1;
 
-        $request = new HttpRequest(url: '/secret', method: RequestMethod::GET);
-        $customResponse = HttpResponse::view('/views/custom-error.php', statusCode: 401);
+        $request = new Request(url: '/secret', method: RequestMethod::GET);
+        $customResponse = new ViewResponse('/views/custom-error.php', statusCode: 401);
 
-        $customHandler = function (HttpRequest $req) use ($request, $customResponse) {
+        $customHandler = function (Request $req) use ($request, $customResponse) {
             $this->assertSame($request, $req);
             return $customResponse;
         };
@@ -105,12 +105,12 @@ class WebGuestMiddlewareTest extends TestCase
     {
         $_SESSION['user_id'] = 1;
 
-        $request = new HttpRequest(url: '/secret', method: RequestMethod::GET);
-        $customResponse = HttpResponse::view('/views/custom-error.php', statusCode: 401);
+        $request = new Request(url: '/secret', method: RequestMethod::GET);
+        $customResponse = new ViewResponse('/views/custom-error.php', statusCode: 401);
 
-        $customHandler = function (HttpRequest $req, $url) use ($request, $customResponse) {
+        $customHandler = function (Request $req, $url) use ($request, $customResponse) {
             $this->assertSame($request, $req);
-            return HttpResponse::view($url, statusCode: 401);
+            return new ViewResponse($url, statusCode: 401);
         };
 
         $middleware = new WebGuestMiddleware(session: $this->session, customResponseHandler: $customHandler);

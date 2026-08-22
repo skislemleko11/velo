@@ -12,9 +12,11 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Velo\Core\ThrowableHandling\ErrorResponseFormatter\ErrorResponseFormatter;
 use Velo\Core\ThrowableHandling\ThrowableHandler;
-use Velo\Exceptions\Interfaces\HttpExceptionInterface;
-use Velo\Http\HttpResponse;
+use Velo\Exceptions\Interfaces\HttpResponseExceptionInterface;
 use Velo\Http\ResponseRenderer;
+use Velo\Http\Responses\Concrete\JsonResponse;
+use Velo\Http\Responses\Concrete\TextResponse;
+use Velo\Http\Responses\Concrete\ViewResponse;
 
 #[AllowMockObjectsWithoutExpectations]
 final class ThrowableHandlerTest extends TestCase
@@ -54,7 +56,7 @@ final class ThrowableHandlerTest extends TestCase
             __LINE__
         );
 
-        $response = $this->createStub(HttpResponse::class);
+        $response = $this->createStub(JsonResponse::class);
 
         $logger
             ->expects($this->once())
@@ -92,7 +94,7 @@ final class ThrowableHandlerTest extends TestCase
         $responseRenderer = $this->createMock(ResponseRenderer::class);
         $formatter = $this->createMock(ErrorResponseFormatter::class);
 
-        $exception = new class('boom') extends Exception implements HttpExceptionInterface {
+        $exception = new class('boom') extends Exception implements HttpResponseExceptionInterface {
             public function getStatusCode(): int
             {
                 return 404;
@@ -109,7 +111,7 @@ final class ThrowableHandlerTest extends TestCase
             }
         };
 
-        $response = $this->createStub(HttpResponse::class);
+        $response = $this->createStub(JsonResponse::class);
 
         $logger
             ->expects($this->once())
@@ -147,7 +149,7 @@ final class ThrowableHandlerTest extends TestCase
         $responseRenderer = $this->createMock(ResponseRenderer::class);
         $formatter = $this->createMock(ErrorResponseFormatter::class);
 
-        $exception = new class('not found') extends Exception implements HttpExceptionInterface {
+        $exception = new class('not found') extends Exception implements HttpResponseExceptionInterface {
             public function getStatusCode(): int
             {
                 return 404;
@@ -164,7 +166,7 @@ final class ThrowableHandlerTest extends TestCase
             }
         };
 
-        $response = $this->createStub(HttpResponse::class);
+        $response = $this->createStub(JsonResponse::class);
 
         $logger
             ->expects($this->never())
@@ -203,7 +205,7 @@ final class ThrowableHandlerTest extends TestCase
 
         $exception = new Exception('something went wrong');
 
-        $response = $this->createStub(HttpResponse::class);
+        $response = $this->createStub(JsonResponse::class);
 
         $logger
             ->expects($this->once())
@@ -244,7 +246,7 @@ final class ThrowableHandlerTest extends TestCase
         $formatter = $this->createMock(ErrorResponseFormatter::class);
 
         $exception = new Exception('boom');
-        $response = $this->createStub(HttpResponse::class);
+        $response = $this->createStub(ViewResponse::class);
 
         $formatter
             ->expects($this->once())
@@ -284,7 +286,7 @@ final class ThrowableHandlerTest extends TestCase
         $formatter = $this->createMock(ErrorResponseFormatter::class);
 
         $exception = new Exception('boom');
-        $response = $this->createStub(HttpResponse::class);
+        $response = $this->createStub(TextResponse::class);
 
         $formatter
             ->expects($this->once())
@@ -324,7 +326,7 @@ final class ThrowableHandlerTest extends TestCase
         $formatter = $this->createMock(ErrorResponseFormatter::class);
 
         $exception = new Exception('boom');
-        $response = $this->createStub(HttpResponse::class);
+        $response = $this->createStub(JsonResponse::class);
 
         $formatter
             ->expects($this->once())

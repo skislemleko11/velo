@@ -37,7 +37,7 @@ class Container implements ContainerInterface
      * Binds an alias/interface, a factory, or an instantiated object to the container.
      *
      * @param string $id Dependency ID - class name or alias/interface.
-     * @param object|callable|string $concrete Instance, factory function, or class name.
+     * @param object|callable|string $concrete Instance, factory function which takes the container as an argument, or class name.
      * Passing already instantiated objects is optimal only when You've already used it.
      * Don't create objects just to pass them, using functions (lazy loading) is way more efficient.
      */
@@ -66,8 +66,9 @@ class Container implements ContainerInterface
      */
     public function get(string $id): object
     {
-        if (isset($this->instances[$id]))
+        if (isset($this->instances[$id])) {
             return $this->instances[$id];
+        }
 
         if ($this->has($id)) {
             $entry = $this->entries[$id];

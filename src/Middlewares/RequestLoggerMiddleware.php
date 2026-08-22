@@ -5,12 +5,12 @@ namespace Velo\Middlewares;
 
 use Closure;
 use Psr\Log\LoggerInterface;
-use Velo\Http\HttpRequest;
-use Velo\Http\HttpResponse;
+use Velo\Http\Request;
+use Velo\Http\Responses\Response;
 use Velo\Router\Middlewares\MiddlewareInterface;
 
 /**
- * Logs HttpRequests.
+ * Logs Requests.
  */
 readonly class RequestLoggerMiddleware implements MiddlewareInterface
 {
@@ -25,10 +25,10 @@ readonly class RequestLoggerMiddleware implements MiddlewareInterface
     }
 
     /**
-     * It handles the given HttpRequest. If the custom log function was provided in the constructor, calls customLogFunction($request),
+     * It handles the given Request. If the custom log function was provided in the constructor, calls customLogFunction($request),
      * otherwise calls logRequestWithLogger($request). Then calls next(request).
      */
-    public function handle(HttpRequest $request, callable $next): HttpResponse
+    public function handle(Request $request, callable $next): Response
     {
         if ($this->customLogFunction) {
             ($this->customLogFunction)($request);
@@ -40,12 +40,12 @@ readonly class RequestLoggerMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Logs the given HttpRequest with logger:info.
+     * Logs the given Request with logger:info.
      *
      * Message Format: "Request:\nUrl: {url}\nMethod: {method}"
      * Passes the array from request->url and request->method as context.
      */
-    private function logRequestWithLogger(HttpRequest $request): void
+    private function logRequestWithLogger(Request $request): void
     {
         $this->logger->info("Request:\nUrl: {url}\nMethod: {method}", [
             'url' => $request->url,

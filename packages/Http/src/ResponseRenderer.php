@@ -3,92 +3,52 @@ declare(strict_types=1);
 
 namespace Velo\Http;
 
-use JsonException;
 use Velo\Http\Emitter\Interfaces\EmitterInterface;
-use Velo\Session\FlashMessages\Interfaces\FlashMessagesInterface;
-use Velo\Session\Session\Interfaces\SessionInterface;
+use Velo\Http\Responses\Response;
 
 /**
- * Renders HttpResponses.
+ * Renders Responses.
  */
 readonly class ResponseRenderer
 {
     public function __construct(
-        private EmitterInterface       $emitter,
-        private SessionInterface       $session,
-        private FlashMessagesInterface $flashMessages
+        private EmitterInterface $emitter,
+        private RenderContext    $renderContext,
     )
     {
     }
 
     /**
      * Renders the given HttpResponse.
-     *
-     * @throws JsonException
      */
-    public function render(HttpResponse $httpResponse, RequestMethod $requestMethod = RequestMethod::GET): void
+    public function render(
+        Response      $response,
+        RequestMethod $requestMethod = RequestMethod::GET
+    ): void
     {
-        ob_start();
+        $content = $response->render($this->renderContext);
 
-        if (!isset($httpResponse->headers['Location'])) {
-            if ($httpResponse->viewPath) {
-                $this->renderView($httpResponse);
-            } else {
-                echo $this->getApiResponse($httpResponse);
-            }
-        }
+        $this->setContentLengthHeaderIfNotSet($response, $content);
 
-        $content = ob_get_clean();
+        $this->emitter->setStatusCode($response->statusCode)
+            ->sendHeaders($response->headers);
 
-        if (!isset($httpResponse->headers['Content-Length'])) {
-            $httpResponse->setHeader('Content-Length', (string) strlen($content));
-        }
-
-        $this->emitter->setStatusCode($httpResponse->statusCode)
-            ->sendHeaders($httpResponse->headers);
-
-        if ($requestMethod !== RequestMethod::HEAD) {
-            echo $content;
-        }
+        $this->echoContentIfRequestMethodIsNotHead($content, $requestMethod);
 
         $this->emitter->terminate();
     }
 
-    /**
-     * Renders the view for the given HttpResponse.
-     */
-    private function renderView(HttpResponse $httpResponse): void
+    private function setContentLengthHeaderIfNotSet(Response $response, string $content): void
     {
-        // creating a copy cuz it doesn't work with readonly properties
-        $this->extractDataAndRequireView($httpResponse->viewPath, $httpResponse->body + []);
+        if (!isset($response->headers['Content-Length'])) {
+            $response->setHeader('Content-Length', (string)strlen($content));
+        }
     }
 
-    /**
-     * Extracts data and requires the view.
-     */
-    private function extractDataAndRequireView(string $viewPathToRequireLongNameToAvoidCollison, array $data): void
+    private function echoContentIfRequestMethodIsNotHead(string $content, RequestMethod $requestMethod): void
     {
-        $session = $this->session;
-        $flashMessages = $this->flashMessages;
-
-        extract($data, EXTR_SKIP);
-
-        require $viewPathToRequireLongNameToAvoidCollison;
-    }
-
-    /**
-     * @throws JsonException
-     */
-    private function getApiResponse(HttpResponse $httpResponse): string
-    {
-        return is_array($httpResponse->body) ? $this->getJsonApiResponse($httpResponse->body) : $httpResponse->body;
-    }
-
-    /**
-     * @throws JsonException
-     */
-    private function getJsonApiResponse(array $data): string
-    {
-        return json_encode($data, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+        if ($requestMethod !== RequestMethod::HEAD) {
+            echo $content;
+        }
     }
 }

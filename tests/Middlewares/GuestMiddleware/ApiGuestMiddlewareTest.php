@@ -4,8 +4,9 @@ declare(strict_types=1);
 namespace Velo\Tests\Middlewares\GuestMiddleware;
 
 use PHPUnit\Framework\Attributes\Test;
-use Velo\Http\HttpRequest;
-use Velo\Http\HttpResponse;
+use Velo\Http\Request;
+use Velo\Http\Responses\Concrete\JsonResponse;
+use Velo\Http\Responses\Concrete\TextResponse;
 use Velo\Middlewares\GuestMiddleware\ApiGuestMiddleware;
 use PHPUnit\Framework\TestCase;
 use Velo\Session\Session\Interfaces\SessionInterface;
@@ -30,12 +31,12 @@ class ApiGuestMiddlewareTest extends TestCase
     #[Test]
     public function it_calls_next_when_user_is_unauthenticated(): void
     {
-        $request = new HttpRequest(url: '/dashboard', method: RequestMethod::GET);
-        $expectedResponse = HttpResponse::plainText('hehe');
+        $request = new Request(url: '/dashboard', method: RequestMethod::GET);
+        $expectedResponse = new TextResponse('hehe');
         $middleware = new ApiGuestMiddleware(session: $this->session);
 
         $nextCalled = false;
-        $next = function (HttpRequest $req) use (&$nextCalled, $expectedResponse) {
+        $next = function (Request $req) use (&$nextCalled, $expectedResponse) {
             $nextCalled = true;
             return $expectedResponse;
         };
@@ -51,7 +52,7 @@ class ApiGuestMiddlewareTest extends TestCase
     {
         $_SESSION['user_id'] = 123;
 
-        $request = new HttpRequest(url: '/protected-page', method: RequestMethod::GET);
+        $request = new Request(url: '/protected-page', method: RequestMethod::GET);
         $middleware = new ApiGuestMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
@@ -67,7 +68,7 @@ class ApiGuestMiddlewareTest extends TestCase
     {
         $_SESSION['user_id'] = 123;
 
-        $request = new HttpRequest(url: '/admin/settings', method: RequestMethod::GET);
+        $request = new Request(url: '/admin/settings', method: RequestMethod::GET);
         $middleware = new ApiGuestMiddleware(session: $this->session);
 
         $next = fn() => $this->fail('Should not be called for unauthenticated user.');
@@ -84,10 +85,10 @@ class ApiGuestMiddlewareTest extends TestCase
     {
         $_SESSION['user_id'] = 123;
 
-        $request = new HttpRequest(url: '/secret', method: RequestMethod::GET);
-        $customResponse = HttpResponse::plainText('', statusCode: 401);
+        $request = new Request(url: '/secret', method: RequestMethod::GET);
+        $customResponse = new TextResponse('', statusCode: 401);
 
-        $customHandler = function (HttpRequest $req) use ($request, $customResponse) {
+        $customHandler = function (Request $req) use ($request, $customResponse) {
             $this->assertSame($request, $req);
             return $customResponse;
         };
@@ -106,12 +107,12 @@ class ApiGuestMiddlewareTest extends TestCase
     {
         $_SESSION['user_id'] = 123;
 
-        $request = new HttpRequest(url: '/secret', method: RequestMethod::GET);
-        $customResponse = HttpResponse::json(body: ['hehe' => 'hihi'], statusCode: 401);
+        $request = new Request(url: '/secret', method: RequestMethod::GET);
+        $customResponse = new JsonResponse(body: ['hehe' => 'hihi'], statusCode: 401);
 
-        $customHandler = function (HttpRequest $req, $data) use ($request, $customResponse) {
+        $customHandler = function (Request $req, $data) use ($request, $customResponse) {
             $this->assertSame($request, $req);
-            return HttpResponse::json(body: $data, statusCode: 401);
+            return new JsonResponse(body: $data, statusCode: 401);
         };
 
         $middleware = new ApiGuestMiddleware(session: $this->session, customResponseHandler: $customHandler);

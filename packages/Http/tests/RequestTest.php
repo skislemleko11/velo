@@ -7,17 +7,17 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ValueError;
-use Velo\Http\HttpRequest;
+use Velo\Http\Request;
 use Velo\Http\RequestMethod;
 
-final class HttpRequestTest extends TestCase
+final class RequestTest extends TestCase
 {
     private const string URL = 'https://example.com/hehe/hihi';
-    private HttpRequest $httpRequest;
+    private Request $request;
 
     protected function setUp(): void
     {
-        $this->httpRequest = new HttpRequest(self::URL, RequestMethod::GET);
+        $this->request = new Request(self::URL, RequestMethod::GET);
     }
 
     protected function tearDown(): void
@@ -29,14 +29,14 @@ final class HttpRequestTest extends TestCase
     #[Test]
     public function it_parsed_url_in_constructor(): void
     {
-        $this->assertSame('/hehe/hihi', $this->httpRequest->urlPath);
-        $this->assertEmpty($this->httpRequest->getParams);
+        $this->assertSame('/hehe/hihi', $this->request->urlPath);
+        $this->assertEmpty($this->request->getParams);
     }
 
     #[Test]
     public function it_parses_url_query_parameters(): void
     {
-        $request = new HttpRequest('https://example.com/search?q=velo&page=2', RequestMethod::GET);
+        $request = new Request('https://example.com/search?q=velo&page=2', RequestMethod::GET);
 
         $this->assertSame('/search', $request->urlPath);
         $this->assertSame(['q' => 'velo', 'page' => '2'], $request->getParams);
@@ -45,9 +45,9 @@ final class HttpRequestTest extends TestCase
     #[Test]
     public function it_overrides_method_from_post_form_key(): void
     {
-        $_POST[HttpRequest::METHOD_FORM_KEY] = 'PUT';
+        $_POST[Request::METHOD_FORM_KEY] = 'PUT';
 
-        $request = new HttpRequest('https://example.com/resource', RequestMethod::POST);
+        $request = new Request('https://example.com/resource', RequestMethod::POST);
 
         $this->assertSame(RequestMethod::PUT, $request->method);
     }
@@ -56,34 +56,34 @@ final class HttpRequestTest extends TestCase
     public function it_gets_post_arg_value(): void
     {
         $_POST['key'] = 'value';
-        $this->assertSame('value', $this->httpRequest->getPostArg('key'));
+        $this->assertSame('value', $this->request->getPostArg('key'));
     }
 
     #[Test]
     public function it_gets_post_arg_default_null(): void
     {
         unset($_POST['key']);
-        $this->assertNull($this->httpRequest->getPostArg('key'));
+        $this->assertNull($this->request->getPostArg('key'));
     }
 
     #[Test]
     public function it_gets_post_arg_default(): void
     {
         unset($_POST['key']);
-        $this->assertSame('value', $this->httpRequest->getPostArg('key', 'value'));
+        $this->assertSame('value', $this->request->getPostArg('key', 'value'));
     }
 
     #[Test]
     public function it_gets_post_data(): void
     {
         $_POST = ['hehe' => 'hihi', 'key' => 'value'];
-        $this->assertSame($_POST, $this->httpRequest->getPostData());
+        $this->assertSame($_POST, $this->request->getPostData());
     }
 
     #[Test]
     public function it_changes_method_from_head_to_get(): void
     {
-        $request = new HttpRequest(self::URL, RequestMethod::HEAD);
+        $request = new Request(self::URL, RequestMethod::HEAD);
         $result = $request->changeMethodFromHeadToGet();
 
         $this->assertSame(RequestMethod::GET, $request->method);
@@ -94,7 +94,7 @@ final class HttpRequestTest extends TestCase
     #[DataProvider('nonHeadMethodsProvider')]
     public function it_throws_value_error_when_changing_method_from_non_head(RequestMethod $method): void
     {
-        $request = new HttpRequest(self::URL, $method);
+        $request = new Request(self::URL, $method);
 
         $this->expectException(ValueError::class);
         $this->expectExceptionMessageIs("Cannot change HTTP request method: $method->value from get, because it is not HEAD.");
@@ -116,7 +116,7 @@ final class HttpRequestTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/dashboard?ref=mail';
         $_SERVER['REQUEST_METHOD'] = 'GET';
 
-        $request = HttpRequest::fromGlobals();
+        $request = Request::fromGlobals();
 
         $this->assertSame('/dashboard?ref=mail', $request->url);
         $this->assertSame('/dashboard', $request->urlPath);

@@ -6,12 +6,12 @@ namespace Velo\Tests\Core;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use ReflectionClass;
 use Velo\Container\Container;
 use Velo\Core\App;
-use Velo\Http\HttpRequest;
-use Velo\Http\HttpResponse;
+use Velo\Http\Request;
 use Velo\Http\ResponseRenderer;
+use Velo\Http\Responses\Concrete\JsonResponse;
+use Velo\Http\Responses\Concrete\ViewResponse;
 use Velo\Router\Middlewares\MiddlewareInterface;
 use Velo\Router\Pipeline\Pipeline;
 use Velo\Router\Router\Router;
@@ -44,18 +44,11 @@ final class AppTest extends TestCase
             });
     }
 
-    private function getProperty(object $obj, string $property): mixed
-    {
-        $reflection = new ReflectionClass($obj);
-        $property = $reflection->getProperty($property);
-        return $property->getValue($obj);
-    }
-
     #[Test]
     public function it_calls_router_resolve_method(): void
     {
-        $request = new HttpRequest('/', RequestMethod::GET);
-        $httpResponse = HttpResponse::view('hehe');
+        $request = new Request('/', RequestMethod::GET);
+        $httpResponse = new ViewResponse('hehe.php');
 
         $app = new App($this->router, $this->container);
 
@@ -74,8 +67,8 @@ final class AppTest extends TestCase
     #[Test]
     public function it_calls_ResponseRenderer_render_method(): void
     {
-        $request = new HttpRequest('/', RequestMethod::GET);
-        $httpResponse = HttpResponse::view('hehe');
+        $request = new Request('/', RequestMethod::GET);
+        $httpResponse = new ViewResponse('hehe.php');
 
         $app = new App($this->router, $this->container);
 
@@ -94,14 +87,14 @@ final class AppTest extends TestCase
     #[Test]
     public function it_executes_global_middlewares_before_resolving_route(): void
     {
-        $request = new HttpRequest('/', RequestMethod::GET);
-        $expectedResponse = HttpResponse::json(body: ['middleware' => 'executed']);
+        $request = new Request('/', RequestMethod::GET);
+        $expectedResponse = new JsonResponse(body: ['middleware' => 'executed']);
 
         $middleware = $this->createMock(MiddlewareInterface::class);
 
         $middleware->expects($this->once())
             ->method('handle')
-            ->willReturnCallback(function (HttpRequest $req, callable $next) use ($expectedResponse) {
+            ->willReturnCallback(function (Request $req, callable $next) use ($expectedResponse) {
                 return $expectedResponse;
             });
 

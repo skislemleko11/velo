@@ -6,194 +6,143 @@ namespace Velo\Tests\Core\ThrowableHandling;
 
 use Exception;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use Velo\Core\ThrowableHandling\ErrorResponseFormatter\ErrorResponseFormatter;
-use Velo\Exceptions\Interfaces\HttpExceptionInterface;
-use Velo\Exceptions\Interfaces\HttpExceptionWithHeadersInterface;
+use Velo\Exceptions\Interfaces\HttpResponseExceptionInterface;
+use Velo\Exceptions\Interfaces\HttpResponseExceptionWithHeadersInterface;
 use Velo\FileSystem\PathResolver\PathResolver;
-use Velo\Http\HttpResponse;
+use Velo\Http\Responses\Concrete\JsonResponse;
+use Velo\Http\Responses\Concrete\TextResponse;
+use Velo\Http\Responses\Concrete\ViewResponse;
 
 #[AllowMockObjectsWithoutExpectations]
 final class ErrorResponseFormatterTest extends TestCase
 {
-    #[Test]
-    public function it_formats_generic_throwable_as_json_with_500_status_and_default_message(): void
+    private ErrorResponseFormatter $formatter;
+    private PathResolver $pathResolver;
+
+    protected function setUp(): void
     {
-        $pathResolver = $this->createStub(PathResolver::class);
-        $formatter = new ErrorResponseFormatter($pathResolver);
+        $this->pathResolver = $this->createMock(PathResolver::class);
+        $this->formatter = new ErrorResponseFormatter($this->pathResolver);
+    }
 
-        $throwable = new Exception('Something went wrong');
+    private function getProperty(object $object, string $property)
+    {
+        $reflection = new ReflectionClass($object);
 
-        $response = $formatter->formatJson($throwable);
-
-        $this->assertSame(500, $response->statusCode);
-        $this->assertSame(
-            [
-                'error' => [
-                    'statusCode' => 500,
-                    'message' => ErrorResponseFormatter::DEFAULT_ERROR_MESSAGE
-                ],
-            ],
-            $response->body
-        );
-        $this->assertSame(
-            ['Content-Type' => 'application/json'],
-            $response->headers
-        );
-        $this->assertNull($response->viewPath);
+        return $reflection->getProperty($property)->getValue($object);
     }
 
     #[Test]
-    public function it_formats_http_exception_as_json_with_status_code_and_message(): void
+    #[DataProvider('json_and_plain_text_dataProvider')]
+    public function it_formats_json_response_with_status_code_message_and_headers($exception, $message, $statusCode, $headers)
     {
-        $pathResolver = $this->createStub(PathResolver::class);
-        $formatter = new ErrorResponseFormatter($pathResolver);
+        $response = $this->formatter->formatJson($exception);
 
-        $throwable = new class extends Exception implements HttpExceptionInterface {
-            public function getStatusCode(): int
-            {
-                return 404;
-            }
-
-            public function shouldLogException(): bool
-            {
-                return false;
-            }
-
-            public function getPublicMessage(): string
-            {
-                return 'hehe';
-            }
-        };
-
-        $response = $formatter->formatJson($throwable);
-
-        $this->assertSame(404, $response->statusCode);
+        $this->assertInstanceOf(JsonResponse::class, $response);
+        $this->assertSame($statusCode, $response->statusCode);
         $this->assertSame(
             [
                 'error' => [
-                    'statusCode' => 404,
-                    'message' => 'hehe',
-                ],
+                    'statusCode' => $statusCode,
+                    'message' => $message,
+                ]
             ],
-            $response->body
-        );
-        $this->assertSame(
-            ['Content-Type' => 'application/json'],
-            $response->headers
-        );
-        $this->assertNull($response->viewPath);
-    }
-
-    #[Test]
-    public function it_formats_http_exception_with_headers_as_json_with_status_code_message_and_headers(): void
-    {
-        $pathResolver = $this->createStub(PathResolver::class);
-        $formatter = new ErrorResponseFormatter($pathResolver);
-
-        $throwable = new class extends Exception implements HttpExceptionWithHeadersInterface {
-            public function getStatusCode(): int
-            {
-                return 333;
-            }
-
-            public function shouldLogException(): bool
-            {
-                return false;
-            }
-
-            public function getPublicMessage(): string
-            {
-                return 'hehe';
-            }
-
-            public function getHeaders(): array
-            {
-                return ['X-Custom-Header' => 'Custom Value'];
-            }
-        };
-
-        $response = $formatter->formatJson($throwable);
-
-        $this->assertSame(333, $response->statusCode);
-        $this->assertSame(
-            [
-                'error' => [
-                    'statusCode' => 333,
-                    'message' => 'hehe'
-                ],
-            ],
-            $response->body
+            $this->getProperty($response, 'body')
         );
         $this->assertEquals(
-            ['Content-Type' => 'application/json', 'X-Custom-Header' => 'Custom Value'],
-            $response->headers
+            $headers + ['Content-Type' => 'application/json'],
+            $this->getProperty($response, 'headers')
         );
-        $this->assertNull($response->viewPath);
     }
 
-
     #[Test]
-    public function it_formats_generic_throwable_as_plain_text_with_500_status_and_default_message(): void
+    #[DataProvider('json_and_plain_text_dataProvider')]
+    public function it_formats_plain_text_response_with_status_code_and_headers($exception, $message, $statusCode, $headers)
     {
-        $pathResolver = $this->createStub(PathResolver::class);
-        $formatter = new ErrorResponseFormatter($pathResolver);
+        $response = $this->formatter->formatPlainText($exception);
 
-        $throwable = new Exception('Something went wrong');
-
-        $response = $formatter->formatPlainText($throwable);
-
-        $this->assertSame(500, $response->statusCode);
-        $this->assertSame(ErrorResponseFormatter::DEFAULT_ERROR_MESSAGE, $response->body);
+        $this->assertInstanceOf(TextResponse::class, $response);
+        $this->assertSame($statusCode, $response->statusCode);
         $this->assertSame(
-            ['Content-Type' => 'text/plain'],
-            $response->headers
+            $message,
+            $this->getProperty($response, 'content')
         );
-        $this->assertNull($response->viewPath);
-    }
-
-    #[Test]
-    public function it_formats_http_exception_as_plain_text_with_status_code_and_message(): void
-    {
-        $pathResolver = $this->createStub(PathResolver::class);
-        $formatter = new ErrorResponseFormatter($pathResolver);
-
-        $throwable = new class extends Exception implements HttpExceptionInterface {
-            public function getStatusCode(): int
-            {
-                return 403;
-            }
-
-            public function shouldLogException(): bool
-            {
-                return false;
-            }
-
-            public function getPublicMessage(): string
-            {
-                return 'hehe';
-            }
-        };
-
-        $response = $formatter->formatPlainText($throwable);
-
-        $this->assertSame(403, $response->statusCode);
-        $this->assertSame('hehe', $response->body);
         $this->assertEquals(
-            ['Content-Type' => 'text/plain'],
-            $response->headers
+            $headers + ['Content-Type' => 'text/plain; charset=utf-8'],
+            $this->getProperty($response, 'headers')
         );
-        $this->assertNull($response->viewPath);
+    }
+
+    public static function json_and_plain_text_dataProvider(): array
+    {
+        return [
+            [
+                new Exception(),
+                ErrorResponseFormatter::DEFAULT_ERROR_MESSAGE,
+                500,
+                []
+            ],
+            [
+                new class() extends Exception implements HttpResponseExceptionInterface {
+
+                    public function getStatusCode(): int
+                    {
+                        return 502;
+                    }
+
+                    public function shouldLogException(): bool
+                    {
+                        return true;
+                    }
+
+                    public function getPublicMessage(): string
+                    {
+                        return 'hehe';
+                    }
+                },
+                'hehe',
+                502,
+                []
+            ],
+            [
+                new class() extends Exception implements HttpResponseExceptionWithHeadersInterface {
+
+                    public function getStatusCode(): int
+                    {
+                        return 403;
+                    }
+
+                    public function shouldLogException(): bool
+                    {
+                        return false;
+                    }
+
+                    public function getPublicMessage(): string
+                    {
+                        return 'hehe';
+                    }
+
+                    public function getHeaders(): array
+                    {
+                        return ['gg' => 'gg'];
+                    }
+                },
+                'hehe',
+                403,
+                ['gg' => 'gg']
+            ]
+        ];
     }
 
     #[Test]
-    public function it_formats_http_exception_with_headers_as_plain_text_with_status_code_message_and_headers(): void
+    public function it_formats_view_response_using_status_code_specific_view(): void
     {
-        $pathResolver = $this->createStub(PathResolver::class);
-        $formatter = new ErrorResponseFormatter($pathResolver);
-
-        $throwable = new class extends Exception implements HttpExceptionWithHeadersInterface {
+        $exception = new class() extends Exception implements HttpResponseExceptionWithHeadersInterface {
             public function getStatusCode(): int
             {
                 return 403;
@@ -211,144 +160,75 @@ final class ErrorResponseFormatterTest extends TestCase
 
             public function getHeaders(): array
             {
-                return ['X-Custom-Header' => 'Custom Value'];
+                return ['gg' => 'gg'];
             }
         };
 
-        $response = $formatter->formatPlainText($throwable);
-
-        $this->assertSame(403, $response->statusCode);
-        $this->assertSame('hehe', $response->body);
-        $this->assertEquals(
-            ['Content-Type' => 'text/plain', 'X-Custom-Header' => 'Custom Value'],
-            $response->headers
-        );
-        $this->assertNull($response->viewPath);
-    }
-
-    #[Test]
-    public function it_uses_status_specific_view_when_it_is_registered(): void
-    {
-        $pathResolver = $this->createMock(PathResolver::class);
-
-        $throwable = new class extends Exception implements HttpExceptionWithHeadersInterface {
-            public function getStatusCode(): int
-            {
-                return 404;
-            }
-
-            public function shouldLogException(): bool
-            {
-                return false;
-            }
-
-            public function getPublicMessage(): string
-            {
-                return 'hehe';
-            }
-
-            public function getHeaders(): array
-            {
-                return ['X-Custom-Header' => 'Custom Value'];
-            }
-        };
-
-        $pathResolver
+        $this->pathResolver
             ->expects($this->once())
             ->method('isFileRegistered')
-            ->with('error404')
+            ->with('error403')
             ->willReturn(true);
 
-        $pathResolver
+        $this->pathResolver
             ->expects($this->once())
             ->method('getFilePath')
-            ->with('error404')
-            ->willReturn('/views/error404.php');
+            ->with('error403')
+            ->willReturn('/views/error403.php');
 
-        $formatter = new ErrorResponseFormatter($pathResolver);
+        $response = $this->formatter->formatView($exception);
 
-        $response = $formatter->formatView($throwable);
-
-        $this->assertSame(404, $response->statusCode);
-        $this->assertSame('/views/error404.php', $response->viewPath);
-        $this->assertSame([], $response->body);
-        $this->assertEquals(['Content-Type' => 'text/html; charset=utf-8', 'X-Custom-Header' => 'Custom Value'], $response->headers);
+        $this->assertInstanceOf(ViewResponse::class, $response);
+        $this->assertSame(403, $response->statusCode);
+        $this->assertSame(
+            '/views/error403.php',
+            $this->getProperty($response, 'relativeToViewsDirFilePath')
+        );
+        $this->assertEquals(
+            ['Content-Type' => 'text/html; charset=utf-8', 'gg' => 'gg'],
+            $this->getProperty($response, 'headers')
+        );
     }
 
     #[Test]
-    public function it_uses_generic_error_view_when_status_specific_view_is_not_registered(): void
+    public function it_formats_view_response_using_generic_error_view_when_specific_view_does_not_exist(): void
     {
-        $pathResolver = $this->createMock(PathResolver::class);
+        $exception = new Exception();
 
-        $throwable = new class extends Exception implements HttpExceptionWithHeadersInterface {
-            public function getStatusCode(): int
-            {
-                return 404;
-            }
-
-            public function shouldLogException(): bool
-            {
-                return false;
-            }
-
-            public function getPublicMessage(): string
-            {
-                return 'hehe';
-            }
-
-            public function getHeaders(): array
-            {
-                return ['X-Custom-Header' => 'Custom Value'];
-            }
-        };
-
-        $pathResolver
+        $this->pathResolver
             ->expects($this->exactly(2))
             ->method('isFileRegistered')
             ->willReturnMap([
-                ['error404', false],
+                ['error500', false],
                 ['error', true],
             ]);
 
-        $pathResolver
+        $this->pathResolver
             ->expects($this->once())
             ->method('getFilePath')
             ->with('error')
             ->willReturn('/views/error.php');
 
-        $formatter = new ErrorResponseFormatter($pathResolver);
+        $response = $this->formatter->formatView($exception);
 
-        $response = $formatter->formatView($throwable);
-
-        $this->assertSame(404, $response->statusCode);
-        $this->assertSame('/views/error.php', $response->viewPath);
-        $this->assertSame([], $response->body);
-        $this->assertEquals(['Content-Type' => 'text/html; charset=utf-8', 'X-Custom-Header' => 'Custom Value'], $response->headers);
+        $this->assertInstanceOf(ViewResponse::class, $response);
+        $this->assertSame(500, $response->statusCode);
+        $this->assertSame(
+            '/views/error.php',
+            $this->getProperty($response, 'relativeToViewsDirFilePath')
+        );
+        $this->assertEquals(
+            ['Content-Type' => 'text/html; charset=utf-8'],
+            $this->getProperty($response, 'headers')
+        );
     }
 
     #[Test]
-    public function it_falls_back_to_plain_text_when_no_error_view_is_registered(): void
+    public function it_formats_plain_text_response_when_no_error_view_exists(): void
     {
-        $pathResolver = $this->createMock(PathResolver::class);
+        $exception = new Exception();
 
-        $throwable = new class extends Exception implements HttpExceptionInterface {
-            public function getStatusCode(): int
-            {
-                return 500;
-            }
-
-            public function shouldLogException(): bool
-            {
-                return false;
-            }
-
-            public function getPublicMessage(): string
-            {
-                return 'An error occurred';
-            }
-        };
-
-        $pathResolver
+        $this->pathResolver
             ->expects($this->exactly(2))
             ->method('isFileRegistered')
             ->willReturnMap([
@@ -356,24 +236,21 @@ final class ErrorResponseFormatterTest extends TestCase
                 ['error', false],
             ]);
 
-        $pathResolver
+        $this->pathResolver
             ->expects($this->never())
             ->method('getFilePath');
 
-        $formatter = $this->getMockBuilder(ErrorResponseFormatter::class)
-            ->setConstructorArgs([$pathResolver])
-            ->onlyMethods(['formatPlainText'])
-            ->getMock();
+        $response = $this->formatter->formatView($exception);
 
-        $expectedResult = HttpResponse::plainText('yup');
-
-        $formatter->expects($this->once())
-            ->method('formatPlainText')
-            ->with($throwable)
-            ->willReturn($expectedResult);
-
-        $response = $formatter->formatView($throwable);
-
-        $this->assertSame($expectedResult, $response);
+        $this->assertInstanceOf(TextResponse::class, $response);
+        $this->assertSame(500, $response->statusCode);
+        $this->assertSame(
+            ErrorResponseFormatter::DEFAULT_ERROR_MESSAGE,
+            $this->getProperty($response, 'content')
+        );
+        $this->assertEquals(
+            ['Content-Type' => 'text/plain; charset=utf-8'],
+            $this->getProperty($response, 'headers')
+        );
     }
 }

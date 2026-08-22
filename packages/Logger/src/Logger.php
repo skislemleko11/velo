@@ -1,4 +1,4 @@
-<?php /** @noinspection PhpMultipleClassDeclarationsInspection */
+<?php
 declare(strict_types=1);
 
 namespace Velo\Logger;
@@ -14,8 +14,8 @@ use Velo\Logger\Interfaces\LogFormatter;
 class Logger extends AbstractLogger
 {
     public function __construct(
-        protected string       $logFilePath,
-        protected LogFormatter $logFormatter
+        private readonly string       $logFilePath,
+        private readonly LogFormatter $logFormatter
     )
     {
     }
@@ -23,7 +23,7 @@ class Logger extends AbstractLogger
     /**
      * Logs a message with context at the given level.
      *
-     * @param string $level Should be a value from Psr\Log\LogLevel or eventaully custom defined log level.
+     * @param string|Stringable $level Should be a value from Psr\Log\LogLevel or eventaully custom defined log level.
      */
     public function log($level, string|Stringable $message, array $context = []): void
     {

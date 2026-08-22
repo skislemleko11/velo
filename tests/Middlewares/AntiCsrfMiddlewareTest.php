@@ -6,10 +6,11 @@ namespace Velo\Tests\Middlewares;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use Velo\Container\Container;
 use Velo\FileSystem\PathResolver\PathResolver;
-use Velo\Http\HttpRequest;
-use Velo\Http\HttpResponse;
+use Velo\Http\Request;
+use Velo\Http\Responses\Concrete\ViewResponse;
 use Velo\Middlewares\AntiCsrfMiddleware;
 use Velo\Middlewares\Exceptions\InvalidRequestMethodMiddlewareExceptionInterface;
 use Velo\Session\Session\Interfaces\SessionInterface;
@@ -50,11 +51,18 @@ final class AntiCsrfMiddlewareTest extends TestCase
         $_POST = [];
     }
 
+    private function getFilePath(ViewResponse $response): string
+    {
+        $reflection = new ReflectionClass($response);
+
+        return $reflection->getProperty('relativeToViewsDirFilePath')->getValue($response);
+    }
+
     #[Test]
     public function it_throws_exception_with_GET_method(): void
     {
         $this->expectException(InvalidRequestMethodMiddlewareExceptionInterface::class);
-        $this->middleware->handle(new HttpRequest('/hehe', RequestMethod::GET), fn() => HttpResponse::view('hehe'));
+        $this->middleware->handle(new Request('/hehe', RequestMethod::GET), fn() => new ViewResponse('hehe'));
     }
 
     #[Test]
@@ -71,15 +79,18 @@ final class AntiCsrfMiddlewareTest extends TestCase
         $nextCalled = false;
         $next = function () use (&$nextCalled) {
             $nextCalled = true;
-            return HttpResponse::view('/next');
+            return new ViewResponse('/next');
         };
 
-        $request = new HttpRequest('/hehe', RequestMethod::POST);
+        $request = new Request('/hehe', RequestMethod::POST);
         $response = $this->middleware->handle($request, $next);
 
         $this->assertFalse($nextCalled, 'Next middleware/controller should NOT be called on CSRF failure');
         $this->assertSame(403, $response->statusCode);
-        $this->assertSame($this->pathResolver->getFilePath('error403'), $response->viewPath);
+        $this->assertSame(
+            $this->pathResolver->getFilePath('error403'),
+            $this->getFilePath($response)
+        );
 
         $this->assertArrayHasKey('csrf_token', $_SESSION);
         $this->assertIsString($_SESSION['csrf_token']);
@@ -93,10 +104,10 @@ final class AntiCsrfMiddlewareTest extends TestCase
         $_SESSION['csrf_token'] = $validToken;
         $_POST['csrf_token'] = $validToken;
 
-        $nextResponse = HttpResponse::view('/success');
+        $nextResponse = new ViewResponse('/success');
 
         $response = $this->middleware->handle(
-            new HttpRequest('/hehe', RequestMethod::POST),
+            new Request('/hehe', RequestMethod::POST),
             fn() => $nextResponse
         );
 
@@ -114,17 +125,17 @@ final class AntiCsrfMiddlewareTest extends TestCase
             $_POST['csrf_token'] = $postToken;
         }
 
-        $closureResponse = HttpResponse::view('/custom-error', 403, ['error' => 'Custom']);
+        $closureResponse = new ViewResponse('/custom-error', data: ['error' => 'Custom'], statusCode: 403);
 
         $middleware = new AntiCsrfMiddleware(
             $this->pathResolver,
             $this->session,
-            fn(HttpRequest $req) => $closureResponse
+            fn(Request $req) => $closureResponse
         );
 
         $response = $middleware->handle(
-            new HttpRequest('/hehe', RequestMethod::POST),
-            fn() => HttpResponse::view('hehe')
+            new Request('/hehe', RequestMethod::POST),
+            fn() => new ViewResponse('hehe')
         );
 
         $this->assertSame($closureResponse, $response);

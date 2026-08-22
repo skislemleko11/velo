@@ -9,7 +9,7 @@ namespace Velo\Exceptions\Interfaces;
  * Extends HttpExceptionInterface with headers that should be included in the
  * HTTP response generated for the exception.
  */
-interface HttpExceptionWithHeadersInterface extends HttpExceptionInterface
+interface HttpResponseExceptionWithHeadersInterface extends HttpResponseExceptionInterface
 {
     /**
      * @return array<string, string>

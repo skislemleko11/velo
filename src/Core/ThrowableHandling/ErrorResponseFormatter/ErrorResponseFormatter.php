@@ -5,16 +5,18 @@ namespace Velo\Core\ThrowableHandling\ErrorResponseFormatter;
 
 use Throwable;
 use Velo\Core\ThrowableHandling\ErrorResponseFormatter\Interfaces\ErrorResponseFormatterInterface;
-use Velo\Exceptions\Interfaces\HttpExceptionInterface;
-use Velo\Exceptions\Interfaces\HttpExceptionWithHeadersInterface;
+use Velo\Exceptions\Interfaces\HttpResponseExceptionInterface;
+use Velo\Exceptions\Interfaces\HttpResponseExceptionWithHeadersInterface;
 use Velo\FileSystem\PathResolver\Exceptions\PathNotFoundException;
 use Velo\FileSystem\PathResolver\PathResolver;
-use Velo\Http\HttpResponse;
+use Velo\Http\Responses\Concrete\JsonResponse;
+use Velo\Http\Responses\Concrete\TextResponse;
+use Velo\Http\Responses\Concrete\ViewResponse;
 
 /**
  * Formats Error Responses.
  *
- * It's used in Throwable Handler to return an aproperiate HttpResponse when an error occurs.
+ * It's used in Throwable Handler to return an aproperiate Response when an error occurs.
  * Feel free to extend this class and override the format methods to provide custom error response handling.
  */
 class ErrorResponseFormatter implements ErrorResponseFormatterInterface
@@ -27,7 +29,7 @@ class ErrorResponseFormatter implements ErrorResponseFormatterInterface
     {
     }
 
-    public function formatJson(Throwable $throwable): HttpResponse
+    public function formatJson(Throwable $throwable): JsonResponse
     {
         $statusCode = $this->getStatusCode($throwable);
 
@@ -40,7 +42,7 @@ class ErrorResponseFormatter implements ErrorResponseFormatterInterface
 
         $headers = $this->getHeaders($throwable);
 
-        return HttpResponse::json(
+        return new JsonResponse(
             body: $result,
             statusCode: $statusCode,
             headers: $headers
@@ -50,7 +52,7 @@ class ErrorResponseFormatter implements ErrorResponseFormatterInterface
     /**
      * @throws PathNotFoundException
      */
-    public function formatView(Throwable $throwable): HttpResponse
+    public function formatView(Throwable $throwable): TextResponse|ViewResponse
     {
         $statusCode = $this->getStatusCode($throwable);
 
@@ -66,14 +68,14 @@ class ErrorResponseFormatter implements ErrorResponseFormatterInterface
 
         $headers = $this->getHeaders($throwable);
 
-        return HttpResponse::view(
-            viewPath: $this->pathResolver->getFilePath($viewName),
+        return new ViewResponse(
+            relativeToViewsDirFilePath: $this->pathResolver->getFilePath($viewName),
             statusCode: $statusCode,
             headers: $headers
         );
     }
 
-    public function formatPlainText(Throwable $throwable): HttpResponse
+    public function formatPlainText(Throwable $throwable): TextResponse
     {
         $content = $this->getPublicMessage($throwable);
 
@@ -81,7 +83,7 @@ class ErrorResponseFormatter implements ErrorResponseFormatterInterface
 
         $headers = $this->getHeaders($throwable);
 
-        return HttpResponse::plainText(
+        return new TextResponse(
             content: $content,
             statusCode: $statusCode,
             headers: $headers
@@ -90,16 +92,16 @@ class ErrorResponseFormatter implements ErrorResponseFormatterInterface
 
     protected function getStatusCode(Throwable $throwable): int
     {
-        return $throwable instanceof HttpExceptionInterface ? $throwable->getStatusCode() : 500;
+        return $throwable instanceof HttpResponseExceptionInterface ? $throwable->getStatusCode() : 500;
     }
 
     protected function getPublicMessage(Throwable $throwable): string
     {
-        return $throwable instanceof HttpExceptionInterface ? $throwable->getPublicMessage() : self::DEFAULT_ERROR_MESSAGE;
+        return $throwable instanceof HttpResponseExceptionInterface ? $throwable->getPublicMessage() : self::DEFAULT_ERROR_MESSAGE;
     }
 
     protected function getHeaders(Throwable $throwable): array
     {
-        return $throwable instanceof HttpExceptionWithHeadersInterface ? $throwable->getHeaders() : [];
+        return $throwable instanceof HttpResponseExceptionWithHeadersInterface ? $throwable->getHeaders() : [];
     }
 }

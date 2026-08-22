@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace Velo\Tests\Middlewares;
 
 use PHPUnit\Framework\Attributes\Test;
-use Velo\Http\HttpRequest;
-use Velo\Http\HttpResponse;
+use Velo\Http\Request;
+use Velo\Http\Responses\Concrete\ViewResponse;
 use Velo\Logger\Logger;
 use Velo\Middlewares\RequestLoggerMiddleware;
 use PHPUnit\Framework\TestCase;
@@ -27,19 +27,19 @@ final class RequestLoggerMiddlewareTest extends TestCase
 
         $wasCalled = 0;
 
-        $middleware = new RequestLoggerMiddleware($this->logger, function (HttpRequest $request) use (&$wasCalled) {
+        $middleware = new RequestLoggerMiddleware($this->logger, function (Request $request) use (&$wasCalled) {
             $wasCalled++;
             return $request;
         });
 
         $wasCalledNext = 0;
-        $httpResponse = HttpResponse::view('hehe');
-        $next = function (HttpRequest $request) use (&$wasCalledNext, $httpResponse) {
+        $httpResponse = new ViewResponse('hehe');
+        $next = function (Request $request) use (&$wasCalledNext, $httpResponse) {
             $wasCalledNext++;
             return $httpResponse;
         };
 
-        $request = new HttpRequest('/', RequestMethod::GET);
+        $request = new Request('/', RequestMethod::GET);
         $this->assertSame($httpResponse, $middleware->handle($request, $next));
 
         $this->assertEquals(1, $wasCalled);
@@ -52,13 +52,13 @@ final class RequestLoggerMiddlewareTest extends TestCase
         $middleware = new RequestLoggerMiddleware($this->logger);
 
         $wasCalledNext = 0;
-        $httpResponse = HttpResponse::view('hehe');
-        $next = function (HttpRequest $request) use (&$wasCalledNext, $httpResponse) {
+        $httpResponse = new ViewResponse('hehe');
+        $next = function (Request $request) use (&$wasCalledNext, $httpResponse) {
             $wasCalledNext++;
             return $httpResponse;
         };
 
-        $request = new HttpRequest('/', RequestMethod::GET);
+        $request = new Request('/', RequestMethod::GET);
 
         $this->logger->expects($this->once())
             ->method('info')

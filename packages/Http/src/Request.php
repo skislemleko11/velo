@@ -8,16 +8,13 @@ use ValueError;
 /**
  * Represents an HTTP request.
  */
-class HttpRequest
+class Request
 {
     /**
      * The key used in forms to provide not supported by default request methods.
      */
     public const string METHOD_FORM_KEY = 'request_method';
 
-    /**
-     * @var string $urlPath Clean URL (no GET args)
-     */
     public readonly string $urlPath;
     private(set) array $getParams = [];
     private(set) RequestMethod $method;
@@ -27,17 +24,32 @@ class HttpRequest
         RequestMethod          $method
     )
     {
-        $this->urlPath = parse_url($url, PHP_URL_PATH) ?: '/';
+        $this->urlPath = $this->getUrlPath($url);
 
+        $this->setGetParamsIfExist($url);
+
+        $this->method = $this->getMethod($method);
+    }
+
+    private function getUrlPath(string $url): string
+    {
+        return parse_url($url, PHP_URL_PATH) ?: '/';
+    }
+
+    private function setGetParamsIfExist(string $url): void
+    {
         if ($queryString = parse_url($url, PHP_URL_QUERY)) {
             parse_str($queryString, $this->getParams);
         }
+    }
 
-        if ($method === RequestMethod::POST && $formMethod = $this->getPostArg(self::METHOD_FORM_KEY)) {
-            $this->method = RequestMethod::fromString($formMethod, $method);
-        } else {
-            $this->method = $method;
+    private function getMethod(RequestMethod $actualMethod): RequestMethod
+    {
+        if ($actualMethod === RequestMethod::POST && $formMethod = $this->getPostArg(self::METHOD_FORM_KEY)) {
+            return RequestMethod::fromString($formMethod, $actualMethod);
         }
+
+        return $actualMethod;
     }
 
     /**
@@ -73,7 +85,7 @@ class HttpRequest
     }
 
     /**
-     * Creates an instance of HttpRequest from global variables.
+     * Creates an instance of Request from global variables.
      */
     public static function fromGlobals(): self
     {

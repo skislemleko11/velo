@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Velo\Exceptions;
 
 use Exception;
-use Velo\Exceptions\Interfaces\HttpExceptionInterface;
+use Velo\Exceptions\Interfaces\HttpResponseExceptionInterface;
 
 /**
  * Base exception for resources that cannot be found.
@@ -12,7 +12,7 @@ use Velo\Exceptions\Interfaces\HttpExceptionInterface;
  * Represents an HTTP 404 Not Found error and provides the default public
  * message for this type of response.
  */
-abstract class NotFoundException extends Exception implements HttpExceptionInterface
+abstract class NotFoundException extends Exception implements HttpResponseExceptionInterface
 {
     public function getStatusCode(): int
     {
