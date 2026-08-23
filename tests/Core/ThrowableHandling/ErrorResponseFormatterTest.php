@@ -140,7 +140,7 @@ final class ErrorResponseFormatterTest extends TestCase
     }
 
     #[Test]
-    public function it_formats_view_response_using_status_code_specific_view(): void
+    public function it_formats_view_response_using_status_code_error_view(): void
     {
         $exception = new class() extends Exception implements HttpResponseExceptionWithHeadersInterface {
             public function getStatusCode(): int
@@ -166,14 +166,8 @@ final class ErrorResponseFormatterTest extends TestCase
 
         $this->pathResolver
             ->expects($this->once())
-            ->method('isFileRegistered')
-            ->with('error403')
-            ->willReturn(true);
-
-        $this->pathResolver
-            ->expects($this->once())
-            ->method('getFilePath')
-            ->with('error403')
+            ->method('resolveErrorFilePath')
+            ->with('403')
             ->willReturn('/views/error403.php');
 
         $response = $this->formatter->formatView($exception);
@@ -191,66 +185,25 @@ final class ErrorResponseFormatterTest extends TestCase
     }
 
     #[Test]
-    public function it_formats_view_response_using_generic_error_view_when_specific_view_does_not_exist(): void
+    public function it_formats_plain_text_response_when_no_error_view_exists(): void
     {
+        $formatter = $this->getMockBuilder(ErrorResponseFormatter::class)
+            ->setConstructorArgs([$this->pathResolver])
+            ->onlyMethods(['formatPlainText'])
+            ->getMock();
+
         $exception = new Exception();
 
-        $this->pathResolver
-            ->expects($this->exactly(2))
-            ->method('isFileRegistered')
-            ->willReturnMap([
-                ['error500', false],
-                ['error', true],
-            ]);
+        $formatter->expects($this->once())
+            ->method('formatPlainText')
+            ->with($exception);
 
         $this->pathResolver
             ->expects($this->once())
-            ->method('getFilePath')
-            ->with('error')
-            ->willReturn('/views/error.php');
+            ->method('resolveErrorFilePath')
+            ->with(500)
+            ->willReturn(false);
 
-        $response = $this->formatter->formatView($exception);
-
-        $this->assertInstanceOf(ViewResponse::class, $response);
-        $this->assertSame(500, $response->statusCode);
-        $this->assertSame(
-            '/views/error.php',
-            $this->getProperty($response, 'relativeToViewsDirFilePath')
-        );
-        $this->assertEquals(
-            ['Content-Type' => 'text/html; charset=utf-8'],
-            $this->getProperty($response, 'headers')
-        );
-    }
-
-    #[Test]
-    public function it_formats_plain_text_response_when_no_error_view_exists(): void
-    {
-        $exception = new Exception();
-
-        $this->pathResolver
-            ->expects($this->exactly(2))
-            ->method('isFileRegistered')
-            ->willReturnMap([
-                ['error500', false],
-                ['error', false],
-            ]);
-
-        $this->pathResolver
-            ->expects($this->never())
-            ->method('getFilePath');
-
-        $response = $this->formatter->formatView($exception);
-
-        $this->assertInstanceOf(TextResponse::class, $response);
-        $this->assertSame(500, $response->statusCode);
-        $this->assertSame(
-            ErrorResponseFormatter::DEFAULT_ERROR_MESSAGE,
-            $this->getProperty($response, 'content')
-        );
-        $this->assertEquals(
-            ['Content-Type' => 'text/plain; charset=utf-8'],
-            $this->getProperty($response, 'headers')
-        );
+        $formatter->formatView($exception);
     }
 }

@@ -29,15 +29,14 @@ final class AntiCsrfMiddlewareTest extends TestCase
         $_POST = [];
 
         $container = new Container();
-        $this->pathResolver = new PathResolver(
-            basePath: '/',
-            publicPath: '/public/',
-            viewsPath: '/views/',
-            errorGeneralPath: 'error',
-            error403Path: 'error403.php',
-            error404Path: 'error404.php',
-            error500Path: 'error500.php'
-        );
+        $this->pathResolver = new PathResolver()
+            ->setDirPath(PathResolver::ROOT_DIR_KEY, '/')
+            ->setDirPath(PathResolver::PUBLIC_DIR_KEY, '/public/')
+            ->setDirPath(PathResolver::VIEWS_DIR_KEY, '/views/')
+            ->setErrorGeneralFilePath('error.php')
+            ->setErrorFilePath(403, 'error403.php')
+            ->setErrorFilePath(404, 'error404.php')
+            ->setErrorFilePath(500, 'error500.php');
 
         $container->set(SessionInterface::class, Session::class);
         $container->set(PathResolver::class, fn() => $this->pathResolver);
@@ -88,7 +87,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
         $this->assertFalse($nextCalled, 'Next middleware/controller should NOT be called on CSRF failure');
         $this->assertSame(403, $response->statusCode);
         $this->assertSame(
-            $this->pathResolver->getFilePath('error403'),
+            $this->pathResolver->getErrorFilePath(403),
             $this->getFilePath($response)
         );
 

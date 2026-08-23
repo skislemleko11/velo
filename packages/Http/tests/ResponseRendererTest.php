@@ -111,12 +111,12 @@ final class ResponseRendererTest extends TestCase
     }
 
     #[Test]
-    public function it_does_not_override_existing_content_length(): void
+    public function it_does_not_override_existing_content_length_and_sets_204_status_when_no_content(): void
     {
         $response = new TextResponse(
             'Hello world',
             headers: [
-                'Content-Length' => '999',
+                'Content-Length' => '0',
             ]
         );
 
@@ -126,14 +126,14 @@ final class ResponseRendererTest extends TestCase
         $emitter
             ->expects(self::once())
             ->method('setStatusCode')
-            ->with(200)
+            ->with(204)
             ->willReturnSelf();
 
         $emitter
             ->expects(self::once())
             ->method('sendHeaders')
             ->with([
-                'Content-Length' => '999',
+                'Content-Length' => '0',
                 'Content-Type' => 'text/plain; charset=utf-8',
             ]);
 

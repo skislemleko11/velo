@@ -49,27 +49,18 @@ class ErrorResponseFormatter implements ErrorResponseFormatterInterface
         );
     }
 
-    /**
-     * @throws PathNotFoundException
-     */
     public function formatView(Throwable $throwable): TextResponse|ViewResponse
     {
         $statusCode = $this->getStatusCode($throwable);
 
-        $viewName = 'error' . $statusCode;
-
-        if (!$this->pathResolver->isFileRegistered($viewName)) {
-            if ($this->pathResolver->isFileRegistered('error')) {
-                $viewName = 'error';
-            } else {
-                return $this->formatPlainText($throwable);
-            }
+        if (($viewFile = $this->pathResolver->resolveErrorFilePath($statusCode)) === false) {
+            return $this->formatPlainText($throwable);
         }
 
         $headers = $this->getHeaders($throwable);
 
         return new ViewResponse(
-            relativeToViewsDirFilePath: $this->pathResolver->getFilePath($viewName),
+            relativeToViewsDirFilePath: $viewFile,
             statusCode: $statusCode,
             headers: $headers
         );

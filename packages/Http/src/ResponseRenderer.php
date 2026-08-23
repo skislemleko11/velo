@@ -28,9 +28,9 @@ readonly class ResponseRenderer
     {
         $content = $response->render($this->renderContext);
 
-        $this->setContentLengthHeaderIfNotSet($response, $content);
+        $contentLength = $this->setContentLengthHeaderIfNotSetAndReturnIt($response, $content);
 
-        $this->emitter->setStatusCode($response->statusCode)
+        $this->emitter->setStatusCode($contentLength === 0 ? 204 : $response->statusCode)
             ->sendHeaders($response->headers);
 
         $this->echoContentIfRequestMethodIsNotHead($content, $requestMethod);
@@ -38,11 +38,15 @@ readonly class ResponseRenderer
         $this->emitter->terminate();
     }
 
-    private function setContentLengthHeaderIfNotSet(Response $response, string $content): void
+    private function setContentLengthHeaderIfNotSetAndReturnIt(Response $response, string $content): int
     {
         if (!isset($response->headers['Content-Length'])) {
-            $response->setHeader('Content-Length', (string)strlen($content));
+            $length = strlen($content);
+
+            $response->setHeader('Content-Length', (string)$length);
         }
+
+        return $length ?? (int)$response->headers['Content-Length'];
     }
 
     private function echoContentIfRequestMethodIsNotHead(string $content, RequestMethod $requestMethod): void

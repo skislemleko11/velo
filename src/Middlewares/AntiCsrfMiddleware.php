@@ -86,14 +86,16 @@ readonly class AntiCsrfMiddleware implements MiddlewareInterface
             return ($this->customResponseHandler)($request);
         }
 
-        if ($viewPath = $this->pathResolver->getFilePath('error403')) {
-            return new ViewResponse(
-                $viewPath,
-                ['error' => 'Invalid anti CSRF token!'],
-                403
-            );
-        } else {
-            return new JsonResponse(['error' => 'Invalid anti CSRF token!'], 403);
+        $responseDataOrBody = ['error' => 'Invalid anti CSRF token!'];
+
+        if (($viewFile = $this->pathResolver->resolveErrorFilePath(403)) === false) {
+            return new JsonResponse($responseDataOrBody, 403);
         }
+
+        return new ViewResponse(
+            $viewFile,
+            $responseDataOrBody,
+            403
+        );
     }
 }
