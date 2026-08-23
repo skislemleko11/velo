@@ -5,7 +5,6 @@ namespace Velo\Container;
 
 use Closure;
 use Psr\Container\ContainerInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionIntersectionType;
@@ -57,7 +56,6 @@ class Container implements ContainerInterface
      *
      * @throws UnexpectedInvalidParameterException
      * @throws IsNotInstantiableException
-     * @throws NotFoundExceptionInterface
      * @throws ParameterIntersectionTypeException
      * @throws ParameterMissingTypeDeclarationException
      * @throws ParameterNoDefaultValueException
@@ -122,7 +120,6 @@ class Container implements ContainerInterface
      *
      * @throws UnexpectedInvalidParameterException
      * @throws IsNotInstantiableException
-     * @throws NotFoundExceptionInterface
      * @throws ParameterIntersectionTypeException
      * @throws ParameterMissingTypeDeclarationException
      * @throws ParameterNoDefaultValueException

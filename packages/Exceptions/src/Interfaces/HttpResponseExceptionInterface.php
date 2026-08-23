@@ -9,7 +9,7 @@ namespace Velo\Exceptions\Interfaces;
  * Implementations provide the HTTP status code and public message that should
  * be exposed to the client, as well as whether the exception should be logged.
  */
-interface HttpResponseExceptionInterface
+interface HttpResponseExceptionInterface extends VeloExceptionInterface
 {
     public function getStatusCode(): int;
 

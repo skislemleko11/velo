@@ -2,9 +2,9 @@
 
 namespace Velo\Container\Exceptions\Interfaces;
 
-use Psr\Container\ContainerExceptionInterface as PsrContainerExceptionInterface;
+use Velo\Exceptions\Interfaces\VeloExceptionInterface;
 
-interface ContainerExceptionInterface extends PsrContainerExceptionInterface
+interface ContainerExceptionInterface extends VeloExceptionInterface
 {
 
 }
