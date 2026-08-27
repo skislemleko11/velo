@@ -66,4 +66,14 @@ final class JsonResponseTest extends TestCase
 
         $this->assertEquals(json_encode(['foo/' => 'bar'], JSON_UNESCAPED_SLASHES), $response->render($this->context));
     }
+
+    #[Test]
+    public function it_renders_empty_string_on_json_encode_false_result(): void
+    {
+        $data = "\xB1";
+
+        $respone = new JsonResponse($data, jsonEncodeFlags: JSON_ERROR_NONE);
+
+        $this->assertSame('', $respone->render($this->context));
+    }
 }
