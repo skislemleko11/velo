@@ -29,7 +29,19 @@ final class JsonResponseTest extends TestCase
     #[Test]
     public function it_returns_json(): void
     {
-        $arr = ['foo' => 'ąbar'];
+        $arr = ['foo' => 'abar'];
+        $response = new JsonResponse($arr);
+
+        $this->assertEquals(
+            json_encode($arr),
+            $response->render($this->context)
+        );
+    }
+
+    #[Test]
+    public function it_returns_json_with_unescaped_unicode_by_default(): void
+    {
+        $arr = ['foo' => 'ąbąr'];
         $response = new JsonResponse($arr);
 
         $this->assertEquals(
@@ -39,11 +51,19 @@ final class JsonResponseTest extends TestCase
     }
 
     #[Test]
-    public function it_throws_on_error(): void
+    public function it_throws_on_error_by_default(): void
     {
         $this->expectException(JsonException::class);
 
         $response = new JsonResponse(['hehe' => INF]);
         $response->render($this->context);
+    }
+
+    #[Test]
+    public function it_uses_json_encode_provided_flags(): void
+    {
+        $response = new JsonResponse(['foo/' => 'bar'], jsonEncodeFlags: JSON_UNESCAPED_SLASHES);
+
+        $this->assertEquals(json_encode(['foo/' => 'bar'], JSON_UNESCAPED_SLASHES), $response->render($this->context));
     }
 }
