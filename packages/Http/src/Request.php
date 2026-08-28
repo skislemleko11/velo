@@ -18,6 +18,7 @@ class Request
     public readonly string $urlPath;
     private(set) array $getParams = [];
     private(set) RequestMethod $method;
+    public readonly array $headers;
 
     public function __construct(
         public readonly string $url,
@@ -29,6 +30,8 @@ class Request
         $this->setGetParamsIfExist($url);
 
         $this->method = $this->getMethod($method);
+
+        $this->headers = $this->getHeadersFromServerSuperGlobal();
     }
 
     private function getUrlPath(string $url): string
@@ -50,6 +53,31 @@ class Request
         }
 
         return $actualMethod;
+    }
+
+    private function getHeadersFromServerSuperGlobal(): array
+    {
+        $headers = [];
+
+        foreach ($_SERVER as $key => $value) {
+            if (!str_starts_with($key, 'HTTP_')) {
+                continue;
+            }
+
+            $header = str_replace(' ', '-',
+                ucwords(
+                    str_replace('_', ' ',
+                        strtolower(
+                            substr($key, 5)
+                        )
+                    )
+                )
+            );
+
+            $headers[$header] = $value;
+        }
+
+        return $headers;
     }
 
     /**

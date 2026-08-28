@@ -83,20 +83,14 @@ class App
 
     /**
      * Renders the given Response with ResponseRenderer's render method.
-     *
-     * @throws NotFoundExceptionInterface
-     * @throws ReflectionException
-     * @throws UnexpectedInvalidParameterException
-     * @throws ParameterIntersectionTypeException
-     * @throws ParameterMissingTypeDeclarationException
-     * @throws ParameterNoDefaultValueException
-     * @throws ParameterUnionTypeException
-     * @throws IsNotInstantiableException
-     * @throws ContainerExceptionInterface
      */
     private function renderResponse(Response $response, RequestMethod $requestMethod): void
     {
-        $this->container->get(ResponseRenderer::class)
-            ->render($response, $requestMethod);
+        /**
+         * @var ResponseRenderer $responseRenderer
+         */
+        $responseRenderer = $this->container->get(ResponseRenderer::class);
+
+        $responseRenderer->render($response, $requestMethod);
     }
 }

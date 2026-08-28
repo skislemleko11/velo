@@ -53,6 +53,20 @@ final class RequestTest extends TestCase
     }
 
     #[Test]
+    public function it_sets_headers_from_server_super_global(): void
+    {
+        $_SERVER['HTTP_HOST'] = 'example.com';
+        $_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0';
+        $_SERVER['HTTP_ACCEPT'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
+
+        $request = new Request('https://example.com/resource', RequestMethod::GET);
+
+        $this->assertSame('example.com', $request->headers['Host']);
+        $this->assertSame('Mozilla/5.0', $request->headers['User-Agent']);
+        $this->assertSame('text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', $request->headers['Accept']);
+    }
+
+    #[Test]
     public function it_gets_post_arg_value(): void
     {
         $_POST['key'] = 'value';
