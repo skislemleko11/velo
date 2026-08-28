@@ -61,9 +61,9 @@ final class RequestTest extends TestCase
 
         $request = new Request('https://example.com/resource', RequestMethod::GET);
 
-        $this->assertSame('example.com', $request->headers['Host']);
-        $this->assertSame('Mozilla/5.0', $request->headers['User-Agent']);
-        $this->assertSame('text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', $request->headers['Accept']);
+        $this->assertSame('example.com', $request->getHeaders()['Host']);
+        $this->assertSame('Mozilla/5.0', $request->getHeaders()['User-Agent']);
+        $this->assertSame('text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', $request->getHeaders()['Accept']);
     }
 
     #[Test]
