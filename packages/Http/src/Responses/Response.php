@@ -27,4 +27,18 @@ abstract class Response
 
         return $this;
     }
+
+    /**
+     * If the header exists, it will append the value to it. Otherwise, it will create a new header with this value.
+     */
+    public function appendValueToHeader(string $name, string $value): self
+    {
+        if (!isset($this->headers[$name])) {
+            return $this->setHeader($name, $value);
+        }
+
+        $this->headers[$name] .= ', ' . $value;
+
+        return $this;
+    }
 }
