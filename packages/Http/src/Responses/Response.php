@@ -37,7 +37,9 @@ abstract class Response
             return $this->setHeader($name, $value);
         }
 
-        $this->headers[$name] .= ', ' . $value;
+        if (!preg_match('/(?:^|,\s*)' . preg_quote($value, '/') . '(?:\s*,|$)/', $this->headers[$name])) {
+            $this->headers[$name] .= ', ' . $value;
+        }
 
         return $this;
     }
