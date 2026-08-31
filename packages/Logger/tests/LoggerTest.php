@@ -35,14 +35,14 @@ final class LoggerTest extends TestCase
     public function it_takes_string_log_level(): void
     {
         $this->logger->log('a', 'Test message');
-        $this->assertTrue(true);
+        self::assertTrue(true);
     }
 
     #[Test]
     public function it_takes_stringable_log_level(): void
     {
         $this->logger->log(new Exception('hehe'), 'Test message');
-        $this->assertTrue(true);
+        self::assertTrue(true);
     }
 
     #[Test]

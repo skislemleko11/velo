@@ -16,7 +16,8 @@ final class ViewResponseTest extends TestCase
     {
         $response = new ViewResponse('view', headers: ['Content-Type' => 'bubu', 'h' => 'a']);
 
-        $this->assertEquals(['Content-Type' => 'text/html; charset=utf-8', 'h' => 'a'], $response->headers);
+        self::assertSame('text/html; charset=utf-8', $response->getHeader('Content-Type'));
+        self::assertSame('a', $response->getHeader('h'));
     }
 
     #[Test]

@@ -28,8 +28,8 @@ final class SessionTest extends TestCase
     {
         $self = $this->session->set('user_id', 123);
 
-        $this->assertSame(123, $_SESSION['user_id'] ?? null);
-        $this->assertSame($this->session, $self);
+        self::assertSame(123, $_SESSION['user_id'] ?? null);
+        self::assertSame($this->session, $self);
     }
 
     #[Test]
@@ -37,14 +37,14 @@ final class SessionTest extends TestCase
     {
         $_SESSION['theme'] = 'dark';
 
-        $this->assertSame('dark', $this->session->get('theme'));
+        self::assertSame('dark', $this->session->get('theme'));
     }
 
     #[Test]
     public function it_returns_default_value_when_key_does_not_exist(): void
     {
-        $this->assertNull($this->session->get('non_existing'));
-        $this->assertSame('default_val', $this->session->get('non_existing', 'default_val'));
+        self::assertNull($this->session->get('non_existing'));
+        self::assertSame('default_val', $this->session->get('non_existing', 'default_val'));
     }
 
     #[Test]
@@ -53,7 +53,7 @@ final class SessionTest extends TestCase
     {
         $_SESSION['existing_key'] = 'value';
 
-        $this->assertSame($expected, $this->session->has($key));
+        self::assertSame($expected, $this->session->has($key));
     }
 
     #[Test]
@@ -63,8 +63,8 @@ final class SessionTest extends TestCase
 
         $self = $this->session->remove('to_remove');
 
-        $this->assertArrayNotHasKey('to_remove', $_SESSION);
-        $this->assertSame($this->session, $self);
+        self::assertArrayNotHasKey('to_remove', $_SESSION);
+        self::assertSame($this->session, $self);
     }
 
     #[Test]
@@ -72,8 +72,8 @@ final class SessionTest extends TestCase
     {
         $self = $this->session->setFlash('old_input', ['name' => 'John']);
 
-        $this->assertSame(['name' => 'John'], $_SESSION['flash_data']['old_input'] ?? null);
-        $this->assertSame($this->session, $self);
+        self::assertSame(['name' => 'John'], $_SESSION['flash_data']['old_input'] ?? null);
+        self::assertSame($this->session, $self);
     }
 
     #[Test]
@@ -81,16 +81,16 @@ final class SessionTest extends TestCase
     {
         $this->session->setFlash('errors', ['email' => 'Invalid email']);
 
-        $this->assertTrue($this->session->hasFlash('errors'));
-        $this->assertSame(['email' => 'Invalid email'], $this->session->getFlash('errors'));
-        $this->assertFalse($this->session->hasFlash('errors'));
-        $this->assertArrayNotHasKey('flash_data', $_SESSION);
+        self::assertTrue($this->session->hasFlash('errors'));
+        self::assertSame(['email' => 'Invalid email'], $this->session->getFlash('errors'));
+        self::assertFalse($this->session->hasFlash('errors'));
+        self::assertArrayNotHasKey('flash_data', $_SESSION);
     }
 
     #[Test]
     public function it_returns_default_when_flash_key_does_not_exist(): void
     {
-        $this->assertSame([], $this->session->getFlash('missing', []));
+        self::assertSame([], $this->session->getFlash('missing', []));
     }
 
     public static function hasKeyDataProvider(): array

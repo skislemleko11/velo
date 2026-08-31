@@ -37,7 +37,7 @@ final class DatabaseTest extends TestCase
     #[Test]
     public function it_returns_the_same_pdo(): void
     {
-        $this->assertSame($this->pdo, $this->db->getPDO());
+        self::assertSame($this->pdo, $this->db->getPDO());
     }
 
     #[Test]
@@ -48,9 +48,9 @@ final class DatabaseTest extends TestCase
             ['email' => 'jan@wp.pl']
         );
 
-        $this->assertIsArray($result);
-        $this->assertSame('Jan Kowalski', $result['name']);
-        $this->assertEquals(1, $result['id']);
+        self::assertIsArray($result);
+        self::assertSame('Jan Kowalski', $result['name']);
+        self::assertEquals(1, $result['id']);
     }
 
     #[Test]
@@ -61,7 +61,7 @@ final class DatabaseTest extends TestCase
             ['email' => 'nieistnieje@test.pl']
         );
 
-        $this->assertSame([], $result);
+        self::assertSame([], $result);
     }
 
     #[Test]
@@ -69,9 +69,9 @@ final class DatabaseTest extends TestCase
     {
         $result = $this->db->fetchAll('SELECT name FROM users ORDER BY id');
 
-        $this->assertCount(2, $result);
-        $this->assertSame('Jan Kowalski', $result[0]['name']);
-        $this->assertSame('Anna Nowak', $result[1]['name']);
+        self::assertCount(2, $result);
+        self::assertSame('Jan Kowalski', $result[0]['name']);
+        self::assertSame('Anna Nowak', $result[1]['name']);
     }
 
     #[Test]
@@ -85,9 +85,9 @@ final class DatabaseTest extends TestCase
             $resArr[] = $row;
         }
 
-        $this->assertCount(2, $resArr);
-        $this->assertSame('Jan Kowalski', $resArr[0]['name']);
-        $this->assertSame('Anna Nowak', $resArr[1]['name']);
+        self::assertCount(2, $resArr);
+        self::assertSame('Jan Kowalski', $resArr[0]['name']);
+        self::assertSame('Anna Nowak', $resArr[1]['name']);
     }
 
     #[Test]
@@ -99,10 +99,10 @@ final class DatabaseTest extends TestCase
             returnRowCount: true
         );
 
-        $this->assertSame(1, $rowCount);
+        self::assertSame(1, $rowCount);
 
         $user = $this->db->fetchOne("SELECT * FROM users WHERE email = 'tomasz@test.pl'");
-        $this->assertSame('Tomasz Bat', $user['name']);
+        self::assertSame('Tomasz Bat', $user['name']);
     }
 
     #[Test]
@@ -118,7 +118,7 @@ final class DatabaseTest extends TestCase
         $this->db->rollback();
 
         $user = $this->db->fetchOne("SELECT * FROM users WHERE email = 'error@test.pl'");
-        $this->assertSame([], $user);
+        self::assertSame([], $user);
     }
 
     #[Test]
@@ -134,7 +134,7 @@ final class DatabaseTest extends TestCase
         $this->db->commit();
 
         $user = $this->db->fetchOne("SELECT * FROM users WHERE email = 'success@test.pl'");
-        $this->assertSame('Sukces Transakcji', $user['name']);
+        self::assertSame('Sukces Transakcji', $user['name']);
     }
 
     #[Test]
@@ -147,7 +147,7 @@ final class DatabaseTest extends TestCase
 
         $lastInsertId = $this->db->getLastInsertId();
 
-        $this->assertIsInt($lastInsertId);
-        $this->assertGreaterThan(0, $lastInsertId);
+        self::assertIsInt($lastInsertId);
+        self::assertGreaterThan(0, $lastInsertId);
     }
 }

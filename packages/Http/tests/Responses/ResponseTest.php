@@ -23,21 +23,69 @@ final class ResponseTest extends TestCase
     }
 
     #[Test]
+    public function it_gets_headers(): void
+    {
+        $response = $this->getResponseWithHeaders();
+
+        self::assertEquals(['hehe' => 'hihi', 'a' => 'b', 'c' => 'D'], $response->getHeaders());
+    }
+
+    private function getResponseWithHeaders(): Response
+    {
+        return new class(200, ['hehe' => 'hihi', 'a' => 'b', 'C    ' => 'D']) extends Response {
+            public function render(RenderContext $context): string
+            {
+                return '';
+            }
+        };
+    }
+
+    #[Test]
+    public function it_gets_header(): void
+    {
+        $response = $this->getResponseWithHeaders();
+
+        self::assertEquals('hihi', $response->getHeader('hehe'));
+        self::assertEquals('b', $response->getHeader('A    '));
+        self::assertEquals('D', $response->getHeader('c   '));
+    }
+
+    #[Test]
     public function it_sets_header(): void
     {
-        $this->assertEmpty($this->response->headers);
+        self::assertEmpty($this->response->getHeaders());
 
-        $this->response->setHeader('Content-Type', 'text/html');
+        $this->response->setHeader('content-type', 'text/html');
 
-        $this->assertEquals(['Content-Type' => 'text/html'], $this->response->headers);
+        self::assertEquals(['content-type' => 'text/html'], $this->response->getHeaders());
+    }
+
+    #[Test]
+    public function it_sets_headers(): void
+    {
+        self::assertEmpty($this->response->getHeaders());
+
+        $this->response->setHeaders(['ConTEnt-type  ' => '  text/html', 'locaTioN' => '   hehe.com/Blog']);
+
+        self::assertEquals(['content-type' => 'text/html', 'location' => 'hehe.com/Blog'], $this->response->getHeaders());
+    }
+
+    #[Test]
+    public function it_sets_header_name_lowercase_and_trimmed_and_header_value_is_trimmed_but_not_lowercase(): void
+    {
+        self::assertEmpty($this->response->getHeaders());
+
+        $this->response->setHeader(' Location   ', ' hehe.com/Blog');
+
+        self::assertEquals(['location' => 'hehe.com/Blog'], $this->response->getHeaders());
     }
 
     #[Test]
     public function it_sets_header_if_the_header_does_not_exist(): void
     {
-        $this->response->appendValueToHeader('Content-Type', 'text/html');
+        $this->response->appendValueToHeader('LocaTion  ', ' hehe.com/Blog ');
 
-        $this->assertEquals(['Content-Type' => 'text/html'], $this->response->headers);
+        self::assertEquals(['location' => 'hehe.com/Blog'], $this->response->getHeaders());
     }
 
     #[Test]
@@ -47,19 +95,19 @@ final class ResponseTest extends TestCase
 
         $this->response->appendValueToHeader('Content-Type', 'charset=utf-8');
 
-        $this->assertEquals(['Content-Type' => 'text/html, charset=utf-8'], $this->response->headers);
+        self::assertEquals(['content-type' => 'text/html, charset=utf-8'], $this->response->getHeaders());
     }
 
     #[Test]
     public function it_does_not_append_value_if_it_already_exists(): void
     {
-        $this->response->setHeader('Accept', 'text/html, application/json');
+        $this->response->setHeader('AcCept  ', 'text/html, application/json   ');
 
         $this->response->appendValueToHeader('Accept', 'application/json');
 
-        $this->assertEquals(
-            ['Accept' => 'text/html, application/json'],
-            $this->response->headers
+        self::assertEquals(
+            ['accept' => 'text/html, application/json'],
+            $this->response->getHeaders()
         );
     }
 
@@ -70,9 +118,9 @@ final class ResponseTest extends TestCase
 
         $this->response->appendValueToHeader('Accept', 'text/html');
 
-        $this->assertEquals(
-            ['Accept' => 'application/json, text/html'],
-            $this->response->headers
+        self::assertEquals(
+            ['accept' => 'application/json, text/html'],
+            $this->response->getHeaders()
         );
     }
 
@@ -83,9 +131,9 @@ final class ResponseTest extends TestCase
 
         $this->response->appendValueToHeader('Accept', 'application/json');
 
-        $this->assertEquals(
-            ['Accept' => 'application/json, text/html'],
-            $this->response->headers
+        self::assertEquals(
+            ['accept' => 'application/json, text/html'],
+            $this->response->getHeaders()
         );
     }
 
@@ -96,9 +144,9 @@ final class ResponseTest extends TestCase
 
         $this->response->appendValueToHeader('Accept', 'text/html');
 
-        $this->assertEquals(
-            ['Accept' => 'application/json, text/html'],
-            $this->response->headers
+        self::assertEquals(
+            ['accept' => 'application/json, text/html'],
+            $this->response->getHeaders()
         );
     }
 
@@ -109,9 +157,9 @@ final class ResponseTest extends TestCase
 
         $this->response->appendValueToHeader('Accept', 'text/html');
 
-        $this->assertEquals(
-            ['Accept' => 'application/json, text/html, text/plain'],
-            $this->response->headers
+        self::assertEquals(
+            ['accept' => 'application/json, text/html, text/plain'],
+            $this->response->getHeaders()
         );
     }
 
@@ -124,9 +172,9 @@ final class ResponseTest extends TestCase
 
         $this->response->appendValueToHeader('Example', 'baz+qux');
 
-        $this->assertEquals(
-            ['Example' => 'foo.bar, baz+qux'],
-            $this->response->headers
+        self::assertEquals(
+            ['example' => 'foo.bar, baz+qux'],
+            $this->response->getHeaders()
         );
     }
 
@@ -137,9 +185,9 @@ final class ResponseTest extends TestCase
 
         $this->response->appendValueToHeader('Example', 'bar.baz');
 
-        $this->assertEquals(
-            ['Example' => 'foo, bar.baz'],
-            $this->response->headers
+        self::assertEquals(
+            ['example' => 'foo, bar.baz'],
+            $this->response->getHeaders()
         );
     }
 }

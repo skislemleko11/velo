@@ -23,8 +23,8 @@ final class NativeEmitterTest extends TestCase
 
         $result = $this->emitter->setStatusCode(404);
 
-        $this->assertSame($this->emitter, $result);
-        $this->assertSame(404, http_response_code());
+        self::assertSame($this->emitter, $result);
+        self::assertSame(404, http_response_code());
     }
 
     #[Test]
@@ -32,13 +32,13 @@ final class NativeEmitterTest extends TestCase
     {
         $resultSingle = $this->emitter->sendHeader('X-Test-Single', 'Value1');
 
-        $this->assertSame($this->emitter, $resultSingle);
+        self::assertSame($this->emitter, $resultSingle);
 
         if (function_exists('xdebug_get_headers')) {
             $headers = xdebug_get_headers();
-            $this->assertContains('X-Test-Single: Value1', $headers);
+            self::assertContains('X-Test-Single: Value1', $headers);
         } else {
-            $this->assertTrue(true);
+            self::assertTrue(true);
         }
     }
 
@@ -50,14 +50,14 @@ final class NativeEmitterTest extends TestCase
             'X-Test-Multi-2' => 'Value3',
         ]);
 
-        $this->assertSame($this->emitter, $resultMultiple);
+        self::assertSame($this->emitter, $resultMultiple);
 
         if (function_exists('xdebug_get_headers')) {
             $headers = xdebug_get_headers();
-            $this->assertContains('X-Test-Multi-1: Value2', $headers);
-            $this->assertContains('X-Test-Multi-2: Value3', $headers);
+            self::assertContains('X-Test-Multi-1: Value2', $headers);
+            self::assertContains('X-Test-Multi-2: Value3', $headers);
         } else {
-            $this->assertTrue(true);
+            self::assertTrue(true);
         }
     }
 }

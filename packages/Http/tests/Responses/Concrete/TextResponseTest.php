@@ -15,7 +15,8 @@ final class TextResponseTest extends TestCase
     {
         $response = new TextResponse('hehe', headers: ['h' => 'a']);
 
-        $this->assertEquals(['Content-Type' => 'text/plain; charset=utf-8', 'h' => 'a'], $response->headers);
+        self::assertSame('text/plain; charset=utf-8', $response->getHeader('Content-Type'));
+        self::assertSame('a', $response->getHeader('h'));
     }
 
     #[Test]
@@ -23,7 +24,7 @@ final class TextResponseTest extends TestCase
     {
         $response = new TextResponse('color :3', headers: ['Content-Type' => 'text/css']);
 
-        $this->assertEquals(['Content-Type' => 'text/css'], $response->headers);
+        self::assertSame('text/css', $response->getHeader('Content-Type'));
     }
 
     #[Test]
@@ -31,9 +32,9 @@ final class TextResponseTest extends TestCase
     {
         $response = new TextResponse('hehe');
 
-        $this->assertEquals(
+        self::assertEquals(
             'hehe',
-            $response->render($this->createStub(RenderContext::class))
+            $response->render(self::createStub(RenderContext::class))
         );
     }
 }

@@ -21,8 +21,8 @@ final class ViewRendererTest extends TestCase
     protected function setUp(): void
     {
         $this->viewResolver = $this->createMock(ViewResolver::class);
-        $this->session = $this->createStub(SessionInterface::class);
-        $this->flashMessages = $this->createStub(FlashMessagesInterface::class);
+        $this->session = self::createStub(SessionInterface::class);
+        $this->flashMessages = self::createStub(FlashMessagesInterface::class);
 
         $this->viewRenderer = new ViewRenderer(
             $this->viewResolver,
@@ -50,7 +50,7 @@ final class ViewRendererTest extends TestCase
 
         $result = $this->viewRenderer->render('hehe.html');
 
-        $this->assertSame('hehe', $result);
+        self::assertSame('hehe', $result);
     }
 
     #[Test]
@@ -70,7 +70,7 @@ final class ViewRendererTest extends TestCase
             $filePath,
             ['name' => 'Nico', 's' => $this->session, 'f' => $this->flashMessages]
         );
-        $this->assertSame('yes', $result);
+        self::assertSame('yes', $result);
     }
 
     #[Test]
@@ -91,7 +91,7 @@ final class ViewRendererTest extends TestCase
             ['session' => 's', 'flashMessages' => 'f']
         );
 
-        $this->assertSame('yes', $result);
+        self::assertSame('yes', $result);
     }
 
     private function createViewFile(string $extension, string $content): string

@@ -16,12 +16,12 @@ final class FileResponseTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->context = $this->createStub(RenderContext::class);
+        $this->context = self::createStub(RenderContext::class);
 
         $this->filePath = tempnam(sys_get_temp_dir(), 'file-response-test-');
 
         if ($this->filePath === false) {
-            $this->fail('Could not create temporary file.');
+            self::fail('Could not create temporary file.');
         }
     }
 
@@ -41,7 +41,7 @@ final class FileResponseTest extends TestCase
 
         $response = new FileResponse($this->filePath);
 
-        $this->assertSame($content, $response->render($this->context));
+        self::assertSame($content, $response->render($this->context));
     }
 
     #[Test]

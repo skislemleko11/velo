@@ -7,8 +7,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ValueError;
+use Velo\Http\RenderContext;
 use Velo\Http\Request;
 use Velo\Http\RequestMethod;
+use Velo\Http\Responses\Response;
 
 final class RequestTest extends TestCase
 {
@@ -29,17 +31,25 @@ final class RequestTest extends TestCase
     #[Test]
     public function it_parsed_url_in_constructor(): void
     {
-        $this->assertSame('/hehe/hihi', $this->request->urlPath);
-        $this->assertEmpty($this->request->getParams);
+        self::assertSame('/hehe/hihi', $this->request->urlPath);
+        self::assertEmpty($this->request->urlParams);
+    }
+
+    #[Test]
+    public function it_trims_url(): void
+    {
+        $request = new Request('     spaces.com  ', RequestMethod::GET);
+
+        self::assertSame('spaces.com', $request->url);
     }
 
     #[Test]
     public function it_parses_url_query_parameters(): void
     {
-        $request = new Request('https://example.com/search?q=velo&page=2', RequestMethod::GET);
+        $request = new Request('  https://example.com/search?q=velo&page=2', RequestMethod::GET);
 
-        $this->assertSame('/search', $request->urlPath);
-        $this->assertSame(['q' => 'velo', 'page' => '2'], $request->getParams);
+        self::assertSame('/search', $request->urlPath);
+        self::assertSame(['q' => 'velo', 'page' => '2'], $request->urlParams);
     }
 
     #[Test]
@@ -49,7 +59,7 @@ final class RequestTest extends TestCase
 
         $request = new Request('https://example.com/resource', RequestMethod::POST);
 
-        $this->assertSame(RequestMethod::PUT, $request->method);
+        self::assertSame(RequestMethod::PUT, $request->method);
     }
 
     #[Test]
@@ -61,37 +71,37 @@ final class RequestTest extends TestCase
 
         $request = new Request('https://example.com/resource', RequestMethod::GET);
 
-        $this->assertSame('example.com', $request->getHeaders()['Host']);
-        $this->assertSame('Mozilla/5.0', $request->getHeaders()['User-Agent']);
-        $this->assertSame('text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', $request->getHeaders()['Accept']);
+        self::assertSame('example.com', $request->getHeaders()['host']);
+        self::assertSame('Mozilla/5.0', $request->getHeaders()['user-agent']);
+        self::assertSame('text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', $request->getHeaders()['accept']);
     }
 
     #[Test]
     public function it_gets_post_arg_value(): void
     {
         $_POST['key'] = 'value';
-        $this->assertSame('value', $this->request->getPostArg('key'));
+        self::assertSame('value', $this->request->getPostArg('key'));
     }
 
     #[Test]
     public function it_gets_post_arg_default_null(): void
     {
         unset($_POST['key']);
-        $this->assertNull($this->request->getPostArg('key'));
+        self::assertNull($this->request->getPostArg('key'));
     }
 
     #[Test]
     public function it_gets_post_arg_default(): void
     {
         unset($_POST['key']);
-        $this->assertSame('value', $this->request->getPostArg('key', 'value'));
+        self::assertSame('value', $this->request->getPostArg('key', 'value'));
     }
 
     #[Test]
     public function it_gets_post_data(): void
     {
         $_POST = ['hehe' => 'hihi', 'key' => 'value'];
-        $this->assertSame($_POST, $this->request->getPostData());
+        self::assertSame($_POST, $this->request->getPostData());
     }
 
     #[Test]
@@ -100,8 +110,36 @@ final class RequestTest extends TestCase
         $request = new Request(self::URL, RequestMethod::HEAD);
         $result = $request->changeMethodFromHeadToGet();
 
-        $this->assertSame(RequestMethod::GET, $request->method);
-        $this->assertSame($request, $result);
+        self::assertSame(RequestMethod::GET, $request->method);
+        self::assertSame($request, $result);
+    }
+
+    #[Test]
+    public function it_gets_headers(): void
+    {
+        $response = $this->getResponseWithHeaders();
+
+        self::assertEquals(['hehe' => 'hihi', 'a' => 'b', 'c' => 'D'], $response->getHeaders());
+    }
+
+    private function getResponseWithHeaders(): Response
+    {
+        return new class(200, ['hehe' => 'hihi', 'a' => 'b', 'C    ' => 'D']) extends Response {
+            public function render(RenderContext $context): string
+            {
+                return '';
+            }
+        };
+    }
+
+    #[Test]
+    public function it_gets_header(): void
+    {
+        $response = $this->getResponseWithHeaders();
+
+        self::assertEquals('hihi', $response->getHeader('hehe'));
+        self::assertEquals('b', $response->getHeader('A    '));
+        self::assertEquals('D', $response->getHeader('c   '));
     }
 
     #[Test]
@@ -132,9 +170,9 @@ final class RequestTest extends TestCase
 
         $request = Request::fromGlobals();
 
-        $this->assertSame('/dashboard?ref=mail', $request->url);
-        $this->assertSame('/dashboard', $request->urlPath);
-        $this->assertSame(['ref' => 'mail'], $request->getParams);
-        $this->assertSame(RequestMethod::GET, $request->method);
+        self::assertSame('/dashboard?ref=mail', $request->url);
+        self::assertSame('/dashboard', $request->urlPath);
+        self::assertSame(['ref' => 'mail'], $request->urlParams);
+        self::assertSame(RequestMethod::GET, $request->method);
     }
 }

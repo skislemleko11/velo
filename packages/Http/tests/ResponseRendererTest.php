@@ -25,6 +25,8 @@ final class ResponseRendererTest extends TestCase
             ['Content-Type' => 'text/plain']
         );
 
+        echo $response->getHeader('Content-Type');
+
         $emitter = $this->createMock(EmitterInterface::class);
         $context = $this->createMock(RenderContext::class);
 
@@ -38,8 +40,8 @@ final class ResponseRendererTest extends TestCase
             ->expects(self::once())
             ->method('sendHeaders')
             ->with([
-                'Content-Type' => 'text/plain',
-                'Content-Length' => '11',
+                'content-type' => 'text/plain',
+                'content-length' => '11',
             ]);
 
         $this->expectException(Exception::class);
@@ -60,7 +62,7 @@ final class ResponseRendererTest extends TestCase
             $output = ob_get_clean();
         }
 
-        $this->assertSame('Hello world', $output);
+        self::assertSame('Hello world', $output);
     }
 
     #[Test]
@@ -85,8 +87,8 @@ final class ResponseRendererTest extends TestCase
             ->expects(self::once())
             ->method('sendHeaders')
             ->with([
-                'Content-Type' => 'text/plain',
-                'Content-Length' => '11',
+                'content-type' => 'text/plain',
+                'content-length' => '11',
             ]);
 
         $this->expectException(Exception::class);
@@ -107,7 +109,7 @@ final class ResponseRendererTest extends TestCase
             $output = ob_get_clean();
         }
 
-        $this->assertSame('', $output);
+        self::assertSame('', $output);
     }
 
     #[Test]
@@ -133,8 +135,8 @@ final class ResponseRendererTest extends TestCase
             ->expects(self::once())
             ->method('sendHeaders')
             ->with([
-                'Content-Length' => '0',
-                'Content-Type' => 'text/plain; charset=utf-8',
+                'content-length' => '0',
+                'content-type' => 'text/plain; charset=utf-8',
             ]);
 
         $this->expectException(Exception::class);
@@ -155,6 +157,6 @@ final class ResponseRendererTest extends TestCase
             $output = ob_get_clean();
         }
 
-        $this->assertSame('Hello world', $output);
+        self::assertSame('Hello world', $output);
     }
 }

@@ -44,9 +44,9 @@ final class WebAuthMiddlewareTest extends TestCase
 
         $response = $middleware->handle($request, $next);
 
-        $this->assertTrue($nextCalled);
-        $this->assertSame($expectedResponse, $response);
-        $this->assertArrayNotHasKey('redirect_after_login', $_SESSION);
+        self::assertTrue($nextCalled);
+        self::assertSame($expectedResponse, $response);
+        self::assertArrayNotHasKey('redirect_after_login', $_SESSION);
     }
 
     #[Test]
@@ -55,12 +55,12 @@ final class WebAuthMiddlewareTest extends TestCase
         $request = new Request(url: '/protected-page', method: RequestMethod::GET);
         $middleware = new WebAuthMiddleware(session: $this->session);
 
-        $next = fn() => $this->fail('Should not be called for unauthenticated user.');
+        $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next);
 
-        $this->assertSame(302, $response->statusCode);
-        $this->assertSame('/login?redirect=%2Fprotected-page', $response->headers['Location'] ?? null);
+        self::assertSame(302, $response->statusCode);
+        self::assertSame('/login?redirect=%2Fprotected-page', $response->getHeader('Location'));
     }
 
     #[Test]
@@ -69,12 +69,12 @@ final class WebAuthMiddlewareTest extends TestCase
         $request = new Request(url: '/admin/settings', method: RequestMethod::GET);
         $middleware = new WebAuthMiddleware(session: $this->session);
 
-        $next = fn() => $this->fail('Should not be called for unauthenticated user.');
+        $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next, redirectUnauthenticatedUserTo: '/custom-login');
 
-        $this->assertSame(302, $response->statusCode);
-        $this->assertSame('/custom-login?redirect=%2Fadmin%2Fsettings', $response->headers['Location'] ?? null);
+        self::assertSame(302, $response->statusCode);
+        self::assertSame('/custom-login?redirect=%2Fadmin%2Fsettings', $response->getHeader('Location'));
     }
 
     #[Test]
@@ -84,17 +84,17 @@ final class WebAuthMiddlewareTest extends TestCase
         $customResponse = new ViewResponse('/views/custom-error.php', statusCode: 401);
 
         $customHandler = function (Request $req) use ($request, $customResponse) {
-            $this->assertSame($request, $req);
+            self::assertSame($request, $req);
             return $customResponse;
         };
 
         $middleware = new WebAuthMiddleware(session: $this->session, customResponseHandler: $customHandler);
 
-        $next = fn() => $this->fail('Should not be called for unauthenticated user.');
+        $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next);
 
-        $this->assertSame($customResponse, $response);
+        self::assertSame($customResponse, $response);
     }
 
     #[Test]
@@ -104,16 +104,16 @@ final class WebAuthMiddlewareTest extends TestCase
         $customResponse = new ViewResponse('/views/custom-error.php?redirect=%2Fsecret', statusCode: 401);
 
         $customHandler = function (Request $req, $responseForUnauthenticatedUser) use ($request) {
-            $this->assertSame($request, $req);
+            self::assertSame($request, $req);
             return new ViewResponse($responseForUnauthenticatedUser, statusCode: 401);
         };
 
         $middleware = new WebAuthMiddleware(session: $this->session, customResponseHandler: $customHandler);
 
-        $next = fn() => $this->fail('Should not be called for unauthenticated user.');
+        $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next, '/views/custom-error.php');
 
-        $this->assertEquals($customResponse, $response);
+        self::assertEquals($customResponse, $response);
     }
 }

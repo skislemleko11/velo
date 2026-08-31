@@ -43,8 +43,8 @@ class ApiGuestMiddlewareTest extends TestCase
 
         $response = $middleware->handle($request, $next);
 
-        $this->assertTrue($nextCalled);
-        $this->assertSame($expectedResponse, $response);
+        self::assertTrue($nextCalled);
+        self::assertSame($expectedResponse, $response);
     }
 
     #[Test]
@@ -55,12 +55,12 @@ class ApiGuestMiddlewareTest extends TestCase
         $request = new Request(url: '/protected-page', method: RequestMethod::GET);
         $middleware = new ApiGuestMiddleware(session: $this->session);
 
-        $next = fn() => $this->fail('Should not be called for unauthenticated user.');
+        $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next);
 
-        $this->assertSame(403, $response->statusCode);
-        $this->assertNull($response->headers['Location'] ?? null);
+        self::assertSame(403, $response->statusCode);
+        self::assertNull($response->getHeader('Location'));
     }
 
     #[Test]
@@ -71,13 +71,13 @@ class ApiGuestMiddlewareTest extends TestCase
         $request = new Request(url: '/admin/settings', method: RequestMethod::GET);
         $middleware = new ApiGuestMiddleware(session: $this->session);
 
-        $next = fn() => $this->fail('Should not be called for unauthenticated user.');
+        $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next, responseForAuthenticatedUser: ['error' => 'hehe']);
 
-        $this->assertSame(403, $response->statusCode);
-        $this->assertNull($response->headers['Location'] ?? null);
-        $this->assertSame(['error' => 'hehe'], $response->body);
+        self::assertSame(403, $response->statusCode);
+        self::assertNull($response->getHeader('Location'));
+        self::assertSame(['error' => 'hehe'], $response->body);
     }
 
     #[Test]
@@ -89,17 +89,17 @@ class ApiGuestMiddlewareTest extends TestCase
         $customResponse = new TextResponse('', statusCode: 401);
 
         $customHandler = function (Request $req) use ($request, $customResponse) {
-            $this->assertSame($request, $req);
+            self::assertSame($request, $req);
             return $customResponse;
         };
 
         $middleware = new ApiGuestMiddleware(session: $this->session, customResponseHandler: $customHandler);
 
-        $next = fn() => $this->fail('Should not be called for unauthenticated user.');
+        $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next);
 
-        $this->assertSame($customResponse, $response);
+        self::assertSame($customResponse, $response);
     }
 
     #[Test]
@@ -111,16 +111,16 @@ class ApiGuestMiddlewareTest extends TestCase
         $customResponse = new JsonResponse(body: ['hehe' => 'hihi'], statusCode: 401);
 
         $customHandler = function (Request $req, $data) use ($request, $customResponse) {
-            $this->assertSame($request, $req);
+            self::assertSame($request, $req);
             return new JsonResponse(body: $data, statusCode: 401);
         };
 
         $middleware = new ApiGuestMiddleware(session: $this->session, customResponseHandler: $customHandler);
 
-        $next = fn() => $this->fail('Should not be called for unauthenticated user.');
+        $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next, ['hehe' => 'hihi']);
 
-        $this->assertEquals($customResponse, $response);
+        self::assertEquals($customResponse, $response);
     }
 }

@@ -15,7 +15,7 @@ use Velo\Http\Responses\Response;
 class TextResponse extends Response
 {
     /**
-     * @param array $headers Don't forget to pass the 'Content-Type' header if you want it to be different from 'text/plain',
+     * @param array $headers Don't forget to pass the 'Content-Type' header if you want it to be different from 'text/plain; charset=utf-8',
      * which is set if the header is not passed.
      */
     public function __construct(
@@ -24,9 +24,11 @@ class TextResponse extends Response
         array                   $headers = []
     )
     {
-        $headers[self::CONTENT_TYPE_HEADER] ??= ResponseFormat::PLAIN_TEXT->value . '; charset=utf-8';
-
         parent::__construct($statusCode, $headers);
+
+        if ($this->getHeader(self::CONTENT_TYPE_HEADER) === null) {
+            $this->setHeader(self::CONTENT_TYPE_HEADER, ResponseFormat::PLAIN_TEXT->value . '; charset=utf-8');
+        }
     }
 
     public function render(RenderContext $context): string

@@ -7,7 +7,6 @@ use Throwable;
 use Velo\Core\ThrowableHandling\ErrorResponseFormatter\Interfaces\ErrorResponseFormatterInterface;
 use Velo\Exceptions\Interfaces\HttpResponseExceptionInterface;
 use Velo\Exceptions\Interfaces\HttpResponseExceptionWithHeadersInterface;
-use Velo\FileSystem\PathResolver\Exceptions\PathNotFoundException;
 use Velo\FileSystem\PathResolver\PathResolver;
 use Velo\Http\Responses\Concrete\JsonResponse;
 use Velo\Http\Responses\Concrete\TextResponse;

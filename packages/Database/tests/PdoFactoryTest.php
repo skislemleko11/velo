@@ -22,9 +22,9 @@ final class PdoFactoryTest extends TestCase
             pdoDefaultFetchMode: PDO::FETCH_OBJ
         );
 
-        $this->assertInstanceOf(PDO::class, $pdo);
-        $this->assertSame(PDO::ERRMODE_SILENT, $pdo->getAttribute(PDO::ATTR_ERRMODE));
-        $this->assertSame(PDO::FETCH_OBJ, $pdo->getAttribute(PDO::ATTR_DEFAULT_FETCH_MODE));
+        self::assertInstanceOf(PDO::class, $pdo);
+        self::assertSame(PDO::ERRMODE_SILENT, $pdo->getAttribute(PDO::ATTR_ERRMODE));
+        self::assertSame(PDO::FETCH_OBJ, $pdo->getAttribute(PDO::ATTR_DEFAULT_FETCH_MODE));
     }
 
     #[Test]

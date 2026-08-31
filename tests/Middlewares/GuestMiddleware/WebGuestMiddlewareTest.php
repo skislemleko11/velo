@@ -42,9 +42,9 @@ class WebGuestMiddlewareTest extends TestCase
 
         $response = $middleware->handle($request, $next);
 
-        $this->assertTrue($nextCalled);
-        $this->assertSame($expectedResponse, $response);
-        $this->assertArrayNotHasKey('redirect_after_login', $_SESSION);
+        self::assertTrue($nextCalled);
+        self::assertSame($expectedResponse, $response);
+        self::assertArrayNotHasKey('redirect_after_login', $_SESSION);
     }
 
     #[Test]
@@ -54,12 +54,12 @@ class WebGuestMiddlewareTest extends TestCase
         $request = new Request(url: '/protected-page', method: RequestMethod::GET);
         $middleware = new WebGuestMiddleware(session: $this->session);
 
-        $next = fn() => $this->fail('Should not be called for unauthenticated user.');
+        $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next);
 
-        $this->assertSame(302, $response->statusCode);
-        $this->assertSame('/', $response->headers['Location'] ?? null);
+        self::assertSame(302, $response->statusCode);
+        self::assertSame('/', $response->getHeader('Location'));
     }
 
     #[Test]
@@ -70,12 +70,12 @@ class WebGuestMiddlewareTest extends TestCase
         $request = new Request(url: '/admin/settings', method: RequestMethod::GET);
         $middleware = new WebGuestMiddleware(session: $this->session);
 
-        $next = fn() => $this->fail('Should not be called for unauthenticated user.');
+        $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next, redirectAuthenticatedUserTo: '/custom-login');
 
-        $this->assertSame(302, $response->statusCode);
-        $this->assertSame('/custom-login', $response->headers['Location'] ?? null);
+        self::assertSame(302, $response->statusCode);
+        self::assertSame('/custom-login', $response->getHeader('Location'));
     }
 
     #[Test]
@@ -87,17 +87,17 @@ class WebGuestMiddlewareTest extends TestCase
         $customResponse = new ViewResponse('/views/custom-error.php', statusCode: 401);
 
         $customHandler = function (Request $req) use ($request, $customResponse) {
-            $this->assertSame($request, $req);
+            self::assertSame($request, $req);
             return $customResponse;
         };
 
         $middleware = new WebGuestMiddleware(session: $this->session, customResponseHandler: $customHandler);
 
-        $next = fn() => $this->fail('Should not be called for unauthenticated user.');
+        $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next);
 
-        $this->assertSame($customResponse, $response);
+        self::assertSame($customResponse, $response);
     }
 
     #[Test]
@@ -109,16 +109,16 @@ class WebGuestMiddlewareTest extends TestCase
         $customResponse = new ViewResponse('/views/custom-error.php', statusCode: 401);
 
         $customHandler = function (Request $req, $url) use ($request, $customResponse) {
-            $this->assertSame($request, $req);
+            self::assertSame($request, $req);
             return new ViewResponse($url, statusCode: 401);
         };
 
         $middleware = new WebGuestMiddleware(session: $this->session, customResponseHandler: $customHandler);
 
-        $next = fn() => $this->fail('Should not be called for unauthenticated user.');
+        $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next, '/views/custom-error.php');
 
-        $this->assertEquals($customResponse, $response);
+        self::assertEquals($customResponse, $response);
     }
 }

@@ -8,31 +8,34 @@ use ValueError;
 /**
  * Represents an HTTP request.
  */
-class Request
+final class Request
 {
     /**
      * The key used in forms to provide not supported by default request methods.
      */
     public const string METHOD_FORM_KEY = 'request_method';
 
+    public readonly string $url;
     public readonly string $urlPath;
-    private(set) array $getParams = [];
+    private(set) array $urlParams = [];
     private(set) RequestMethod $method;
     private array $headers;
 
     public function __construct(
-        public readonly string $url,
-        RequestMethod          $method
+        string        $url,
+        RequestMethod $method
     )
     {
-        $this->urlPath = $this->getUrlPath($url);
+        $this->url = trim($url);
 
-        $this->setGetParamsIfExist($url);
+        $this->urlPath = $this->parseUrlPath($this->url);
 
-        $this->method = $this->getMethod($method);
+        $this->setGetParamsIfExist($this->url);
+
+        $this->method = $this->getRealMethod($method);
     }
 
-    private function getUrlPath(string $url): string
+    private function parseUrlPath(string $url): string
     {
         return parse_url($url, PHP_URL_PATH) ?: '/';
     }
@@ -40,11 +43,11 @@ class Request
     private function setGetParamsIfExist(string $url): void
     {
         if ($queryString = parse_url($url, PHP_URL_QUERY)) {
-            parse_str($queryString, $this->getParams);
+            parse_str($queryString, $this->urlParams);
         }
     }
 
-    private function getMethod(RequestMethod $actualMethod): RequestMethod
+    private function getRealMethod(RequestMethod $actualMethod): RequestMethod
     {
         if ($actualMethod === RequestMethod::POST && $formMethod = $this->getPostArg(self::METHOD_FORM_KEY)) {
             return RequestMethod::fromString($formMethod, $actualMethod);
@@ -53,38 +56,26 @@ class Request
         return $actualMethod;
     }
 
+    /**
+     * @return array Headers, array keys - lowercase headers names, array values - headers values
+     */
     public function getHeaders(): array
     {
         if (!isset($this->headers)) {
-            $this->headers = $this->getHeadersFromServerSuperGlobal();
+            $this->headers = HeadersUtils::getHeadersFromServerSuperGlobal();
         }
 
         return $this->headers;
     }
 
-    private function getHeadersFromServerSuperGlobal(): array
+    /**
+     * @return mixed Header's value if header is set, $default otherwise.
+     */
+    public function getHeader(string $name, mixed $default = null): mixed
     {
-        $headers = [];
+        $headers = $this->getHeaders();
 
-        foreach ($_SERVER as $key => $value) {
-            if (!str_starts_with($key, 'HTTP_')) {
-                continue;
-            }
-
-            $header = str_replace(' ', '-',
-                ucwords(
-                    str_replace('_', ' ',
-                        strtolower(
-                            substr($key, 5)
-                        )
-                    )
-                )
-            );
-
-            $headers[$header] = $value;
-        }
-
-        return $headers;
+        return $headers[HeadersUtils::makeLowerCaseAndTrim($name)] ?? $default;
     }
 
     /**
@@ -92,7 +83,7 @@ class Request
      */
     public function getPostArg(string $key, mixed $default = null): mixed
     {
-        return $_POST[$key] ?? $default;
+        return $this->getPostData()[$key] ?? $default;
     }
 
     /**

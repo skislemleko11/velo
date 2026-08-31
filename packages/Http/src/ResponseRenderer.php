@@ -31,7 +31,7 @@ readonly class ResponseRenderer
         $contentLength = $this->setContentLengthHeaderIfNotSetAndReturnIt($response, $content);
 
         $this->emitter->setStatusCode($contentLength === 0 ? 204 : $response->statusCode)
-            ->sendHeaders($response->headers);
+            ->sendHeaders($response->getHeaders());
 
         $this->echoContentIfRequestMethodIsNotHead($content, $requestMethod);
 
@@ -40,13 +40,13 @@ readonly class ResponseRenderer
 
     private function setContentLengthHeaderIfNotSetAndReturnIt(Response $response, string $content): int
     {
-        if (!isset($response->headers['Content-Length'])) {
+        if ($response->getHeader('Content-Length') === null) {
             $length = strlen($content);
 
             $response->setHeader('Content-Length', (string)$length);
         }
 
-        return $length ?? (int)$response->headers['Content-Length'];
+        return $length ?? (int)$response->getHeader('Content-Length');
     }
 
     private function echoContentIfRequestMethodIsNotHead(string $content, RequestMethod $requestMethod): void

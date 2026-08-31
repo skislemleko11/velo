@@ -17,9 +17,9 @@ class RedirectResponse extends Response
         array  $headers = []
     )
     {
-        $headers['Location'] = $location;
-
         parent::__construct($statusCode, $headers);
+
+        $this->setHeader('Location', $location);
     }
 
     public function render(RenderContext $context): string

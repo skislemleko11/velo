@@ -35,7 +35,7 @@ final class FlashMessagesTest extends TestCase
 
         $self = $this->flashMessages->add('info', 'Test message');
 
-        $this->assertSame($this->flashMessages, $self);
+        self::assertSame($this->flashMessages, $self);
     }
 
     #[Test]
@@ -57,7 +57,7 @@ final class FlashMessagesTest extends TestCase
 
         $result = $this->flashMessages->get('success');
 
-        $this->assertSame(['Operation successful'], $result);
+        self::assertSame(['Operation successful'], $result);
     }
 
     #[Test]
@@ -78,7 +78,7 @@ final class FlashMessagesTest extends TestCase
 
         $result = $this->flashMessages->get('success');
 
-        $this->assertSame(['Operation successful'], $result);
+        self::assertSame(['Operation successful'], $result);
     }
 
     #[Test]
@@ -91,7 +91,7 @@ final class FlashMessagesTest extends TestCase
 
         $result = $this->flashMessages->get('warning', ['default_message']);
 
-        $this->assertSame(['default_message'], $result);
+        self::assertSame(['default_message'], $result);
     }
 
     #[Test]
@@ -113,7 +113,7 @@ final class FlashMessagesTest extends TestCase
 
         $result = $this->flashMessages->getAll();
 
-        $this->assertSame($existingMessages, $result);
+        self::assertSame($existingMessages, $result);
     }
 
     #[Test]
@@ -125,7 +125,7 @@ final class FlashMessagesTest extends TestCase
             ->with('flash_messages', [])
             ->willReturn($storedMessages);
 
-        $this->assertSame($expected, $this->flashMessages->has($checkType));
+        self::assertSame($expected, $this->flashMessages->has($checkType));
     }
 
     #[Test]
@@ -143,7 +143,7 @@ final class FlashMessagesTest extends TestCase
 
         $self = $this->flashMessages->$method('Helper message');
 
-        $this->assertSame($this->flashMessages, $self);
+        self::assertSame($this->flashMessages, $self);
     }
 
     public static function hasTypeDataProvider(): array

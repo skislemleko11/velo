@@ -13,9 +13,9 @@ class NoContentResponse extends Response
 {
     public function __construct(int $statusCode = 204, array $headers = [])
     {
-        $headers['Content-Length'] = 0;
-
         parent::__construct($statusCode, $headers);
+
+        $this->setHeader('Content-Length', '0');
     }
 
     public function render(RenderContext $context): string

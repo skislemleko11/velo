@@ -14,9 +14,9 @@ final class NoContentResponseTest extends TestCase
     public function it_renders_empty_string(): void
     {
         $response = new NoContentResponse();
-        $context = $this->createStub(RenderContext::class);
+        $context = self::createStub(RenderContext::class);
 
-        $this->assertSame('', $response->render($context));
+        self::assertSame('', $response->render($context));
     }
 
     #[Test]
@@ -24,6 +24,6 @@ final class NoContentResponseTest extends TestCase
     {
         $response = new NoContentResponse(headers: ['Content-Length' => 30]);
 
-        $this->assertSame(0, $response->headers['Content-Length']);
+        self::assertSame('0', $response->getHeader('Content-Length'));
     }
 }

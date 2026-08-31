@@ -15,7 +15,7 @@ final class JsonResponseTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->context = $this->createStub(RenderContext::class);
+        $this->context = self::createStub(RenderContext::class);
     }
 
     #[Test]
@@ -23,7 +23,8 @@ final class JsonResponseTest extends TestCase
     {
         $response = new JsonResponse(['foo' => 'bar'], headers: ['Content-Type' => 'ahshhd', 'hehe' => 'haha']);
 
-        $this->assertEquals(['Content-Type' => 'application/json', 'hehe' => 'haha'], $response->headers);
+        self::assertSame('application/json', $response->getHeader('Content-Type'));
+        self::assertSame('haha', $response->getHeader('hehe'));
     }
 
     #[Test]
@@ -32,7 +33,7 @@ final class JsonResponseTest extends TestCase
         $arr = ['foo' => 'abar'];
         $response = new JsonResponse($arr);
 
-        $this->assertEquals(
+        self::assertEquals(
             json_encode($arr),
             $response->render($this->context)
         );
@@ -44,7 +45,7 @@ final class JsonResponseTest extends TestCase
         $arr = ['foo' => 'ąbąr'];
         $response = new JsonResponse($arr);
 
-        $this->assertEquals(
+        self::assertEquals(
             json_encode($arr, JSON_UNESCAPED_UNICODE),
             $response->render($this->context)
         );
@@ -64,7 +65,7 @@ final class JsonResponseTest extends TestCase
     {
         $response = new JsonResponse(['foo/' => 'bar'], jsonEncodeFlags: JSON_UNESCAPED_SLASHES);
 
-        $this->assertEquals(json_encode(['foo/' => 'bar'], JSON_UNESCAPED_SLASHES), $response->render($this->context));
+        self::assertEquals(json_encode(['foo/' => 'bar'], JSON_UNESCAPED_SLASHES), $response->render($this->context));
     }
 
     #[Test]
@@ -74,6 +75,6 @@ final class JsonResponseTest extends TestCase
 
         $respone = new JsonResponse($data, jsonEncodeFlags: JSON_ERROR_NONE);
 
-        $this->assertSame('', $respone->render($this->context));
+        self::assertSame('', $respone->render($this->context));
     }
 }

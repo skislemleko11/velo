@@ -51,7 +51,7 @@ readonly class RequestLoggerMiddleware implements MiddlewareInterface
             'url' => $request->url,
             'url path' => $request->urlPath,
             'method' => $request->method->value,
-            'GET params' => $request->getParams
+            'GET params' => $request->urlParams
         ]);
     }
 }

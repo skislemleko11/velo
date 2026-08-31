@@ -50,7 +50,7 @@ final class ViewResolverTest extends TestCase
 
         $result = $resolver->resolve($viewFile);
 
-        $this->assertSame($viewPath, $result);
+        self::assertSame($viewPath, $result);
     }
 
     #[Test]
@@ -73,7 +73,7 @@ final class ViewResolverTest extends TestCase
 
         $result = $resolver->resolve($viewFile);
 
-        $this->assertSame($viewPath, $result);
+        self::assertSame($viewPath, $result);
     }
 
     #[Test]

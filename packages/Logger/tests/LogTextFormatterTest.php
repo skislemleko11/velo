@@ -23,25 +23,25 @@ final class LogTextFormatterTest extends TestCase
     {
         $output = $this->formatter->format('info', 'Test message');
 
-        $this->assertStringContainsString('[INFO]', $output);
-        $this->assertStringContainsString('Test message', $output);
-        $this->assertMatchesRegularExpression('/\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}]/', $output);
+        self::assertStringContainsString('[INFO]', $output);
+        self::assertStringContainsString('Test message', $output);
+        self::assertMatchesRegularExpression('/\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}]/', $output);
     }
 
     #[Test]
     public function it_converts_log_level_to_uppercase(): void
     {
         $output = $this->formatter->format('debug', 'Message');
-        $this->assertStringContainsString('[DEBUG]', $output);
+        self::assertStringContainsString('[DEBUG]', $output);
 
         $output = $this->formatter->format('warning', 'Message');
-        $this->assertStringContainsString('[WARNING]', $output);
+        self::assertStringContainsString('[WARNING]', $output);
 
         $output = $this->formatter->format('error', 'Message');
-        $this->assertStringContainsString('[ERROR]', $output);
+        self::assertStringContainsString('[ERROR]', $output);
 
         $output = $this->formatter->format('critical', 'Message');
-        $this->assertStringContainsString('[CRITICAL]', $output);
+        self::assertStringContainsString('[CRITICAL]', $output);
     }
 
     #[Test]
@@ -55,9 +55,9 @@ final class LogTextFormatterTest extends TestCase
 
         $output = $this->formatter->format('info', $message, $context);
 
-        $this->assertStringContainsString('User John performed login', $output);
-        $this->assertStringNotContainsString('{user}', $output);
-        $this->assertStringNotContainsString('{action}', $output);
+        self::assertStringContainsString('User John performed login', $output);
+        self::assertStringNotContainsString('{user}', $output);
+        self::assertStringNotContainsString('{action}', $output);
     }
 
     #[Test]
@@ -71,9 +71,9 @@ final class LogTextFormatterTest extends TestCase
 
         $output = $this->formatter->format('info', 'Test', $context);
 
-        $this->assertStringContainsString('"user_id":123', $output);
-        $this->assertStringContainsString('"status":"active"', $output);
-        $this->assertStringContainsString('"tags"', $output);
+        self::assertStringContainsString('"user_id":123', $output);
+        self::assertStringContainsString('"status":"active"', $output);
+        self::assertStringContainsString('"tags"', $output);
     }
 
     #[Test]
@@ -84,11 +84,11 @@ final class LogTextFormatterTest extends TestCase
 
         $output = $this->formatter->format('error', 'An error occurred', $context);
 
-        $this->assertStringContainsString('Stack Trace:', $output);
-        $this->assertStringContainsString('Exception', $output);
-        $this->assertStringContainsString('Test exception', $output);
-        $this->assertStringContainsString($exception->getFile(), $output);
-        $this->assertStringContainsString((string)$exception->getLine(), $output);
+        self::assertStringContainsString('Stack Trace:', $output);
+        self::assertStringContainsString('Exception', $output);
+        self::assertStringContainsString('Test exception', $output);
+        self::assertStringContainsString($exception->getFile(), $output);
+        self::assertStringContainsString((string)$exception->getLine(), $output);
     }
 
     #[Test]
@@ -106,7 +106,7 @@ final class LogTextFormatterTest extends TestCase
         $lines = explode("\n", $output);
         foreach ($lines as $line) {
             if (str_contains($line, 'user_id')) {
-                $this->assertStringNotContainsString('exception', $line);
+                self::assertStringNotContainsString('exception', $line);
             }
         }
     }
@@ -116,9 +116,9 @@ final class LogTextFormatterTest extends TestCase
     {
         $output = $this->formatter->format('info', 'Message');
 
-        $this->assertStringContainsString('Message', $output);
+        self::assertStringContainsString('Message', $output);
         // Should not have any JSON context
-        $this->assertStringNotContainsString('{}', $output);
+        self::assertStringNotContainsString('{}', $output);
     }
 
     #[Test]
@@ -134,9 +134,9 @@ final class LogTextFormatterTest extends TestCase
         $output = $this->formatter->format('info', $message, $context);
 
         // {array} and {object} should remain as placeholders
-        $this->assertStringContainsString('{array}', $output);
-        $this->assertStringContainsString('{object}', $output);
-        $this->assertStringContainsString('Valid: value', $output);
+        self::assertStringContainsString('{array}', $output);
+        self::assertStringContainsString('{object}', $output);
+        self::assertStringContainsString('Valid: value', $output);
     }
 
     #[Test]
@@ -154,7 +154,7 @@ final class LogTextFormatterTest extends TestCase
 
         $output = $this->formatter->format('info', $message, $context);
 
-        $this->assertStringContainsString('Object: StringableObject', $output);
+        self::assertStringContainsString('Object: StringableObject', $output);
     }
 
     #[Test]
@@ -169,7 +169,7 @@ final class LogTextFormatterTest extends TestCase
         $message = 'Connected to {database} at {host}:{port}';
         $output = $this->formatter->format('info', $message, $context);
 
-        $this->assertStringContainsString('Connected to myapp at localhost:8080', $output);
+        self::assertStringContainsString('Connected to myapp at localhost:8080', $output);
     }
 
     #[Test]
@@ -177,7 +177,7 @@ final class LogTextFormatterTest extends TestCase
     {
         $output = $this->formatter->format('info', 'Test');
 
-        $this->assertTrue(str_ends_with($output, "\n\n"));
+        self::assertTrue(str_ends_with($output, "\n\n"));
     }
 
 
@@ -189,8 +189,8 @@ final class LogTextFormatterTest extends TestCase
 
         $output = $this->formatter->format('error', 'Error', $context);
 
-        $this->assertStringContainsString('Stack Trace:', $output);
-        $this->assertStringContainsString('Multi', $output);
+        self::assertStringContainsString('Stack Trace:', $output);
+        self::assertStringContainsString('Multi', $output);
     }
 
     #[Test]
@@ -198,7 +198,7 @@ final class LogTextFormatterTest extends TestCase
     {
         $output = $this->formatter->format('info', 'Test');
 
-        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}/', $output);
+        self::assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}/', $output);
     }
 
     #[Test]
@@ -207,7 +207,7 @@ final class LogTextFormatterTest extends TestCase
         $message = 'Special: <>&"\'';
         $output = $this->formatter->format('info', $message);
 
-        $this->assertStringContainsString('Special: <>&"\'', $output);
+        self::assertStringContainsString('Special: <>&"\'', $output);
     }
 
     #[Test]
@@ -220,8 +220,8 @@ final class LogTextFormatterTest extends TestCase
 
         $output = $this->formatter->format('info', 'User {name} from {city}', $context);
 
-        $this->assertStringContainsString('Żółw', $output);
-        $this->assertStringContainsString('Москва', $output);
+        self::assertStringContainsString('Żółw', $output);
+        self::assertStringContainsString('Москва', $output);
     }
 
     #[Test]
@@ -236,9 +236,9 @@ final class LogTextFormatterTest extends TestCase
         $message = 'Int: {int}, Float: {float}, Negative: {negative}';
         $output = $this->formatter->format('info', $message, $context);
 
-        $this->assertStringContainsString('Int: 42', $output);
-        $this->assertStringContainsString('Float: 3.14', $output);
-        $this->assertStringContainsString('Negative: -100', $output);
+        self::assertStringContainsString('Int: 42', $output);
+        self::assertStringContainsString('Float: 3.14', $output);
+        self::assertStringContainsString('Negative: -100', $output);
     }
 
     #[Test]
@@ -252,8 +252,8 @@ final class LogTextFormatterTest extends TestCase
         $message = 'Enabled: {enabled}, Disabled: {disabled}';
         $output = $this->formatter->format('info', $message, $context);
 
-        $this->assertStringContainsString('Enabled: 1', $output);
-        $this->assertStringContainsString('Disabled: ', $output);
+        self::assertStringContainsString('Enabled: 1', $output);
+        self::assertStringContainsString('Disabled: ', $output);
     }
 
     #[Test]
@@ -268,8 +268,8 @@ final class LogTextFormatterTest extends TestCase
 
         $output = $this->formatter->format('info', 'Test', $context);
 
-        $this->assertStringContainsString('"user"', $output);
-        $this->assertStringContainsString('"id":1', $output);
-        $this->assertStringContainsString('"roles"', $output);
+        self::assertStringContainsString('"user"', $output);
+        self::assertStringContainsString('"id":1', $output);
+        self::assertStringContainsString('"roles"', $output);
     }
 }

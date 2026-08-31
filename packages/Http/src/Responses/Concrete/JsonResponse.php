@@ -19,9 +19,9 @@ class JsonResponse extends Response
         private readonly int  $jsonEncodeFlags = JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR
     )
     {
-        $headers[self::CONTENT_TYPE_HEADER] = ResponseFormat::JSON->value;
-
         parent::__construct($statusCode, $headers);
+
+        $this->setHeader(self::CONTENT_TYPE_HEADER, ResponseFormat::JSON->value);
     }
 
     public function render(RenderContext $context): string

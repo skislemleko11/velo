@@ -31,7 +31,7 @@ final class ContainerTest extends TestCase
     public function it_binds(string $key, callable|string $value): void
     {
         $this->container->set($key, $value);
-        $this->assertEquals([$key => $value], $this->getPropertyValue('entries'));
+        self::assertEquals([$key => $value], $this->getPropertyValue('entries'));
     }
 
     public static function bindingCases(): array
@@ -46,7 +46,7 @@ final class ContainerTest extends TestCase
     public function it_gets_bound_callable(): void
     {
         $this->container->set(SimpleClass::class, fn() => new SimpleClass());
-        $this->assertInstanceOf(SimpleClass::class, $this->container->get(SimpleClass::class));
+        self::assertInstanceOf(SimpleClass::class, $this->container->get(SimpleClass::class));
     }
 
     #[Test]
@@ -59,21 +59,21 @@ final class ContainerTest extends TestCase
     #[Test]
     public function it_resolves_with_injected_dependency(): void
     {
-        $dependency = $this->createStub(SimpleDependency::class);
+        $dependency = self::createStub(SimpleDependency::class);
         $this->container->set(SimpleDependency::class, fn() => $dependency);
         $this->container->set(ClassWithDependency::class, fn() => new ClassWithDependency($dependency));
 
-        $this->assertInstanceOf(ClassWithDependency::class, $this->container->get(ClassWithDependency::class));
+        self::assertInstanceOf(ClassWithDependency::class, $this->container->get(ClassWithDependency::class));
     }
 
     #[Test]
     public function it_gets_binded_by_interface(): void
     {
-        $dependency = $this->createStub(SimpleDependency::class);
+        $dependency = self::createStub(SimpleDependency::class);
         $this->container->set(SimpleDependency::class, fn() => $dependency);
         $this->container->set(SimpleInterface::class, ClassWithDependency::class);
 
-        $this->assertInstanceOf(ClassWithDependency::class, $this->container->get(SimpleInterface::class));
+        self::assertInstanceOf(ClassWithDependency::class, $this->container->get(SimpleInterface::class));
     }
 
     #[Test]
@@ -120,28 +120,28 @@ final class ContainerTest extends TestCase
     public function it_resolves_builtin_with_default_value(): void
     {
         $result = $this->container->get(ClassWithDefaultValue::class);
-        $this->assertInstanceOf(ClassWithDefaultValue::class, $result);
-        $this->assertEquals('default', $result->value);
+        self::assertInstanceOf(ClassWithDefaultValue::class, $result);
+        self::assertEquals('default', $result->value);
     }
 
     #[Test]
     public function it_resolves_simple_class_without_constructor(): void
     {
         $result = $this->container->get(SimpleClassWithoutConstructor::class);
-        $this->assertInstanceOf(SimpleClassWithoutConstructor::class, $result);
+        self::assertInstanceOf(SimpleClassWithoutConstructor::class, $result);
     }
 
     #[Test]
     public function it_has_registered_entry(): void
     {
         $this->container->set('test_key', 'test_value');
-        $this->assertTrue($this->container->has('test_key'));
+        self::assertTrue($this->container->has('test_key'));
     }
 
     #[Test]
     public function it_does_not_have_unregistered_entry(): void
     {
-        $this->assertFalse($this->container->has('non_existent_key'));
+        self::assertFalse($this->container->has('non_existent_key'));
     }
 
     #[Test]
@@ -149,14 +149,14 @@ final class ContainerTest extends TestCase
     {
         $this->container->set(SimpleDependency::class, SimpleDependency::class);
         $result = $this->container->get(ClassWithNestedDependency::class);
-        $this->assertInstanceOf(ClassWithNestedDependency::class, $result);
-        $this->assertInstanceOf(SimpleDependency::class, $result->dependency);
+        self::assertInstanceOf(ClassWithNestedDependency::class, $result);
+        self::assertInstanceOf(SimpleDependency::class, $result->dependency);
     }
 
     #[Test]
     public function it_resolves_callable_with_container_access(): void
     {
-        $dependency = $this->createStub(SimpleDependency::class);
+        $dependency = self::createStub(SimpleDependency::class);
         $this->container->set(SimpleDependency::class, fn() => $dependency);
 
         $this->container->set(
@@ -165,7 +165,7 @@ final class ContainerTest extends TestCase
         );
 
         $result = $this->container->get(ClassWithDependency::class);
-        $this->assertInstanceOf(ClassWithDependency::class, $result);
+        self::assertInstanceOf(ClassWithDependency::class, $result);
     }
 
     #[Test]
@@ -173,7 +173,7 @@ final class ContainerTest extends TestCase
     {
         $this->container->set(Class2Interface::class, Class2::class);
         $result = $this->container->get(Class1::class);
-        $this->assertInstanceOf(Class1::class, $result);
+        self::assertInstanceOf(Class1::class, $result);
     }
 
     #[Test]
@@ -182,7 +182,7 @@ final class ContainerTest extends TestCase
         $instance1 = $this->container->get(SimpleClassWithoutConstructor::class);
         $instance2 = $this->container->get(SimpleClassWithoutConstructor::class);
 
-        $this->assertSame($instance1, $instance2);
+        self::assertSame($instance1, $instance2);
     }
 
     #[Test]
@@ -193,7 +193,7 @@ final class ContainerTest extends TestCase
         $instance1 = $this->container->get(SimpleClass::class);
         $instance2 = $this->container->get(SimpleClass::class);
 
-        $this->assertSame($instance1, $instance2);
+        self::assertSame($instance1, $instance2);
     }
 
     #[Test]
@@ -204,7 +204,7 @@ final class ContainerTest extends TestCase
         $fromInterface = $this->container->get(SimpleInterface::class);
         $fromConcrete = $this->container->get(SimpleClass::class);
 
-        $this->assertSame($fromInterface, $fromConcrete);
+        self::assertSame($fromInterface, $fromConcrete);
     }
 
     #[Test]
@@ -218,22 +218,22 @@ final class ContainerTest extends TestCase
 
         $secondInstance = $this->container->get(SimpleInterface::class);
 
-        $this->assertNotSame($firstInstance, $secondInstance);
-        $this->assertSame($anotherConcrete, $secondInstance);
+        self::assertNotSame($firstInstance, $secondInstance);
+        self::assertSame($anotherConcrete, $secondInstance);
     }
 
     #[Test]
     public function it_gets_obj_with_param_which_is_not_instantiable_but_has_default_value(): void
     {
         $class = $this->container->get(NotInstantiableParamWithDefaultValue::class);
-        $this->assertInstanceOf(NotInstantiableParamWithDefaultValue::class, $class);
+        self::assertInstanceOf(NotInstantiableParamWithDefaultValue::class, $class);
     }
 
     #[Test]
     public function it_gets_obj_with_param_which_is_not_instantiable_but_allows_null(): void
     {
         $class = $this->container->get(NotInstantiableParamWithoutDefaultValueButAllowsNull::class);
-        $this->assertInstanceOf(NotInstantiableParamWithoutDefaultValueButAllowsNull::class, $class);
+        self::assertInstanceOf(NotInstantiableParamWithoutDefaultValueButAllowsNull::class, $class);
     }
 
     #[Test]
@@ -243,8 +243,8 @@ final class ContainerTest extends TestCase
 
         $this->container->set('hehe', $obj);
 
-        $this->assertSame(['hehe' => $obj], $this->getPropertyValue('instances'));
-        $this->assertSame([], $this->getPropertyValue('entries'));
+        self::assertSame(['hehe' => $obj], $this->getPropertyValue('instances'));
+        self::assertSame([], $this->getPropertyValue('entries'));
     }
 
     #[Test]
@@ -255,7 +255,7 @@ final class ContainerTest extends TestCase
 
         $this->container->set(SimpleClass::class, $simpleClass);
 
-        $this->assertSame($simpleClass, $this->container->get(SimpleInterface::class));
+        self::assertSame($simpleClass, $this->container->get(SimpleInterface::class));
     }
 }
 

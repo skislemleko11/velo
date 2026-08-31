@@ -26,9 +26,9 @@ class ViewResponse extends Response
         array                   $headers = []
     )
     {
-        $headers[self::CONTENT_TYPE_HEADER] = ResponseFormat::HTML->value . '; charset=utf-8';
-
         parent::__construct($statusCode, $headers);
+
+        $this->setHeader(self::CONTENT_TYPE_HEADER, ResponseFormat::HTML->value . '; charset=utf-8');
     }
 
     /**

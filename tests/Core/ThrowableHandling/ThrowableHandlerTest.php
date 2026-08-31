@@ -56,12 +56,12 @@ final class ThrowableHandlerTest extends TestCase
             __LINE__
         );
 
-        $response = $this->createStub(JsonResponse::class);
+        $response = self::createStub(JsonResponse::class);
 
         $logger
             ->expects($this->once())
             ->method('error')
-            ->with($this->identicalTo($exception));
+            ->with(self::identicalTo($exception));
 
         $logger
             ->expects($this->never())
@@ -70,13 +70,13 @@ final class ThrowableHandlerTest extends TestCase
         $formatter
             ->expects($this->once())
             ->method('formatJson')
-            ->with($this->identicalTo($exception))
+            ->with(self::identicalTo($exception))
             ->willReturn($response);
 
         $responseRenderer
             ->expects($this->once())
             ->method('render')
-            ->with($this->identicalTo($response));
+            ->with(self::identicalTo($response));
 
         $handler = new ThrowableHandler(
             $logger,
@@ -111,12 +111,12 @@ final class ThrowableHandlerTest extends TestCase
             }
         };
 
-        $response = $this->createStub(JsonResponse::class);
+        $response = self::createStub(JsonResponse::class);
 
         $logger
             ->expects($this->once())
             ->method('error')
-            ->with($this->identicalTo($exception));
+            ->with(self::identicalTo($exception));
 
         $logger
             ->expects($this->never())
@@ -125,13 +125,13 @@ final class ThrowableHandlerTest extends TestCase
         $formatter
             ->expects($this->once())
             ->method('formatJson')
-            ->with($this->identicalTo($exception))
+            ->with(self::identicalTo($exception))
             ->willReturn($response);
 
         $responseRenderer
             ->expects($this->once())
             ->method('render')
-            ->with($this->identicalTo($response));
+            ->with(self::identicalTo($response));
 
         $handler = new ThrowableHandler(
             $logger,
@@ -166,7 +166,7 @@ final class ThrowableHandlerTest extends TestCase
             }
         };
 
-        $response = $this->createStub(JsonResponse::class);
+        $response = self::createStub(JsonResponse::class);
 
         $logger
             ->expects($this->never())
@@ -179,13 +179,13 @@ final class ThrowableHandlerTest extends TestCase
         $formatter
             ->expects($this->once())
             ->method('formatJson')
-            ->with($this->identicalTo($exception))
+            ->with(self::identicalTo($exception))
             ->willReturn($response);
 
         $responseRenderer
             ->expects($this->once())
             ->method('render')
-            ->with($this->identicalTo($response));
+            ->with(self::identicalTo($response));
 
         $handler = new ThrowableHandler(
             $logger,
@@ -205,12 +205,12 @@ final class ThrowableHandlerTest extends TestCase
 
         $exception = new Exception('something went wrong');
 
-        $response = $this->createStub(JsonResponse::class);
+        $response = self::createStub(JsonResponse::class);
 
         $logger
             ->expects($this->once())
             ->method('critical')
-            ->with($this->identicalTo($exception));
+            ->with(self::identicalTo($exception));
 
         $logger
             ->expects($this->never())
@@ -219,13 +219,13 @@ final class ThrowableHandlerTest extends TestCase
         $formatter
             ->expects($this->once())
             ->method('formatJson')
-            ->with($this->identicalTo($exception))
+            ->with(self::identicalTo($exception))
             ->willReturn($response);
 
         $responseRenderer
             ->expects($this->once())
             ->method('render')
-            ->with($this->identicalTo($response));
+            ->with(self::identicalTo($response));
 
         $handler = new ThrowableHandler(
             $logger,
@@ -241,17 +241,17 @@ final class ThrowableHandlerTest extends TestCase
     {
         $_SERVER['HTTP_ACCEPT'] = 'text/html';
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $responseRenderer = $this->createMock(ResponseRenderer::class);
         $formatter = $this->createMock(ErrorResponseFormatter::class);
 
         $exception = new Exception('boom');
-        $response = $this->createStub(ViewResponse::class);
+        $response = self::createStub(ViewResponse::class);
 
         $formatter
             ->expects($this->once())
             ->method('formatView')
-            ->with($this->identicalTo($exception))
+            ->with(self::identicalTo($exception))
             ->willReturn($response);
 
         $formatter
@@ -265,7 +265,7 @@ final class ThrowableHandlerTest extends TestCase
         $responseRenderer
             ->expects($this->once())
             ->method('render')
-            ->with($this->identicalTo($response));
+            ->with(self::identicalTo($response));
 
         $handler = new ThrowableHandler(
             $logger,
@@ -281,17 +281,17 @@ final class ThrowableHandlerTest extends TestCase
     {
         $_SERVER['HTTP_ACCEPT'] = 'text/plain';
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $responseRenderer = $this->createMock(ResponseRenderer::class);
         $formatter = $this->createMock(ErrorResponseFormatter::class);
 
         $exception = new Exception('boom');
-        $response = $this->createStub(TextResponse::class);
+        $response = self::createStub(TextResponse::class);
 
         $formatter
             ->expects($this->once())
             ->method('formatPlainText')
-            ->with($this->identicalTo($exception))
+            ->with(self::identicalTo($exception))
             ->willReturn($response);
 
         $formatter
@@ -305,7 +305,7 @@ final class ThrowableHandlerTest extends TestCase
         $responseRenderer
             ->expects($this->once())
             ->method('render')
-            ->with($this->identicalTo($response));
+            ->with(self::identicalTo($response));
 
         $handler = new ThrowableHandler(
             $logger,
@@ -321,17 +321,17 @@ final class ThrowableHandlerTest extends TestCase
     {
         unset($_SERVER['HTTP_ACCEPT']);
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $responseRenderer = $this->createMock(ResponseRenderer::class);
         $formatter = $this->createMock(ErrorResponseFormatter::class);
 
         $exception = new Exception('boom');
-        $response = $this->createStub(JsonResponse::class);
+        $response = self::createStub(JsonResponse::class);
 
         $formatter
             ->expects($this->once())
             ->method('formatJson')
-            ->with($this->identicalTo($exception))
+            ->with(self::identicalTo($exception))
             ->willReturn($response);
 
         $formatter
@@ -345,7 +345,7 @@ final class ThrowableHandlerTest extends TestCase
         $responseRenderer
             ->expects($this->once())
             ->method('render')
-            ->with($this->identicalTo($response));
+            ->with(self::identicalTo($response));
 
         $handler = new ThrowableHandler(
             $logger,
@@ -359,9 +359,9 @@ final class ThrowableHandlerTest extends TestCase
     #[Test]
     public function it_returns_false_when_error_reporting_is_disabled(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
-        $responseRenderer = $this->createStub(ResponseRenderer::class);
-        $formatter = $this->createStub(ErrorResponseFormatter::class);
+        $logger = self::createStub(LoggerInterface::class);
+        $responseRenderer = self::createStub(ResponseRenderer::class);
+        $formatter = self::createStub(ErrorResponseFormatter::class);
 
         $handler = new ThrowableHandler(
             $logger,
@@ -378,15 +378,15 @@ final class ThrowableHandlerTest extends TestCase
             __LINE__
         );
 
-        $this->assertFalse($result);
+        self::assertFalse($result);
     }
 
     #[Test]
     public function it_throws_ErrorException_when_error_reporting_is_enabled(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
-        $responseRenderer = $this->createStub(ResponseRenderer::class);
-        $formatter = $this->createStub(ErrorResponseFormatter::class);
+        $logger = self::createStub(LoggerInterface::class);
+        $responseRenderer = self::createStub(ResponseRenderer::class);
+        $formatter = self::createStub(ErrorResponseFormatter::class);
 
         $handler = new ThrowableHandler(
             $logger,

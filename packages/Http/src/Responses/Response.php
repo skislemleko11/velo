@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Velo\Http\Responses;
 
+use Velo\Http\HeadersUtils;
 use Velo\Http\RenderContext;
 
 /**
@@ -10,35 +11,77 @@ use Velo\Http\RenderContext;
  */
 abstract class Response
 {
-    public const string CONTENT_TYPE_HEADER = 'Content-Type';
+    public const string CONTENT_TYPE_HEADER = 'content-type';
+
+    private array $headers = [];
 
     public function __construct(
         public readonly int $statusCode = 200,
-        private(set) array  $headers = []
+        array               $headers = []
     )
     {
+        $this->setHeaders($headers);
     }
 
     abstract public function render(RenderContext $context): string;
 
+    /**
+     * @return mixed Header's value if header is set, $default otherwise.
+     */
+    public function getHeader(string $name, mixed $default = null): mixed
+    {
+        return $this->getHeaders()[HeadersUtils::makeLowerCaseAndTrim($name)] ?? $default;
+    }
+
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
+    /**
+     * @param string $name Will be converted to lowercase and trimmed.
+     * @param string $value Will be trimmed.
+     */
     public function setHeader(string $name, string $value): self
     {
+        $name = HeadersUtils::makeLowerCaseAndTrim($name);
+        $value = trim($value);
+
         $this->headers[$name] = $value;
 
         return $this;
     }
 
     /**
+     * @param array $headers Keys - headers names will be converted to lowercase and trimmed,
+     * values - headers values will be trimmed.
+     */
+    public function setHeaders(array $headers): self
+    {
+        foreach ($headers as $name => $value) {
+            $this->setHeader((string)$name, (string)$value);
+        }
+
+        return $this;
+    }
+
+    /**
      * If the header exists, it will append the value to it. Otherwise, it will create a new header with this value.
+     *
+     * @param string $name Will be converted to lowercase and trimmed.
+     * @param string $value Will be trimmed.
      */
     public function appendValueToHeader(string $name, string $value): self
     {
-        if (!isset($this->headers[$name])) {
+        $value = trim($value);
+        $currentValue = $this->getHeader($name);
+
+        if ($currentValue === null) {
             return $this->setHeader($name, $value);
         }
 
-        if (!preg_match('/(?:^|,\s*)' . preg_quote($value, '/') . '(?:\s*,|$)/', $this->headers[$name])) {
-            $this->headers[$name] .= ', ' . $value;
+        if (!preg_match('/(?:^|,\s*)' . preg_quote($value, '/') . '(?:\s*,|$)/', $currentValue)) {
+            $this->setHeader($name, $currentValue . ', ' . $value);
         }
 
         return $this;

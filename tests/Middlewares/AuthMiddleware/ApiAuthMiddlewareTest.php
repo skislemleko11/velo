@@ -45,9 +45,9 @@ final class ApiAuthMiddlewareTest extends TestCase
 
         $response = $middleware->handle($request, $next);
 
-        $this->assertTrue($nextCalled);
-        $this->assertSame($expectedResponse, $response);
-        $this->assertArrayNotHasKey('redirect_after_login', $_SESSION);
+        self::assertTrue($nextCalled);
+        self::assertSame($expectedResponse, $response);
+        self::assertArrayNotHasKey('redirect_after_login', $_SESSION);
     }
 
     #[Test]
@@ -56,13 +56,13 @@ final class ApiAuthMiddlewareTest extends TestCase
         $request = new Request(url: '/protected-page', method: RequestMethod::GET);
         $middleware = new ApiAuthMiddleware(session: $this->session);
 
-        $next = fn() => $this->fail('Should not be called for unauthenticated user.');
+        $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next);
 
-        $this->assertSame(401, $response->statusCode);
-        $this->assertNull($response->headers['Location'] ?? null);
-        $this->assertArrayNotHasKey('redirect_after_login', $_SESSION);
+        self::assertSame(401, $response->statusCode);
+        self::assertNull($response->getHeader('Location'));
+        self::assertArrayNotHasKey('redirect_after_login', $_SESSION);
     }
 
     #[Test]
@@ -71,14 +71,14 @@ final class ApiAuthMiddlewareTest extends TestCase
         $request = new Request(url: '/admin/settings', method: RequestMethod::GET);
         $middleware = new ApiAuthMiddleware(session: $this->session);
 
-        $next = fn() => $this->fail('Should not be called for unauthenticated user.');
+        $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next, responseForUnauthenticatedUser: ['error' => 'hehe']);
 
-        $this->assertSame(401, $response->statusCode);
-        $this->assertNull($response->headers['Location'] ?? null);
-        $this->assertArrayNotHasKey('redirect_after_login', $_SESSION);
-        $this->assertSame(['error' => 'hehe'], $response->body);
+        self::assertSame(401, $response->statusCode);
+        self::assertNull($response->getHeader('Location'));
+        self::assertArrayNotHasKey('redirect_after_login', $_SESSION);
+        self::assertSame(['error' => 'hehe'], $response->body);
     }
 
     #[Test]
@@ -88,18 +88,18 @@ final class ApiAuthMiddlewareTest extends TestCase
         $customResponse = new TextResponse('', statusCode: 401);
 
         $customHandler = function (Request $req) use ($request, $customResponse) {
-            $this->assertSame($request, $req);
+            self::assertSame($request, $req);
             return $customResponse;
         };
 
         $middleware = new ApiAuthMiddleware(session: $this->session, customResponseHandler: $customHandler);
 
-        $next = fn() => $this->fail('Should not be called for unauthenticated user.');
+        $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next);
 
-        $this->assertSame($customResponse, $response);
-        $this->assertArrayNotHasKey('redirect_after_login', $_SESSION);
+        self::assertSame($customResponse, $response);
+        self::assertArrayNotHasKey('redirect_after_login', $_SESSION);
     }
 
     #[Test]
@@ -110,17 +110,17 @@ final class ApiAuthMiddlewareTest extends TestCase
         $expectedResponse = new JsonResponse(body: ['hehe' => 'hihi']);
 
         $customHandler = function (Request $req, $responseForUnauthenticatedUser) use ($request) {
-            $this->assertSame($request, $req);
+            self::assertSame($request, $req);
             return new JsonResponse(body: $responseForUnauthenticatedUser);
         };
 
         $middleware = new ApiAuthMiddleware(session: $this->session, customResponseHandler: $customHandler);
 
-        $next = fn() => $this->fail('Should not be called for unauthenticated user.');
+        $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
         $response = $middleware->handle($request, $next, ['hehe' => 'hihi']);
 
-        $this->assertEquals($expectedResponse, $response);
-        $this->assertArrayNotHasKey('redirect_after_login', $_SESSION);
+        self::assertEquals($expectedResponse, $response);
+        self::assertArrayNotHasKey('redirect_after_login', $_SESSION);
     }
 }

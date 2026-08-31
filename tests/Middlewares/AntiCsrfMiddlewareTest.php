@@ -84,16 +84,16 @@ final class AntiCsrfMiddlewareTest extends TestCase
         $request = new Request('/hehe', RequestMethod::POST);
         $response = $this->middleware->handle($request, $next);
 
-        $this->assertFalse($nextCalled, 'Next middleware/controller should NOT be called on CSRF failure');
-        $this->assertSame(403, $response->statusCode);
-        $this->assertSame(
+        self::assertFalse($nextCalled, 'Next middleware/controller should NOT be called on CSRF failure');
+        self::assertSame(403, $response->statusCode);
+        self::assertSame(
             $this->pathResolver->getErrorFilePath(403),
             $this->getFilePath($response)
         );
 
-        $this->assertArrayHasKey('csrf_token', $_SESSION);
-        $this->assertIsString($_SESSION['csrf_token']);
-        $this->assertSame(64, strlen($_SESSION['csrf_token']));
+        self::assertArrayHasKey('csrf_token', $_SESSION);
+        self::assertIsString($_SESSION['csrf_token']);
+        self::assertSame(64, strlen($_SESSION['csrf_token']));
     }
 
     #[Test]
@@ -110,7 +110,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
             fn() => $nextResponse
         );
 
-        $this->assertSame($nextResponse, $response);
+        self::assertSame($nextResponse, $response);
     }
 
     #[Test]
@@ -137,7 +137,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
             fn() => new ViewResponse('hehe')
         );
 
-        $this->assertSame($closureResponse, $response);
+        self::assertSame($closureResponse, $response);
     }
 
     public static function invalidSessionPostDataProvider(): array

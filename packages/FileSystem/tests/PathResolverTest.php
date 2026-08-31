@@ -27,8 +27,8 @@ final class PathResolverTest extends TestCase
 
         $result = $this->pathResolver->setDirPath($key, $path);
 
-        $this->assertSame($this->pathResolver, $result);
-        $this->assertSame($path, $this->pathResolver->getDirPath($key));
+        self::assertSame($this->pathResolver, $result);
+        self::assertSame($path, $this->pathResolver->getDirPath($key));
     }
 
     #[Test]
@@ -39,8 +39,8 @@ final class PathResolverTest extends TestCase
 
         $result = $this->pathResolver->setFilePath($key, $path);
 
-        $this->assertSame($this->pathResolver, $result);
-        $this->assertSame($path, $this->pathResolver->getFilePath($key));
+        self::assertSame($this->pathResolver, $result);
+        self::assertSame($path, $this->pathResolver->getFilePath($key));
     }
 
     #[Test]
@@ -51,7 +51,7 @@ final class PathResolverTest extends TestCase
             '/public/'
         );
 
-        $this->assertSame(
+        self::assertSame(
             '/public/',
             $this->pathResolver->getDirPath(PathResolver::PUBLIC_DIR_KEY)
         );
@@ -62,7 +62,7 @@ final class PathResolverTest extends TestCase
     {
         $this->pathResolver->setDirPath('public', '/public');
 
-        $this->assertSame(
+        self::assertSame(
             '/public/',
             $this->pathResolver->getDirPath('public')
         );
@@ -76,7 +76,7 @@ final class PathResolverTest extends TestCase
     ): void {
         $this->pathResolver->setDirPath('public', $path);
 
-        $this->assertSame(
+        self::assertSame(
             $expected,
             $this->pathResolver->getDirPath('public')
         );
@@ -97,7 +97,7 @@ final class PathResolverTest extends TestCase
     {
         $this->pathResolver->setFilePath('a', '/views/a.php');
 
-        $this->assertSame(
+        self::assertSame(
             '/views/a.php',
             $this->pathResolver->getFilePath('a')
         );
@@ -138,7 +138,7 @@ final class PathResolverTest extends TestCase
     {
         $this->pathResolver->setDirPath('public', '/public');
 
-        $this->assertTrue(
+        self::assertTrue(
             $this->pathResolver->isDirRegistered('public')
         );
     }
@@ -146,7 +146,7 @@ final class PathResolverTest extends TestCase
     #[Test]
     public function it_returns_false_when_dir_path_is_not_registered(): void
     {
-        $this->assertFalse(
+        self::assertFalse(
             $this->pathResolver->isDirRegistered('public')
         );
     }
@@ -156,7 +156,7 @@ final class PathResolverTest extends TestCase
     {
         $this->pathResolver->setFilePath('view', '/views/view.php');
 
-        $this->assertTrue(
+        self::assertTrue(
             $this->pathResolver->isFileRegistered('view')
         );
     }
@@ -164,7 +164,7 @@ final class PathResolverTest extends TestCase
     #[Test]
     public function it_returns_false_when_file_path_is_not_registered(): void
     {
-        $this->assertFalse(
+        self::assertFalse(
             $this->pathResolver->isFileRegistered('view')
         );
     }
@@ -177,8 +177,8 @@ final class PathResolverTest extends TestCase
             'errors/404.php'
         );
 
-        $this->assertSame($this->pathResolver, $result);
-        $this->assertSame(
+        self::assertSame($this->pathResolver, $result);
+        self::assertSame(
             'errors/404.php',
             $this->pathResolver->getErrorFilePath(404)
         );
@@ -191,8 +191,8 @@ final class PathResolverTest extends TestCase
             'errors/general.php'
         );
 
-        $this->assertSame($this->pathResolver, $result);
-        $this->assertSame(
+        self::assertSame($this->pathResolver, $result);
+        self::assertSame(
             'errors/general.php',
             $this->pathResolver->getErrorGeneralFilePath()
         );
@@ -203,7 +203,7 @@ final class PathResolverTest extends TestCase
     {
         $this->pathResolver->setErrorFilePath(404, 'errors/404.php');
 
-        $this->assertTrue(
+        self::assertTrue(
             $this->pathResolver->isErrorFileRegistered(404)
         );
     }
@@ -211,7 +211,7 @@ final class PathResolverTest extends TestCase
     #[Test]
     public function it_returns_false_when_error_file_path_is_not_registered(): void
     {
-        $this->assertFalse(
+        self::assertFalse(
             $this->pathResolver->isErrorFileRegistered(404)
         );
     }
@@ -223,7 +223,7 @@ final class PathResolverTest extends TestCase
             'errors/general.php'
         );
 
-        $this->assertTrue(
+        self::assertTrue(
             $this->pathResolver->isErrorGeneralFileRegistered()
         );
     }
@@ -231,7 +231,7 @@ final class PathResolverTest extends TestCase
     #[Test]
     public function it_returns_false_when_general_error_file_path_is_not_registered(): void
     {
-        $this->assertFalse(
+        self::assertFalse(
             $this->pathResolver->isErrorGeneralFileRegistered()
         );
     }
@@ -242,21 +242,21 @@ final class PathResolverTest extends TestCase
         $this->pathResolver->setErrorFilePath(404, 'errors/404.php');
         $this->pathResolver->setErrorFilePath(500, 'errors/500.php');
 
-        $this->assertSame(
+        self::assertSame(
             'errors/404.php',
             $this->pathResolver->getErrorFilePath(404)
         );
 
-        $this->assertSame(
+        self::assertSame(
             'errors/500.php',
             $this->pathResolver->getErrorFilePath(500)
         );
 
-        $this->assertTrue(
+        self::assertTrue(
             $this->pathResolver->isErrorFileRegistered(404)
         );
 
-        $this->assertTrue(
+        self::assertTrue(
             $this->pathResolver->isErrorFileRegistered(500)
         );
     }
@@ -287,7 +287,7 @@ final class PathResolverTest extends TestCase
     {
         $this->pathResolver->setErrorFilePath(404, 'errors/404.php');
 
-        $this->assertSame(
+        self::assertSame(
             'errors/404.php',
             $this->pathResolver->resolveErrorFilePath(404)
         );
@@ -298,7 +298,7 @@ final class PathResolverTest extends TestCase
     {
         $this->pathResolver->setErrorGeneralFilePath('errors/general.php');
 
-        $this->assertSame(
+        self::assertSame(
             'errors/general.php',
             $this->pathResolver->resolveErrorFilePath(404)
         );
@@ -310,7 +310,7 @@ final class PathResolverTest extends TestCase
         $this->pathResolver->setErrorGeneralFilePath('errors/general.php');
         $this->pathResolver->setErrorFilePath(404, 'errors/404.php');
 
-        $this->assertSame(
+        self::assertSame(
             'errors/404.php',
             $this->pathResolver->resolveErrorFilePath(404)
         );
@@ -319,7 +319,7 @@ final class PathResolverTest extends TestCase
     #[Test]
     public function it_returns_false_when_no_error_file_path_is_registered(): void
     {
-        $this->assertFalse(
+        self::assertFalse(
             $this->pathResolver->resolveErrorFilePath(404)
         );
     }
@@ -330,12 +330,12 @@ final class PathResolverTest extends TestCase
         $this->pathResolver->setErrorFilePath(404, 'errors/404.php');
         $this->pathResolver->setErrorFilePath(500, 'errors/500.php');
 
-        $this->assertSame(
+        self::assertSame(
             'errors/404.php',
             $this->pathResolver->resolveErrorFilePath(404)
         );
 
-        $this->assertSame(
+        self::assertSame(
             'errors/500.php',
             $this->pathResolver->resolveErrorFilePath(500)
         );
@@ -347,12 +347,12 @@ final class PathResolverTest extends TestCase
         $this->pathResolver->setErrorFilePath(404, 'errors/404.php');
         $this->pathResolver->setErrorGeneralFilePath('errors/general.php');
 
-        $this->assertSame(
+        self::assertSame(
             'errors/404.php',
             $this->pathResolver->resolveErrorFilePath(404)
         );
 
-        $this->assertSame(
+        self::assertSame(
             'errors/general.php',
             $this->pathResolver->resolveErrorFilePath(500)
         );

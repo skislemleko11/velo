@@ -54,7 +54,7 @@ final class AppTest extends TestCase
 
         $this->router->expects($this->once())
             ->method('resolve')
-            ->with($this->equalTo($request))
+            ->with(self::equalTo($request))
             ->willReturn($httpResponse);
 
         $this->responseRenderer->expects($this->once())

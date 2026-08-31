@@ -40,10 +40,10 @@ final class RequestLoggerMiddlewareTest extends TestCase
         };
 
         $request = new Request('/', RequestMethod::GET);
-        $this->assertSame($httpResponse, $middleware->handle($request, $next));
+        self::assertSame($httpResponse, $middleware->handle($request, $next));
 
-        $this->assertEquals(1, $wasCalled);
-        $this->assertEquals(1, $wasCalledNext);
+        self::assertEquals(1, $wasCalled);
+        self::assertEquals(1, $wasCalledNext);
     }
 
     #[Test]
@@ -66,11 +66,11 @@ final class RequestLoggerMiddlewareTest extends TestCase
                 'url' => $request->urlPath,
                 'url path' => $request->urlPath,
                 'method' => $request->method->value,
-                'GET params' => $request->getParams
+                'GET params' => $request->urlParams
             ]);
 
 
-        $this->assertSame($httpResponse, $middleware->handle($request, $next));
-        $this->assertEquals(1, $wasCalledNext);
+        self::assertSame($httpResponse, $middleware->handle($request, $next));
+        self::assertEquals(1, $wasCalledNext);
     }
 }

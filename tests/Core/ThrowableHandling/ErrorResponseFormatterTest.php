@@ -43,9 +43,9 @@ final class ErrorResponseFormatterTest extends TestCase
     {
         $response = $this->formatter->formatJson($exception);
 
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertSame($statusCode, $response->statusCode);
-        $this->assertSame(
+        self::assertInstanceOf(JsonResponse::class, $response);
+        self::assertSame($statusCode, $response->statusCode);
+        self::assertSame(
             [
                 'error' => [
                     'statusCode' => $statusCode,
@@ -54,9 +54,10 @@ final class ErrorResponseFormatterTest extends TestCase
             ],
             $this->getProperty($response, 'body')
         );
-        $this->assertEquals(
-            $headers + ['Content-Type' => 'application/json'],
-            $this->getProperty($response, 'headers')
+
+        self::assertEquals(
+            $headers + ['content-type' => 'application/json'],
+            $response->getHeaders()
         );
     }
 
@@ -66,15 +67,15 @@ final class ErrorResponseFormatterTest extends TestCase
     {
         $response = $this->formatter->formatPlainText($exception);
 
-        $this->assertInstanceOf(TextResponse::class, $response);
-        $this->assertSame($statusCode, $response->statusCode);
-        $this->assertSame(
+        self::assertInstanceOf(TextResponse::class, $response);
+        self::assertSame($statusCode, $response->statusCode);
+        self::assertSame(
             $message,
             $this->getProperty($response, 'content')
         );
-        $this->assertEquals(
-            $headers + ['Content-Type' => 'text/plain; charset=utf-8'],
-            $this->getProperty($response, 'headers')
+        self::assertEquals(
+            $headers + ['content-type' => 'text/plain; charset=utf-8'],
+            $response->getHeaders()
         );
     }
 
@@ -172,15 +173,15 @@ final class ErrorResponseFormatterTest extends TestCase
 
         $response = $this->formatter->formatView($exception);
 
-        $this->assertInstanceOf(ViewResponse::class, $response);
-        $this->assertSame(403, $response->statusCode);
-        $this->assertSame(
+        self::assertInstanceOf(ViewResponse::class, $response);
+        self::assertSame(403, $response->statusCode);
+        self::assertSame(
             '/views/error403.php',
             $this->getProperty($response, 'relativeToViewsDirFilePath')
         );
-        $this->assertEquals(
-            ['Content-Type' => 'text/html; charset=utf-8', 'gg' => 'gg'],
-            $this->getProperty($response, 'headers')
+        self::assertEquals(
+            ['content-type' => 'text/html; charset=utf-8', 'gg' => 'gg'],
+            $response->getHeaders()
         );
     }
 
