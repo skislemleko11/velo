@@ -50,7 +50,7 @@ final class Request
     private function getRealMethod(RequestMethod $actualMethod): RequestMethod
     {
         if ($actualMethod === RequestMethod::POST && $formMethod = $this->getPostArg(self::METHOD_FORM_KEY)) {
-            return RequestMethod::fromString($formMethod, $actualMethod);
+            return RequestMethod::tryFromString($formMethod, $actualMethod);
         }
 
         return $actualMethod;
@@ -117,7 +117,7 @@ final class Request
     {
         return new self(
             $_SERVER['REQUEST_URI'],
-            RequestMethod::fromString($_SERVER['REQUEST_METHOD'])
+            RequestMethod::tryFromString($_SERVER['REQUEST_METHOD'])
         );
     }
 }

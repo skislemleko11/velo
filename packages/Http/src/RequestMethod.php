@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Velo\Http;
 
+use ValueError;
+
 enum RequestMethod: string
 {
     case GET = 'GET';
@@ -14,7 +16,7 @@ enum RequestMethod: string
     case HEAD = 'HEAD';
     case OPTIONS = 'OPTIONS';
 
-    public static function fromString(string $method, RequestMethod $default = self::GET): self
+    public static function tryFromString(string $method, ?RequestMethod $default = self::GET): ?self
     {
         $method = strtoupper($method);
 

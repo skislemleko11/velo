@@ -29,7 +29,27 @@ final class CorsConfigTest extends TestCase
         );
 
         self::assertEquals(['content-type', 'content-length'], $config->allowedHeaders);
-        self::assertEquals(['content-type', 'content-length'], $config->allowedHeaders);
+        self::assertEquals(['content-type', 'content-length'], $config->exposedHeaders);
+    }
+
+    #[Test]
+    public function it_sets_allow_all_headers_if_star_is_included_in_allowed_headers(): void
+    {
+        $config = new CorsConfig(
+            allowedHeaders: ['x-custom-header', '*']
+        );
+
+        self::assertTrue($config->allowAllHeaders);
+    }
+
+    #[Test]
+    public function it_sets_expose_all_headers_if_star_is_included_in_exposed_headers(): void
+    {
+        $config = new CorsConfig(
+            exposedHeaders: ['x-custom-header', '*']
+        );
+
+        self::assertTrue($config->exposeAllHeaders);
     }
 
     #[Test]
@@ -60,5 +80,29 @@ final class CorsConfigTest extends TestCase
         $this->expectException(InvalidConfigurationException::class);
 
         new CorsConfig(['hehe', 'haha', 'hihi', '*'], allowCredentials: true);
+    }
+
+    #[Test]
+    public function it_throws_exception_if_allows_all_headers_and_credentials(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        new CorsConfig(
+            allowedOrigins: ['https://example.com'],
+            allowedHeaders: ['*'],
+            allowCredentials: true,
+        );
+    }
+
+    #[Test]
+    public function it_throws_exception_if_exposes_all_headers_and_credentials(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        new CorsConfig(
+            allowedOrigins: ['https://example.com'],
+            exposedHeaders: ['*'],
+            allowCredentials: true,
+        );
     }
 }

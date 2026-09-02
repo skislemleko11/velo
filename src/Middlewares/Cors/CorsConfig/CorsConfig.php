@@ -9,6 +9,8 @@ use Velo\Middlewares\Cors\CorsConfig\Exceptions\InvalidConfigurationException;
 final readonly class CorsConfig
 {
     public bool $allowAllOrigins;
+    public bool $allowAllHeaders;
+    public bool $exposeAllHeaders;
     public int $maxAgeSeconds;
 
     /**
@@ -49,22 +51,44 @@ final readonly class CorsConfig
         int          $maxAgeSeconds = 5
     )
     {
-        $this->allowAllOrigins = in_array('*', $this->allowedOrigins, true);
-
         $this->allowedHeaders = $this->normalizeHeaders($allowedHeaders);
         $this->exposedHeaders = $this->normalizeHeaders($exposedHeaders);
 
+        $this->allowAllOrigins = $this->hasWildcard($this->allowedOrigins);
+        $this->allowAllHeaders = $this->hasWildcard($this->allowedHeaders);
+        $this->exposeAllHeaders = $this->hasWildcard($this->exposedHeaders);
+
         $this->maxAgeSeconds = max(0, $maxAgeSeconds);
 
-        if ($this->allowAllOrigins && $this->allowCredentials) {
-            throw new InvalidConfigurationException(
-                'Cannot set $allowCredentials constructor parameter to true when all origins are allowed!'
-            );
+        if ($this->allowCredentials) {
+            if ($this->allowAllOrigins) {
+                $this->throwInvalidConfigurationException('all origins are allowed.');
+            }
+
+            if ($this->allowAllHeaders) {
+                $this->throwInvalidConfigurationException('all headers are allowed.');
+            }
+
+            if ($this->exposeAllHeaders) {
+                $this->throwInvalidConfigurationException('all headers are exposed.');
+            }
         }
     }
 
     private function normalizeHeaders(array $headers): array
     {
         return array_map(['Velo\Http\HeadersUtils', 'makeLowerCaseAndTrim'], $headers);
+    }
+
+    private function hasWildcard(array $headers): bool
+    {
+        return in_array('*', $headers, true);
+    }
+
+    private function throwInvalidConfigurationException(string $reason): never
+    {
+        throw new InvalidConfigurationException(
+            'Cannot set $allowCredentials constructor parameter to true when ' . $reason
+        );
     }
 }
