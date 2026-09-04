@@ -10,7 +10,7 @@ use Velo\Http\HeadersUtils;
 class HeadersUtilsTest extends TestCase
 {
     #[Test]
-    public function it_makes_string_lowercase_and_trimmed()
+    public function it_makes_string_lowercase_and_trimmed(): void
     {
         self::assertEquals('hello world', HeadersUtils::makeLowerCaseAndTrim('  Hello World  '));
         self::assertEquals('a', HeadersUtils::makeLowerCaseAndTrim("\t  A         \t"));

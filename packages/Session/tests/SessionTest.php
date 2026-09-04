@@ -93,6 +93,12 @@ final class SessionTest extends TestCase
         self::assertSame([], $this->session->getFlash('missing', []));
     }
 
+    #[Test]
+    public function it_retruns_false_if_no_flash(): void
+    {
+        self::assertFalse($this->session->hasFlash('sth'));
+    }
+
     public static function hasKeyDataProvider(): array
     {
         return [

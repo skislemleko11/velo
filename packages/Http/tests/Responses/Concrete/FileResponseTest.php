@@ -6,7 +6,7 @@ namespace Velo\Http\Tests\Responses\Concrete;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Velo\Http\RenderContext;
-use Velo\Http\Responses\Concrete\FileResponse\Exceptions\FileNotFoundOrNotReadableException;
+use Velo\Http\Responses\Concrete\FileResponse\Exceptions\FileException;
 use Velo\Http\Responses\Concrete\FileResponse\FileResponse;
 
 final class FileResponseTest extends TestCase
@@ -51,7 +51,7 @@ final class FileResponseTest extends TestCase
 
         $response = new FileResponse($filePath);
 
-        $this->expectException(FileNotFoundOrNotReadableException::class);
+        $this->expectException(FileException::class);
         $this->expectExceptionMessageIs(
             "File not found or not readable: $filePath"
         );
@@ -66,7 +66,7 @@ final class FileResponseTest extends TestCase
 
         $response = new FileResponse($directoryPath);
 
-        $this->expectException(FileNotFoundOrNotReadableException::class);
+        $this->expectException(FileException::class);
         $this->expectExceptionMessageIs(
             "File not found or not readable: $directoryPath"
         );

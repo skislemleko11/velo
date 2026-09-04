@@ -34,6 +34,6 @@ enum ResponseFormat: string
      */
     public static function fromGlobalAcceptHeader(): self
     {
-        return self::fromGivenAcceptHeader($_SERVER['HTTP_ACCEPT'] ?? '*/*');
+        return self::fromGivenAcceptHeader((string)($_SERVER['HTTP_ACCEPT'] ?? '*/*'));
     }
 }

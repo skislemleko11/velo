@@ -33,6 +33,9 @@ abstract class Response
         return $this->getHeaders()[HeadersUtils::makeLowerCaseAndTrim($name)] ?? $default;
     }
 
+    /**
+     * @return list<array<string, string>>
+     */
     public function getHeaders(): array
     {
         return $this->headers;

@@ -257,6 +257,16 @@ final class ContainerTest extends TestCase
 
         self::assertSame($simpleClass, $this->container->get(SimpleInterface::class));
     }
+
+    #[Test]
+    public function it_not_callable_object(): void
+    {
+        $obj = new SimpleClass();
+
+        $this->container->set(SimpleClass::class, $obj);
+
+        $this->container->get(SimpleClass::class);
+    }
 }
 
 class NotInstantiableParamWithDefaultValue

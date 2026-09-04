@@ -86,6 +86,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
 
         self::assertFalse($nextCalled, 'Next middleware/controller should NOT be called on CSRF failure');
         self::assertSame(403, $response->statusCode);
+        self::assertInstanceOf(ViewResponse::class, $response);
         self::assertSame(
             $this->pathResolver->getErrorFilePath(403),
             $this->getFilePath($response)

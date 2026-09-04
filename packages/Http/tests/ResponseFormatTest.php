@@ -10,12 +10,18 @@ use Velo\Http\ResponseFormat;
 
 final class ResponseFormatTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        unset($_SERVER['HTTP_ACCEPT']);
+    }
+
     #[Test]
     #[DataProvider('acceptHeaderProvider')]
     public function it_creates_response_format_from_accept_header(
-        string $acceptHeader,
+        string         $acceptHeader,
         ResponseFormat $expectedFormat
-    ): void {
+    ): void
+    {
         self::assertSame(
             $expectedFormat,
             ResponseFormat::fromGivenAcceptHeader($acceptHeader)
@@ -66,5 +72,35 @@ final class ResponseFormatTest extends TestCase
                 ResponseFormat::PLAIN_TEXT,
             ],
         ];
+    }
+
+    #[Test]
+    public function it_uses_accept_header_from_server_superglobal()
+    {
+        $_SERVER['HTTP_ACCEPT'] = 'text/html';
+
+        $format = ResponseFormat::fromGlobalAcceptHeader();
+
+        self::assertSame(ResponseFormat::HTML, $format);
+    }
+
+    #[Test]
+    public function it_defaults_to_json_when_no_accept_header_is_provided(): void
+    {
+        unset($_SERVER['HTTP_ACCEPT']);
+
+        $format = ResponseFormat::fromGlobalAcceptHeader();
+
+        self::assertSame(ResponseFormat::JSON, $format);
+    }
+
+    #[Test]
+    public function it_casts_accept_header_to_string(): void
+    {
+        $_SERVER['HTTP_ACCEPT'] = 1;
+
+        $format = ResponseFormat::fromGlobalAcceptHeader();
+
+        self::assertSame(ResponseFormat::JSON, $format);
     }
 }

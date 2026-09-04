@@ -175,4 +175,26 @@ final class RequestTest extends TestCase
         self::assertSame(['ref' => 'mail'], $request->urlParams);
         self::assertSame(RequestMethod::GET, $request->method);
     }
+
+    #[Test]
+    public function it_casts_method_form_value_to_string(): void
+    {
+        $_POST[Request::METHOD_FORM_KEY] = 1;
+
+        $request = new Request(self::URL, RequestMethod::POST);
+
+        self::assertSame(RequestMethod::POST, $request->method);
+    }
+
+    #[Test]
+    public function it_casts_request_uri_and_method_to_string(): void
+    {
+        $_SERVER['REQUEST_URI'] = 1;
+        $_SERVER['REQUEST_METHOD'] = 1;
+
+        $request = Request::fromGlobals();
+
+        self::assertSame('1', $request->url);
+        self::assertSame(RequestMethod::tryFromString('1'), $request->method);
+    }
 }

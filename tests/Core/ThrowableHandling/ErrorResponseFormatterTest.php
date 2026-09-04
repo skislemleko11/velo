@@ -30,7 +30,7 @@ final class ErrorResponseFormatterTest extends TestCase
         $this->formatter = new ErrorResponseFormatter($this->pathResolver);
     }
 
-    private function getProperty(object $object, string $property)
+    private function getProperty(object $object, string $property): mixed
     {
         $reflection = new ReflectionClass($object);
 

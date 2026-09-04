@@ -108,7 +108,7 @@ class WebGuestMiddlewareTest extends TestCase
         $request = new Request(url: '/secret', method: RequestMethod::GET);
         $customResponse = new ViewResponse('/views/custom-error.php', statusCode: 401);
 
-        $customHandler = function (Request $req, $url) use ($request, $customResponse) {
+        $customHandler = function (Request $req, $url) use ($request) {
             self::assertSame($request, $req);
             return new ViewResponse($url, statusCode: 401);
         };

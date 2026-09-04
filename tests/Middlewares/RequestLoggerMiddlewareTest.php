@@ -21,7 +21,7 @@ final class RequestLoggerMiddlewareTest extends TestCase
     }
 
     #[Test]
-    public function it_uses_custom_log_function_when_provided()
+    public function it_uses_custom_log_function_when_provided(): void
     {
         $this->logger->expects($this->never())->method('info');
 
@@ -47,7 +47,7 @@ final class RequestLoggerMiddlewareTest extends TestCase
     }
 
     #[Test]
-    public function it_uses_provided_logger_when_no_custom_log_function()
+    public function it_uses_provided_logger_when_no_custom_log_function(): void
     {
         $middleware = new RequestLoggerMiddleware($this->logger);
 

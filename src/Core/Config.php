@@ -15,7 +15,7 @@ readonly class Config
     /**
      * Gets the value for the given key, if the key is not set, returns $default parameter value.
      */
-    public function get(string $key, $default = null)
+    public function get(string $key, mixed $default = null): mixed
     {
         if (isset($this->data[$key]))
             return $this->data[$key];

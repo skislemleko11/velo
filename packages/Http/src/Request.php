@@ -49,7 +49,7 @@ final class Request
 
     private function getRealMethod(RequestMethod $actualMethod): RequestMethod
     {
-        if ($actualMethod === RequestMethod::POST && $formMethod = $this->getPostArg(self::METHOD_FORM_KEY)) {
+        if ($actualMethod === RequestMethod::POST && $formMethod = (string)$this->getPostArg(self::METHOD_FORM_KEY)) {
             return RequestMethod::tryFromString($formMethod, $actualMethod);
         }
 
@@ -116,8 +116,8 @@ final class Request
     public static function fromGlobals(): self
     {
         return new self(
-            $_SERVER['REQUEST_URI'],
-            RequestMethod::tryFromString($_SERVER['REQUEST_METHOD'])
+            (string)$_SERVER['REQUEST_URI'],
+            RequestMethod::tryFromString((string)$_SERVER['REQUEST_METHOD'])
         );
     }
 }

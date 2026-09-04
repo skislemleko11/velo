@@ -13,7 +13,7 @@ interface EmitterInterface
     /**
      * Sets the given array of headers if headers are not sent.
      *
-     * @param list<array<string, string>> $headers
+     * @param array<string, string> $headers
      */
     public function sendHeaders(array $headers): self;
 

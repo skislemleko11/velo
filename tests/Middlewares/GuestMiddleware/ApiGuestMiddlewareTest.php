@@ -77,7 +77,7 @@ class ApiGuestMiddlewareTest extends TestCase
 
         self::assertSame(403, $response->statusCode);
         self::assertNull($response->getHeader('Location'));
-        self::assertSame(['error' => 'hehe'], $response->body);
+        self::assertSame(['error' => 'hehe'], $response->body ?? null);
     }
 
     #[Test]
@@ -110,7 +110,7 @@ class ApiGuestMiddlewareTest extends TestCase
         $request = new Request(url: '/secret', method: RequestMethod::GET);
         $customResponse = new JsonResponse(body: ['hehe' => 'hihi'], statusCode: 401);
 
-        $customHandler = function (Request $req, $data) use ($request, $customResponse) {
+        $customHandler = function (Request $req, $data) use ($request) {
             self::assertSame($request, $req);
             return new JsonResponse(body: $data, statusCode: 401);
         };

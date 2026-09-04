@@ -78,7 +78,7 @@ final class ApiAuthMiddlewareTest extends TestCase
         self::assertSame(401, $response->statusCode);
         self::assertNull($response->getHeader('Location'));
         self::assertArrayNotHasKey('redirect_after_login', $_SESSION);
-        self::assertSame(['error' => 'hehe'], $response->body);
+        self::assertSame(['error' => 'hehe'], $response->body ?? null);
     }
 
     #[Test]
