@@ -6,13 +6,14 @@ namespace Velo\Session\Tests;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Velo\Session\FlashMessages\FlashMessages;
 use Velo\Session\Session\Interfaces\SessionInterface;
 
 final class FlashMessagesTest extends TestCase
 {
-    private SessionInterface $sessionMock;
+    private SessionInterface&MockObject $sessionMock;
     private FlashMessages $flashMessages;
 
     protected function setUp(): void

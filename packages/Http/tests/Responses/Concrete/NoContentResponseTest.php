@@ -22,7 +22,7 @@ final class NoContentResponseTest extends TestCase
     #[Test]
     public function it_always_sets_content_length_header_to_0(): void
     {
-        $response = new NoContentResponse(headers: ['Content-Length' => 30]);
+        $response = new NoContentResponse(headers: ['Content-Length' => '30']);
 
         self::assertSame('0', $response->getHeader('Content-Length'));
     }

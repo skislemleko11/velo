@@ -8,6 +8,9 @@ namespace Velo\Core;
  */
 readonly class Config
 {
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(private array $data = [])
     {
     }

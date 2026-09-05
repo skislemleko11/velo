@@ -75,7 +75,7 @@ final class ResponseFormatTest extends TestCase
     }
 
     #[Test]
-    public function it_uses_accept_header_from_server_superglobal()
+    public function it_uses_accept_header_from_server_superglobal(): void
     {
         $_SERVER['HTTP_ACCEPT'] = 'text/html';
 

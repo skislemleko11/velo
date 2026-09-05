@@ -31,6 +31,8 @@ readonly class ApiAuthMiddleware implements MiddlewareInterface
     /**
      * Handles the given Request - if the user is authenticated (with 'user_id' in $_SESSION), returns the result of next(request),
      * otherwise, calls getResponseForUnauthenticatedUser(request, responseForUnauthenticatedUser).
+     *
+     * @param array<string, mixed> $responseForUnauthenticatedUser
      */
     public function handle(
         Request  $request,
@@ -50,6 +52,8 @@ readonly class ApiAuthMiddleware implements MiddlewareInterface
      *
      * Returns customResponseHandler(request, response) if provided in constructor,
      * otherwise returns the JsonResponse with statusCode: 401 and data: response.
+     *
+     * @param array<string, mixed> $response
      */
     private function getResponseForUnauthenticatedUser(Request $request, array $response): Response
     {

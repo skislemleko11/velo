@@ -5,6 +5,7 @@ namespace Velo\Tests\Core;
 
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Velo\Container\Container;
 use Velo\Core\App;
@@ -20,10 +21,10 @@ use Velo\Http\RequestMethod;
 #[AllowMockObjectsWithoutExpectations]
 final class AppTest extends TestCase
 {
-    protected Router $router;
-    protected Container $container;
+    protected Router&MockObject $router;
+    protected Container&MockObject $container;
     protected Pipeline $pipeline;
-    protected ResponseRenderer $responseRenderer;
+    protected ResponseRenderer&MockObject $responseRenderer;
 
     protected function setUp(): void
     {

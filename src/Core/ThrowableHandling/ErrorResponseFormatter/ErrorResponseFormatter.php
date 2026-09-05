@@ -90,6 +90,9 @@ class ErrorResponseFormatter implements ErrorResponseFormatterInterface
         return $throwable instanceof HttpResponseExceptionInterface ? $throwable->getPublicMessage() : self::DEFAULT_ERROR_MESSAGE;
     }
 
+    /**
+     * @return array<string, string>
+     */
     protected function getHeaders(Throwable $throwable): array
     {
         return $throwable instanceof HttpResponseExceptionWithHeadersInterface ? $throwable->getHeaders() : [];

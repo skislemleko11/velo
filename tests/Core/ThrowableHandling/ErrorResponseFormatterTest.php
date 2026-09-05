@@ -8,6 +8,7 @@ use Exception;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Velo\Core\ThrowableHandling\ErrorResponseFormatter\ErrorResponseFormatter;
@@ -22,7 +23,7 @@ use Velo\Http\Responses\Concrete\ViewResponse;
 final class ErrorResponseFormatterTest extends TestCase
 {
     private ErrorResponseFormatter $formatter;
-    private PathResolver $pathResolver;
+    private PathResolver&MockObject $pathResolver;
 
     protected function setUp(): void
     {
@@ -39,7 +40,7 @@ final class ErrorResponseFormatterTest extends TestCase
 
     #[Test]
     #[DataProvider('json_and_plain_text_dataProvider')]
-    public function it_formats_json_response_with_status_code_message_and_headers($exception, $message, $statusCode, $headers)
+    public function it_formats_json_response_with_status_code_message_and_headers($exception, $message, $statusCode, $headers): void
     {
         $response = $this->formatter->formatJson($exception);
 

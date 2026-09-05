@@ -13,6 +13,7 @@ interface FlashMessagesInterface
     /**
      * Retrieves and removes all flash messages of the given type.
      *
+     * @param list<string> $default
      * @return list<string>
      */
     public function get(string $type, array $default = []): array;

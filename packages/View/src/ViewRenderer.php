@@ -22,6 +22,7 @@ readonly class ViewRenderer
 
     /**
      * @param string $viewFile Should be the file path WITH EXTENSION relative to views path from PathResolver.
+     * @param array<string, string> $dataToExtract
      *
      * @throws ViewNotFoundException
      * @throws PathNotFoundException
@@ -41,6 +42,9 @@ readonly class ViewRenderer
         return file_get_contents($viewPath);
     }
 
+    /**
+     * @param array<string, string> $dataToExtract
+     */
     private function renderPhp(string $viewPathAvoidVariablesCollision, array $dataToExtract = []): string
     {
         $flashMessages = $this->flashMessages;

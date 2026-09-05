@@ -17,8 +17,16 @@ final class Request
 
     public readonly string $url;
     public readonly string $urlPath;
+
+    /**
+     * @var array<string, string>
+     */
     private(set) array $urlParams = [];
     private(set) RequestMethod $method;
+
+    /**
+     * @var array<string, string>
+     */
     private array $headers;
 
     public function __construct(
@@ -30,7 +38,7 @@ final class Request
 
         $this->urlPath = $this->parseUrlPath($this->url);
 
-        $this->setGetParamsIfExist($this->url);
+        $this->setUrlParamsIfExist($this->url);
 
         $this->method = $this->getRealMethod($method);
     }
@@ -40,7 +48,7 @@ final class Request
         return parse_url($url, PHP_URL_PATH) ?: '/';
     }
 
-    private function setGetParamsIfExist(string $url): void
+    private function setUrlParamsIfExist(string $url): void
     {
         if ($queryString = parse_url($url, PHP_URL_QUERY)) {
             parse_str($queryString, $this->urlParams);
@@ -57,7 +65,7 @@ final class Request
     }
 
     /**
-     * @return array Headers, array keys - lowercase headers names, array values - headers values
+     * @return array<string, string> Headers, array keys - lowercase headers names, array values - headers values
      */
     public function getHeaders(): array
     {
@@ -69,9 +77,9 @@ final class Request
     }
 
     /**
-     * @return mixed Header's value if header is set, $default otherwise.
+     * @return string|null Header's value if header is set, $default otherwise.
      */
-    public function getHeader(string $name, mixed $default = null): mixed
+    public function getHeader(string $name, ?string $default = null): string|null
     {
         $headers = $this->getHeaders();
 
@@ -88,6 +96,8 @@ final class Request
 
     /**
      * Returns $_POST superglobal.
+     *
+     * @return array<string, mixed>
      */
     public function getPostData(): array
     {

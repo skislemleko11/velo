@@ -14,12 +14,12 @@ final readonly class CorsConfig
     public int $maxAgeSeconds;
 
     /**
-     * @var array $allowedHeaders Trimmed lowercase headers.
+     * @var list<string> Trimmed lowercase headers.
      */
     public array $allowedHeaders;
 
     /**
-     * @var array $exposedHeaders Trimmed lowercase headers.
+     * @var list<string> Trimmed lowercase headers.
      */
     public array $exposedHeaders;
 
@@ -75,11 +75,18 @@ final readonly class CorsConfig
         }
     }
 
+    /**
+     * @param list<string> $headers
+     * @return list<string>
+     */
     private function normalizeHeaders(array $headers): array
     {
         return array_map(['Velo\Http\HeadersUtils', 'makeLowerCaseAndTrim'], $headers);
     }
 
+    /**
+     * @param list<string> $headers
+     */
     private function hasWildcard(array $headers): bool
     {
         return in_array('*', $headers, true);

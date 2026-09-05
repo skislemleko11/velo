@@ -5,6 +5,7 @@ namespace Velo\Http\Tests\Responses;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Throwable;
 use Velo\Http\RenderContext;
 use Velo\Http\Responses\Response;
 
@@ -189,5 +190,19 @@ final class ResponseTest extends TestCase
             ['example' => 'foo, bar.baz'],
             $this->response->getHeaders()
         );
+    }
+
+    #[Test]
+    public function it_throws_when_header_is_not_string(): void
+    {
+        $this->expectException(Throwable::class);
+
+        new class(headers: ['hehe' => 123]) extends Response
+        {
+            public function render(RenderContext $context): string
+            {
+                return '';
+            }
+        };
     }
 }

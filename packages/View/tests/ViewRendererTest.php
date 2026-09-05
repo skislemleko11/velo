@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Velo\View\Tests;
 
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Velo\Session\FlashMessages\Interfaces\FlashMessagesInterface;
 use Velo\Session\Session\Interfaces\SessionInterface;
@@ -13,7 +14,7 @@ use Velo\View\ViewResolver\ViewResolver;
 final class ViewRendererTest extends TestCase
 {
     private ViewRenderer $viewRenderer;
-    private ViewResolver $viewResolver;
+    private ViewResolver&MockObject $viewResolver;
     private SessionInterface $session;
     private FlashMessagesInterface $flashMessages;
     private string $viewPath = '';

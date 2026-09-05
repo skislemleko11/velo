@@ -16,7 +16,14 @@ class PathResolver
     private const string ERROR_GENERAL_KEY = 'error';
     private const string ERROR_KEYS_PREFIX = 'error_';
 
+    /**
+     * @var array<string, string>
+     */
     private array $dirPaths = [];
+
+    /**
+     * @var array<string, string>
+     */
     private array $filePaths = [];
 
     public function setDirPath(string $key, string $path): self

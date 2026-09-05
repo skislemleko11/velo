@@ -18,11 +18,6 @@ class LogTextFormatter implements LogFormatter
     protected const string FORMAT = "[%datetime%] [%level%] %message%\n%context%\n";
     protected const string THROWABLE_FORMAT = "--- Stack Trace: %s: %s in %s:%d\n%s";
 
-    /**
-     * Formats a log message with the given level, message, and context.
-     *
-     * @param string $level Should be a value from Psr\Log\LogLevel or eventually custom defined log level.
-     */
     public function format(string $level, string $message, array $context = []): string
     {
         $datetime = new DateTimeImmutable()->format('Y-m-d H:i:s.v');
@@ -55,6 +50,8 @@ class LogTextFormatter implements LogFormatter
 
     /**
      * Replaces placeholders in the message with context values.
+     *
+     * @param array<string, mixed> $context
      */
     private function interpolate(string $message, array $context): string
     {

@@ -59,8 +59,7 @@ final class CorsMiddleware implements MiddlewareInterface
     {
         $requestedMethod = RequestMethod::tryFromString(
             $request->getHeader(CorsRequestHeaderName::REQUEST_METHOD->value, ''),
-            null)
-        ;
+            null);
 
         if ($requestedMethod === null) {
             return false;
@@ -79,11 +78,17 @@ final class CorsMiddleware implements MiddlewareInterface
         return $this->areHeadersAllowed($requestedHeaders, $config);
     }
 
+    /**
+     * @param list<RequestMethod> $allowedMethods
+     */
     private function isMethodAllowed(RequestMethod $method, array $allowedMethods): bool
     {
         return in_array($method, $allowedMethods, true);
     }
 
+    /**
+     * @return list<string>
+     */
     private function parseHeadersList(string $headers): array
     {
         if ($headers === '') {
@@ -98,6 +103,9 @@ final class CorsMiddleware implements MiddlewareInterface
         );
     }
 
+    /**
+     * @param list<string> $requestedHeaders
+     */
     private function areHeadersAllowed(array $requestedHeaders, CorsConfig $config): bool
     {
         if ($config->allowAllHeaders) {

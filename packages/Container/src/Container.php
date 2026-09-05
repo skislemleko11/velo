@@ -23,7 +23,7 @@ use Velo\Container\Exceptions\IsNotInstantiableException;
 class Container implements ContainerInterface
 {
     /**
-     * @var array<string, object|callable|string>
+     * @var array<string, callable|string>
      */
     private array $entries = [];
 

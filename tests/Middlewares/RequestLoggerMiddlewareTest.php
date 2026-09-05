@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Velo\Tests\Middlewares;
 
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use Velo\Http\Request;
 use Velo\Http\Responses\Concrete\ViewResponse;
 use Velo\Logger\Logger;
@@ -13,7 +14,7 @@ use Velo\Http\RequestMethod;
 
 final class RequestLoggerMiddlewareTest extends TestCase
 {
-    private Logger $logger;
+    private Logger&MockObject $logger;
 
     protected function setUp(): void
     {

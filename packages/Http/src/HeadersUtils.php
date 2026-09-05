@@ -10,6 +10,9 @@ final class HeadersUtils
         return strtolower(trim($headerValue));
     }
 
+    /**
+     * @return array<string, string>
+     */
     public static function getHeadersFromServerSuperGlobal(): array
     {
         $headers = [];

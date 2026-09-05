@@ -13,8 +13,14 @@ abstract class Response
 {
     public const string CONTENT_TYPE_HEADER = 'content-type';
 
+    /**
+     * @var array<string, string>
+     */
     private array $headers = [];
 
+    /**
+     * @param array<string, string> $headers
+     */
     public function __construct(
         public readonly int $statusCode = 200,
         array               $headers = []
@@ -26,15 +32,17 @@ abstract class Response
     abstract public function render(RenderContext $context): string;
 
     /**
-     * @return mixed Header's value if header is set, $default otherwise.
+     * @return string|null Header's value if header is set, $default otherwise.
      */
-    public function getHeader(string $name, mixed $default = null): mixed
+    public function getHeader(string $name, ?string $default = null): string|null
     {
-        return $this->getHeaders()[HeadersUtils::makeLowerCaseAndTrim($name)] ?? $default;
+        $headers = $this->getHeaders();
+
+        return $headers[HeadersUtils::makeLowerCaseAndTrim($name)] ?? $default;
     }
 
     /**
-     * @return list<array<string, string>>
+     * @return array<string, string>
      */
     public function getHeaders(): array
     {
@@ -56,13 +64,13 @@ abstract class Response
     }
 
     /**
-     * @param array $headers Keys - headers names will be converted to lowercase and trimmed,
+     * @param array<string, string> $headers Keys - headers names will be converted to lowercase and trimmed,
      * values - headers values will be trimmed.
      */
     public function setHeaders(array $headers): self
     {
         foreach ($headers as $name => $value) {
-            $this->setHeader((string)$name, (string)$value);
+            $this->setHeader($name, $value);
         }
 
         return $this;
