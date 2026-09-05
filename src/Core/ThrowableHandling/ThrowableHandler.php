@@ -15,7 +15,7 @@ use Velo\Http\Responses\Response;
 /**
  * Throwable handler made for global throwable and error handling.
  */
-readonly class ThrowableHandler
+final readonly class ThrowableHandler
 {
     public function __construct(
         private LoggerInterface                 $logger,
@@ -23,6 +23,12 @@ readonly class ThrowableHandler
         private ErrorResponseFormatterInterface $errorResponseFormatter
     )
     {
+    }
+
+    public function setAsGlobalExceptionAndErrorHandler(): void
+    {
+        set_exception_handler([$this, 'handleThrowable']);
+        set_error_handler([$this, 'throwErrorException']);
     }
 
     /**
