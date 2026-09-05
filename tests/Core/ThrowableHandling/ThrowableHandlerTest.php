@@ -8,6 +8,7 @@ use ErrorException;
 use Exception;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Velo\Core\ThrowableHandling\ErrorResponseFormatter\ErrorResponseFormatter;
@@ -22,10 +23,17 @@ use Velo\Http\Responses\Concrete\ViewResponse;
 final class ThrowableHandlerTest extends TestCase
 {
     private int $originalErrorReporting;
+    private LoggerInterface&MockObject $loggerMock;
+    private ResponseRenderer&MockObject $responseRendererMock;
+    private ErrorResponseFormatter&MockObject $errorResponseFormatterMock;
 
     protected function setUp(): void
     {
         $this->originalErrorReporting = error_reporting();
+
+        $this->loggerMock = $this->createMock(LoggerInterface::class);
+        $this->responseRendererMock = $this->createMock(ResponseRenderer::class);
+        $this->errorResponseFormatterMock = $this->createMock(ErrorResponseFormatter::class);
 
         unset($_SERVER['HTTP_ACCEPT']);
     }
@@ -44,10 +52,6 @@ final class ThrowableHandlerTest extends TestCase
     #[Test]
     public function it_handles_ErrorException_logs_as_error_and_renders_response(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
-        $responseRenderer = $this->createMock(ResponseRenderer::class);
-        $formatter = $this->createMock(ErrorResponseFormatter::class);
-
         $exception = new ErrorException(
             'boom',
             0,
@@ -58,30 +62,30 @@ final class ThrowableHandlerTest extends TestCase
 
         $response = self::createStub(JsonResponse::class);
 
-        $logger
+        $this->loggerMock
             ->expects($this->once())
             ->method('error')
             ->with(self::identicalTo($exception));
 
-        $logger
+        $this->loggerMock
             ->expects($this->never())
             ->method('critical');
 
-        $formatter
+        $this->errorResponseFormatterMock
             ->expects($this->once())
             ->method('formatJson')
             ->with(self::identicalTo($exception))
             ->willReturn($response);
 
-        $responseRenderer
+        $this->responseRendererMock
             ->expects($this->once())
             ->method('render')
             ->with(self::identicalTo($response));
 
         $handler = new ThrowableHandler(
-            $logger,
-            $responseRenderer,
-            $formatter
+            $this->loggerMock,
+            $this->responseRendererMock,
+            $this->errorResponseFormatterMock
         );
 
         $handler->handleThrowable($exception);
@@ -90,10 +94,6 @@ final class ThrowableHandlerTest extends TestCase
     #[Test]
     public function it_handles_HttpException_and_logs_it_when_should_log_is_true(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
-        $responseRenderer = $this->createMock(ResponseRenderer::class);
-        $formatter = $this->createMock(ErrorResponseFormatter::class);
-
         $exception = new class('boom') extends Exception implements HttpResponseExceptionInterface {
             public function getStatusCode(): int
             {
@@ -113,30 +113,30 @@ final class ThrowableHandlerTest extends TestCase
 
         $response = self::createStub(JsonResponse::class);
 
-        $logger
+        $this->loggerMock
             ->expects($this->once())
             ->method('error')
             ->with(self::identicalTo($exception));
 
-        $logger
+        $this->loggerMock
             ->expects($this->never())
             ->method('critical');
 
-        $formatter
+        $this->errorResponseFormatterMock
             ->expects($this->once())
             ->method('formatJson')
             ->with(self::identicalTo($exception))
             ->willReturn($response);
 
-        $responseRenderer
+        $this->responseRendererMock
             ->expects($this->once())
             ->method('render')
             ->with(self::identicalTo($response));
 
         $handler = new ThrowableHandler(
-            $logger,
-            $responseRenderer,
-            $formatter
+            $this->loggerMock,
+            $this->responseRendererMock,
+            $this->errorResponseFormatterMock
         );
 
         $handler->handleThrowable($exception);
@@ -145,10 +145,6 @@ final class ThrowableHandlerTest extends TestCase
     #[Test]
     public function it_handles_HttpException_without_logging_when_should_log_is_false(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
-        $responseRenderer = $this->createMock(ResponseRenderer::class);
-        $formatter = $this->createMock(ErrorResponseFormatter::class);
-
         $exception = new class('not found') extends Exception implements HttpResponseExceptionInterface {
             public function getStatusCode(): int
             {
@@ -168,29 +164,29 @@ final class ThrowableHandlerTest extends TestCase
 
         $response = self::createStub(JsonResponse::class);
 
-        $logger
+        $this->loggerMock
             ->expects($this->never())
             ->method('error');
 
-        $logger
+        $this->loggerMock
             ->expects($this->never())
             ->method('critical');
 
-        $formatter
+        $this->errorResponseFormatterMock
             ->expects($this->once())
             ->method('formatJson')
             ->with(self::identicalTo($exception))
             ->willReturn($response);
 
-        $responseRenderer
+        $this->responseRendererMock
             ->expects($this->once())
             ->method('render')
             ->with(self::identicalTo($response));
 
         $handler = new ThrowableHandler(
-            $logger,
-            $responseRenderer,
-            $formatter
+            $this->loggerMock,
+            $this->responseRendererMock,
+            $this->errorResponseFormatterMock
         );
 
         $handler->handleThrowable($exception);
@@ -199,38 +195,34 @@ final class ThrowableHandlerTest extends TestCase
     #[Test]
     public function it_handles_generic_throwable_as_critical(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
-        $responseRenderer = $this->createMock(ResponseRenderer::class);
-        $formatter = $this->createMock(ErrorResponseFormatter::class);
-
         $exception = new Exception('something went wrong');
 
         $response = self::createStub(JsonResponse::class);
 
-        $logger
+        $this->loggerMock
             ->expects($this->once())
             ->method('critical')
             ->with(self::identicalTo($exception));
 
-        $logger
+        $this->loggerMock
             ->expects($this->never())
             ->method('error');
 
-        $formatter
+        $this->errorResponseFormatterMock
             ->expects($this->once())
             ->method('formatJson')
             ->with(self::identicalTo($exception))
             ->willReturn($response);
 
-        $responseRenderer
+        $this->responseRendererMock
             ->expects($this->once())
             ->method('render')
             ->with(self::identicalTo($response));
 
         $handler = new ThrowableHandler(
-            $logger,
-            $responseRenderer,
-            $formatter
+            $this->loggerMock,
+            $this->responseRendererMock,
+            $this->errorResponseFormatterMock
         );
 
         $handler->handleThrowable($exception);
@@ -241,36 +233,32 @@ final class ThrowableHandlerTest extends TestCase
     {
         $_SERVER['HTTP_ACCEPT'] = 'text/html';
 
-        $logger = self::createStub(LoggerInterface::class);
-        $responseRenderer = $this->createMock(ResponseRenderer::class);
-        $formatter = $this->createMock(ErrorResponseFormatter::class);
-
         $exception = new Exception('boom');
         $response = self::createStub(ViewResponse::class);
 
-        $formatter
+        $this->errorResponseFormatterMock
             ->expects($this->once())
             ->method('formatView')
             ->with(self::identicalTo($exception))
             ->willReturn($response);
 
-        $formatter
+        $this->errorResponseFormatterMock
             ->expects($this->never())
             ->method('formatPlainText');
 
-        $formatter
+        $this->errorResponseFormatterMock
             ->expects($this->never())
             ->method('formatJson');
 
-        $responseRenderer
+        $this->responseRendererMock
             ->expects($this->once())
             ->method('render')
             ->with(self::identicalTo($response));
 
         $handler = new ThrowableHandler(
-            $logger,
-            $responseRenderer,
-            $formatter
+            $this->loggerMock,
+            $this->responseRendererMock,
+            $this->errorResponseFormatterMock
         );
 
         $handler->handleThrowable($exception);
@@ -281,36 +269,32 @@ final class ThrowableHandlerTest extends TestCase
     {
         $_SERVER['HTTP_ACCEPT'] = 'text/plain';
 
-        $logger = self::createStub(LoggerInterface::class);
-        $responseRenderer = $this->createMock(ResponseRenderer::class);
-        $formatter = $this->createMock(ErrorResponseFormatter::class);
-
         $exception = new Exception('boom');
         $response = self::createStub(TextResponse::class);
 
-        $formatter
+        $this->errorResponseFormatterMock
             ->expects($this->once())
             ->method('formatPlainText')
             ->with(self::identicalTo($exception))
             ->willReturn($response);
 
-        $formatter
+        $this->errorResponseFormatterMock
             ->expects($this->never())
             ->method('formatView');
 
-        $formatter
+        $this->errorResponseFormatterMock
             ->expects($this->never())
             ->method('formatJson');
 
-        $responseRenderer
+        $this->responseRendererMock
             ->expects($this->once())
             ->method('render')
             ->with(self::identicalTo($response));
 
         $handler = new ThrowableHandler(
-            $logger,
-            $responseRenderer,
-            $formatter
+            $this->loggerMock,
+            $this->responseRendererMock,
+            $this->errorResponseFormatterMock
         );
 
         $handler->handleThrowable($exception);
@@ -321,36 +305,32 @@ final class ThrowableHandlerTest extends TestCase
     {
         unset($_SERVER['HTTP_ACCEPT']);
 
-        $logger = self::createStub(LoggerInterface::class);
-        $responseRenderer = $this->createMock(ResponseRenderer::class);
-        $formatter = $this->createMock(ErrorResponseFormatter::class);
-
         $exception = new Exception('boom');
         $response = self::createStub(JsonResponse::class);
 
-        $formatter
+        $this->errorResponseFormatterMock
             ->expects($this->once())
             ->method('formatJson')
             ->with(self::identicalTo($exception))
             ->willReturn($response);
 
-        $formatter
+        $this->errorResponseFormatterMock
             ->expects($this->never())
             ->method('formatView');
 
-        $formatter
+        $this->errorResponseFormatterMock
             ->expects($this->never())
             ->method('formatPlainText');
 
-        $responseRenderer
+        $this->responseRendererMock
             ->expects($this->once())
             ->method('render')
             ->with(self::identicalTo($response));
 
         $handler = new ThrowableHandler(
-            $logger,
-            $responseRenderer,
-            $formatter
+            $this->loggerMock,
+            $this->responseRendererMock,
+            $this->errorResponseFormatterMock
         );
 
         $handler->handleThrowable($exception);
@@ -359,14 +339,10 @@ final class ThrowableHandlerTest extends TestCase
     #[Test]
     public function it_returns_false_when_error_reporting_is_disabled(): void
     {
-        $logger = self::createStub(LoggerInterface::class);
-        $responseRenderer = self::createStub(ResponseRenderer::class);
-        $formatter = self::createStub(ErrorResponseFormatter::class);
-
         $handler = new ThrowableHandler(
-            $logger,
-            $responseRenderer,
-            $formatter
+            $this->loggerMock,
+            $this->responseRendererMock,
+            $this->errorResponseFormatterMock
         );
 
         error_reporting(0);
@@ -384,14 +360,10 @@ final class ThrowableHandlerTest extends TestCase
     #[Test]
     public function it_throws_ErrorException_when_error_reporting_is_enabled(): void
     {
-        $logger = self::createStub(LoggerInterface::class);
-        $responseRenderer = self::createStub(ResponseRenderer::class);
-        $formatter = self::createStub(ErrorResponseFormatter::class);
-
         $handler = new ThrowableHandler(
-            $logger,
-            $responseRenderer,
-            $formatter
+            $this->loggerMock,
+            $this->responseRendererMock,
+            $this->errorResponseFormatterMock
         );
 
         error_reporting(E_ALL);
@@ -405,5 +377,23 @@ final class ThrowableHandlerTest extends TestCase
             __FILE__,
             __LINE__
         );
+    }
+
+    #[Test]
+    public function it_sets_exception_and_error_global_handler_to_its_methods(): void
+    {
+        $handler = new ThrowableHandler(
+            $this->loggerMock,
+            $this->responseRendererMock,
+            $this->errorResponseFormatterMock
+        );
+
+        $handler->setAsGlobalExceptionAndErrorHandler();
+
+        self::assertEquals([$handler, 'handleThrowable'], get_exception_handler());
+        self::assertEquals([$handler, 'throwErrorException'], get_error_handler());
+
+        set_exception_handler(null);
+        set_error_handler(null);
     }
 }
