@@ -37,9 +37,18 @@ readonly class ViewRenderer
             : $this->renderHtml($viewPath);
     }
 
+    /**
+     * @throws ViewNotFoundException
+     */
     private function renderHtml(string $viewPath): string
     {
-        return file_get_contents($viewPath); // TODO: can fail, do sth with this
+        if(($content = file_get_contents($viewPath)) === false) {
+            throw new ViewNotFoundException(
+                "Failed reading view file '$viewPath'!"
+            );
+        }
+
+        return $content;
     }
 
     /**
@@ -59,7 +68,9 @@ readonly class ViewRenderer
 
         unset($viewPathAvoidVariablesCollision);
 
-        return ob_get_clean(); // TODO: can return false, FIX!
+        // Should not return false, because ob_start was called, if it somehow does return false, okay then,
+        // TypeError will be thrown when strict_types are enabled, empty string otherwise.
+        return ob_get_clean();
     }
 
     private function isPhp(string $viewPath): bool
