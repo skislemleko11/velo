@@ -17,7 +17,9 @@ class ViewResponse extends Response
 {
     /**
      * @param string $relativeToViewsDirFilePath Must be a relative path to 'views' directory from PathResolver.
-     * @param array $data Will be extracted to variables and passed to the view.
+     * @param array<string, mixed> $data Will be extracted to variables and passed to the view.
+     * Key - variable name, value - variable value.
+     * @param array<string, string> $headers
      */
     public function __construct(
         private readonly string $relativeToViewsDirFilePath,

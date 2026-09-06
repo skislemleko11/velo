@@ -73,7 +73,8 @@ final class PathResolverTest extends TestCase
     public function it_normalizes_trailing_slashes(
         string $path,
         string $expected,
-    ): void {
+    ): void
+    {
         $this->pathResolver->setDirPath('public', $path);
 
         self::assertSame(
@@ -82,6 +83,9 @@ final class PathResolverTest extends TestCase
         );
     }
 
+    /**
+     * @return array<string, array{0: string, 1: string}>
+     */
     public static function dirPathProvider(): array
     {
         return [

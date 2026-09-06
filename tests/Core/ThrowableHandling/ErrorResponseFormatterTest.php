@@ -38,9 +38,17 @@ final class ErrorResponseFormatterTest extends TestCase
         return $reflection->getProperty($property)->getValue($object);
     }
 
+    /***
+     * @param array<string, string> $headers
+     */
     #[Test]
-    #[DataProvider('json_and_plain_text_dataProvider')]
-    public function it_formats_json_response_with_status_code_message_and_headers($exception, $message, $statusCode, $headers): void
+    #[DataProvider('jsonAndPlainTextDataProvider')]
+    public function it_formats_json_response_with_status_code_message_and_headers(
+        Exception $exception,
+        string    $message,
+        int       $statusCode,
+        array     $headers
+    ): void
     {
         $response = $this->formatter->formatJson($exception);
 
@@ -62,9 +70,17 @@ final class ErrorResponseFormatterTest extends TestCase
         );
     }
 
+    /***
+     * @param array<string, string> $headers
+     */
     #[Test]
-    #[DataProvider('json_and_plain_text_dataProvider')]
-    public function it_formats_plain_text_response_with_status_code_and_headers($exception, $message, $statusCode, $headers)
+    #[DataProvider('jsonAndPlainTextDataProvider')]
+    public function it_formats_plain_text_response_with_status_code_and_headers(
+        Exception $exception,
+        string    $message,
+        int       $statusCode,
+        array     $headers
+    ): void
     {
         $response = $this->formatter->formatPlainText($exception);
 
@@ -80,16 +96,19 @@ final class ErrorResponseFormatterTest extends TestCase
         );
     }
 
-    public static function json_and_plain_text_dataProvider(): array
+    /**
+     * @return array<string, array{0: Exception, 1: string, 2: int, 3: array<string, string>}>
+     */
+    public static function jsonAndPlainTextDataProvider(): array
     {
         return [
-            [
+            'basic_exception' => [
                 new Exception(),
                 ErrorResponseFormatter::DEFAULT_ERROR_MESSAGE,
                 500,
                 []
             ],
-            [
+            'HttpResponseExceptionInterface' => [
                 new class() extends Exception implements HttpResponseExceptionInterface {
 
                     public function getStatusCode(): int
@@ -111,7 +130,7 @@ final class ErrorResponseFormatterTest extends TestCase
                 502,
                 []
             ],
-            [
+            'HttpResponseExceptionWithHeadersInterface' => [
                 new class() extends Exception implements HttpResponseExceptionWithHeadersInterface {
 
                     public function getStatusCode(): int

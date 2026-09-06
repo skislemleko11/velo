@@ -12,6 +12,9 @@ use Velo\Http\Responses\Response;
  */
 class FileResponse extends Response
 {
+    /**
+     * @param array<string, string> $headers
+     */
     public function __construct(
         private readonly string $fullPath,
         int                     $statusCode = 200,

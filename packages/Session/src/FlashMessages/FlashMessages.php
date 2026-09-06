@@ -11,6 +11,11 @@ use Velo\Session\Session\Interfaces\SessionInterface;
  */
 readonly class FlashMessages implements FlashMessagesInterface
 {
+    public const string SUCCESS = 'success';
+    public const string ERROR = 'error';
+    public const string WARNING = 'warning';
+    public const string INFO = 'info';
+
     /**
      * Session key used to store all the flash messages.
      */
@@ -27,7 +32,7 @@ readonly class FlashMessages implements FlashMessagesInterface
 
     public function add(string $type, string $value): self
     {
-        $flashMessages = $this->session->get(self::SESSION_KEY, []);
+        $flashMessages = $this->getFromSession();
 
         $flashMessages[$type][] = $value;
 
@@ -36,9 +41,22 @@ readonly class FlashMessages implements FlashMessagesInterface
         return $this;
     }
 
+    /**
+     * @return array<string, list<string>>
+     */
+    private function getFromSession(): array
+    {
+        /** @var array<string, list<string>> */
+        return $this->session->get(self::SESSION_KEY, []);
+    }
+
+    /**
+     * @param list<string> $default
+     * @return list<string>
+     */
     public function get(string $type, array $default = []): array
     {
-        $flashMessages = $this->session->get(self::SESSION_KEY, []);
+        $flashMessages = $this->getFromSession();
 
         if (!isset($flashMessages[$type])) {
             return $default;
@@ -59,14 +77,17 @@ readonly class FlashMessages implements FlashMessagesInterface
 
     public function has(string $type): bool
     {
-        $flashMessages = $this->session->get(self::SESSION_KEY, []);
+        $flashMessages = $this->getFromSession();
 
         return !empty($flashMessages[$type]);
     }
 
+    /**
+     * @return array<string, list<string>>
+     */
     public function getAll(): array
     {
-        $flashMessages = $this->session->get(self::SESSION_KEY, []);
+        $flashMessages = $this->getFromSession();
 
         $this->session->remove(self::SESSION_KEY);
 
@@ -75,21 +96,21 @@ readonly class FlashMessages implements FlashMessagesInterface
 
     public function success(string $message): self
     {
-        return $this->add('success', $message);
+        return $this->add(self::SUCCESS, $message);
     }
 
     public function error(string $message): self
     {
-        return $this->add('error', $message);
+        return $this->add(self::ERROR, $message);
     }
 
     public function warning(string $message): self
     {
-        return $this->add('warning', $message);
+        return $this->add(self::WARNING, $message);
     }
 
     public function info(string $message): self
     {
-        return $this->add('info', $message);
+        return $this->add(self::INFO, $message);
     }
 }

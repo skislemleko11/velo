@@ -37,8 +37,6 @@ final class NativeEmitterTest extends TestCase
         if (function_exists('xdebug_get_headers')) {
             $headers = xdebug_get_headers();
             self::assertContains('X-Test-Single: Value1', $headers);
-        } else {
-            self::assertTrue(true);
         }
     }
 
@@ -56,8 +54,6 @@ final class NativeEmitterTest extends TestCase
             $headers = xdebug_get_headers();
             self::assertContains('X-Test-Multi-1: Value2', $headers);
             self::assertContains('X-Test-Multi-2: Value3', $headers);
-        } else {
-            self::assertTrue(true);
         }
     }
 }

@@ -28,6 +28,9 @@ final class ResponseFormatTest extends TestCase
         );
     }
 
+    /**
+     * @return array<string, array{0: string, 1: ResponseFormat}>
+     */
     public static function acceptHeaderProvider(): array
     {
         return [

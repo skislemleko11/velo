@@ -146,6 +146,10 @@ final class RequestTest extends TestCase
     #[DataProvider('nonHeadMethodsProvider')]
     public function it_throws_value_error_when_changing_method_from_non_head(RequestMethod $method): void
     {
+        var_dump(self::nonHeadMethodsProvider());
+
+        echo PHP_EOL;
+
         $request = new Request(self::URL, $method);
 
         $this->expectException(ValueError::class);
@@ -154,6 +158,9 @@ final class RequestTest extends TestCase
         $request->changeMethodFromHeadToGet();
     }
 
+    /**
+     * @return list<array{0: RequestMethod}>
+     */
     public static function nonHeadMethodsProvider(): array
     {
         return array_map(

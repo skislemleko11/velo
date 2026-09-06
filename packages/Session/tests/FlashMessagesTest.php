@@ -32,9 +32,9 @@ final class FlashMessagesTest extends TestCase
 
         $this->sessionMock->expects($this->once())
             ->method('set')
-            ->with('flash_messages', ['info' => ['Test message']]);
+            ->with('flash_messages', [FlashMessages::INFO => ['Test message']]);
 
-        $self = $this->flashMessages->add('info', 'Test message');
+        $self = $this->flashMessages->add(FlashMessages::INFO, 'Test message');
 
         self::assertSame($this->flashMessages, $self);
     }
@@ -43,8 +43,8 @@ final class FlashMessagesTest extends TestCase
     public function it_gets_messages_for_specific_type_and_removes_them_from_session(): void
     {
         $existingMessages = [
-            'success' => ['Operation successful'],
-            'error'   => ['An error occurred'],
+            FlashMessages::SUCCESS => ['Operation successful'],
+            FlashMessages::ERROR => ['An error occurred'],
         ];
 
         $this->sessionMock->expects($this->once())
@@ -54,9 +54,9 @@ final class FlashMessagesTest extends TestCase
 
         $this->sessionMock->expects($this->once())
             ->method('set')
-            ->with('flash_messages', ['error' => ['An error occurred']]);
+            ->with('flash_messages', [FlashMessages::ERROR => ['An error occurred']]);
 
-        $result = $this->flashMessages->get('success');
+        $result = $this->flashMessages->get(FlashMessages::SUCCESS);
 
         self::assertSame(['Operation successful'], $result);
     }
@@ -65,7 +65,7 @@ final class FlashMessagesTest extends TestCase
     public function it_removes_entire_session_key_when_last_flash_message_is_retrieved(): void
     {
         $existingMessages = [
-            'success' => ['Operation successful'],
+            FlashMessages::SUCCESS => ['Operation successful'],
         ];
 
         $this->sessionMock->expects($this->once())
@@ -77,7 +77,7 @@ final class FlashMessagesTest extends TestCase
             ->method('remove')
             ->with('flash_messages');
 
-        $result = $this->flashMessages->get('success');
+        $result = $this->flashMessages->get(FlashMessages::SUCCESS);
 
         self::assertSame(['Operation successful'], $result);
     }
@@ -90,7 +90,7 @@ final class FlashMessagesTest extends TestCase
             ->with('flash_messages', [])
             ->willReturn([]);
 
-        $result = $this->flashMessages->get('warning', ['default_message']);
+        $result = $this->flashMessages->get(FlashMessages::WARNING, ['default_message']);
 
         self::assertSame(['default_message'], $result);
     }
@@ -99,8 +99,8 @@ final class FlashMessagesTest extends TestCase
     public function it_gets_all_messages_and_cleans_session(): void
     {
         $existingMessages = [
-            'success' => ['Message 1'],
-            'info'    => ['Message 2'],
+            FlashMessages::SUCCESS => ['Message 1'],
+            FlashMessages::INFO => ['Message 2'],
         ];
 
         $this->sessionMock->expects($this->once())
@@ -117,6 +117,9 @@ final class FlashMessagesTest extends TestCase
         self::assertSame($existingMessages, $result);
     }
 
+    /**
+     * @param array<string, list<string>> $storedMessages
+     */
     #[Test]
     #[DataProvider('hasTypeDataProvider')]
     public function it_checks_if_type_exists(array $storedMessages, string $checkType, bool $expected): void
@@ -127,6 +130,18 @@ final class FlashMessagesTest extends TestCase
             ->willReturn($storedMessages);
 
         self::assertSame($expected, $this->flashMessages->has($checkType));
+    }
+
+    /**
+     * @return array<string, array{0: array<string, list<string>>, 1: string, 2: bool}>
+     */
+    public static function hasTypeDataProvider(): array
+    {
+        return [
+            'has_success' => [[FlashMessages::SUCCESS => ['OK']], FlashMessages::SUCCESS, true],
+            'does_not_have_error' => [[FlashMessages::SUCCESS => ['OK']], FlashMessages::ERROR, false],
+            'does_not_have_info' => [[], FlashMessages::INFO, false],
+        ];
     }
 
     #[Test]
@@ -147,22 +162,16 @@ final class FlashMessagesTest extends TestCase
         self::assertSame($this->flashMessages, $self);
     }
 
-    public static function hasTypeDataProvider(): array
-    {
-        return [
-            [['success' => ['OK']], 'success', true],
-            [['success' => ['OK']], 'error', false],
-            [[], 'info', false],
-        ];
-    }
-
+    /**
+     * @return array<string, array{0: string, 1: string}>
+     */
     public static function helperMethodsDataProvider(): array
     {
         return [
-            ['success', 'success'],
-            ['error', 'error'],
-            ['warning', 'warning'],
-            ['info', 'info'],
+            'success_msgs' => ['success', FlashMessages::SUCCESS],
+            'error_msgs' => ['error', FlashMessages::ERROR],
+            'warning_msgs' => ['warning', FlashMessages::WARNING],
+            'info_msgs' => ['info', FlashMessages::INFO],
         ];
     }
 }

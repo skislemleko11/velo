@@ -11,6 +11,9 @@ use Velo\Http\Responses\Response;
  */
 class RedirectResponse extends Response
 {
+    /**
+     * @param array<string, string> $headers
+     */
     public function __construct(
         string $location,
         int    $statusCode = 302,

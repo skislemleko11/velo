@@ -72,8 +72,8 @@ final class SessionTest extends TestCase
     {
         $self = $this->session->setFlash('old_input', ['name' => 'John']);
 
-        self::assertSame(['name' => 'John'], $_SESSION['flash_data']['old_input'] ?? null);
         self::assertSame($this->session, $self);
+        self::assertSame(['name' => 'John'], $self->getFlash('old_input'));
     }
 
     #[Test]
@@ -99,11 +99,14 @@ final class SessionTest extends TestCase
         self::assertFalse($this->session->hasFlash('sth'));
     }
 
+    /**
+     * @return array<string, array{0: string, 1: bool}>
+     */
     public static function hasKeyDataProvider(): array
     {
         return [
-            ['existing_key', true],
-            ['missing_key', false],
+            'existing_key' => ['existing_key', true],
+            'missing_key' => ['missing_key', false],
         ];
     }
 }

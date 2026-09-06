@@ -17,6 +17,9 @@ final class CorsResponseProcessorTest extends TestCase
 {
     private const string VARY_HEADER = 'vary';
 
+    /**
+     * @param array<string, string|null> $expectedHeaders
+     */
     #[Test]
     #[DataProvider('preflightResponseProvider')]
     public function it_builds_preflight_response(CorsConfig $config, string $origin, array $expectedHeaders): void
@@ -32,6 +35,9 @@ final class CorsResponseProcessorTest extends TestCase
         }
     }
 
+    /**
+     * @return list<list<mixed>>
+     */
     public static function preflightResponseProvider(): array
     {
         return [
@@ -98,6 +104,9 @@ final class CorsResponseProcessorTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<string, string|null> $expectedHeaders
+     */
     #[Test]
     #[DataProvider('addCorsHeadersProvider')]
     public function it_adds_cors_headers(CorsConfig $config, string $origin, array $expectedHeaders): void
@@ -133,6 +142,9 @@ final class CorsResponseProcessorTest extends TestCase
         self::assertSame('x-trace-id', $response->getHeader(CorsResponseHeaderName::EXPOSE_HEADERS->value));
     }
 
+    /**
+     * @return list<list<mixed>>
+     */
     public static function addCorsHeadersProvider(): array
     {
         return [

@@ -22,7 +22,7 @@ readonly class ViewRenderer
 
     /**
      * @param string $viewFile Should be the file path WITH EXTENSION relative to views path from PathResolver.
-     * @param array<string, string> $dataToExtract
+     * @param array<string, mixed> $dataToExtract
      *
      * @throws ViewNotFoundException
      * @throws PathNotFoundException
@@ -39,11 +39,11 @@ readonly class ViewRenderer
 
     private function renderHtml(string $viewPath): string
     {
-        return file_get_contents($viewPath);
+        return file_get_contents($viewPath); // TODO: can fail, do sth with this
     }
 
     /**
-     * @param array<string, string> $dataToExtract
+     * @param array<string, mixed> $dataToExtract
      */
     private function renderPhp(string $viewPathAvoidVariablesCollision, array $dataToExtract = []): string
     {
@@ -59,7 +59,7 @@ readonly class ViewRenderer
 
         unset($viewPathAvoidVariablesCollision);
 
-        return ob_get_clean();
+        return ob_get_clean(); // TODO: can return false, FIX!
     }
 
     private function isPhp(string $viewPath): bool

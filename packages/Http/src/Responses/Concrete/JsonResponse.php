@@ -12,6 +12,9 @@ use Velo\Http\Responses\Response;
  */
 class JsonResponse extends Response
 {
+    /**
+     * @param array<string, string> $headers
+     */
     public function __construct(
         public readonly mixed $body,
         int                   $statusCode = 200,

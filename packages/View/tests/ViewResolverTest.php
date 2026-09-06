@@ -23,8 +23,10 @@ final class ViewResolverTest extends TestCase
 
     protected function tearDown(): void
     {
-        foreach (glob($this->viewsDirectory . '/*') as $file) {
-            unlink($file);
+        if ($glob = glob($this->viewsDirectory . '/*')) {
+            foreach ($glob as $file) {
+                unlink($file);
+            }
         }
 
         rmdir($this->viewsDirectory);

@@ -141,6 +141,9 @@ final class AntiCsrfMiddlewareTest extends TestCase
         self::assertSame($closureResponse, $response);
     }
 
+    /**
+     * @return array<string, list<mixed>>
+     */
     public static function invalidSessionPostDataProvider(): array
     {
         return [

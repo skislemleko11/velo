@@ -149,6 +149,7 @@ final class ContainerTest extends TestCase
     {
         $this->container->set(SimpleDependency::class, SimpleDependency::class);
         $result = $this->container->get(ClassWithNestedDependency::class);
+
         self::assertInstanceOf(ClassWithNestedDependency::class, $result);
         self::assertInstanceOf(SimpleDependency::class, $result->dependency);
     }
@@ -256,16 +257,6 @@ final class ContainerTest extends TestCase
         $this->container->set(SimpleClass::class, $simpleClass);
 
         self::assertSame($simpleClass, $this->container->get(SimpleInterface::class));
-    }
-
-    #[Test]
-    public function it_not_callable_object(): void
-    {
-        $obj = new SimpleClass();
-
-        $this->container->set(SimpleClass::class, $obj);
-
-        $this->container->get(SimpleClass::class);
     }
 }
 

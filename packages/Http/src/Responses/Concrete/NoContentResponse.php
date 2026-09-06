@@ -11,6 +11,9 @@ use Velo\Http\Responses\Response;
  */
 class NoContentResponse extends Response
 {
+    /**
+     * @param array<string, string> $headers
+     */
     public function __construct(int $statusCode = 204, array $headers = [])
     {
         parent::__construct($statusCode, $headers);

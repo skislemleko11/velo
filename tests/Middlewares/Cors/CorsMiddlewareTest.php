@@ -378,6 +378,9 @@ final class CorsMiddlewareTest extends TestCase
         self::assertSame(204, $result->statusCode);
     }
 
+    /**
+     * @return list<list<string>>
+     */
     public static function headersProvider(): array
     {
         return [
@@ -491,6 +494,9 @@ final class CorsMiddlewareTest extends TestCase
         self::assertSame(403, $result->statusCode);
     }
 
+    /**
+     * @param array<string, string> $headers
+     */
     private function createRequest(
         RequestMethod $method,
         array         $headers = [],

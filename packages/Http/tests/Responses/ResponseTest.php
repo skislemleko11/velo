@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace Velo\Http\Tests\Responses;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 use Throwable;
 use Velo\Http\RenderContext;
 use Velo\Http\Responses\Response;
@@ -193,16 +195,30 @@ final class ResponseTest extends TestCase
     }
 
     #[Test]
-    public function it_throws_when_header_is_not_string(): void
+    #[DataProvider('nonStringHeaderProvider')]
+    public function it_throws_when_header_is_not_string(mixed $value): void
     {
         $this->expectException(Throwable::class);
 
-        new class(headers: ['hehe' => 123]) extends Response
-        {
+        new class(headers: ['hehe' => $value]) extends Response {
             public function render(RenderContext $context): string
             {
                 return '';
             }
         };
+    }
+
+    /**
+     * @return array<string, array{0: mixed}>
+     */
+    public static function nonStringHeaderProvider(): array
+    {
+        return [
+            'integer' => [123],
+            'float' => [1.23],
+            'boolean' => [true],
+            'array' => [[]],
+            'object' => [new stdClass()]
+        ];
     }
 }

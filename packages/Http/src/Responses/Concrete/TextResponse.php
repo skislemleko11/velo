@@ -15,7 +15,7 @@ use Velo\Http\Responses\Response;
 class TextResponse extends Response
 {
     /**
-     * @param array $headers Don't forget to pass the 'Content-Type' header if you want it to be different from 'text/plain; charset=utf-8',
+     * @param array<string, string> $headers Don't forget to pass the 'Content-Type' header if you want it to be different from 'text/plain; charset=utf-8',
      * which is set if the header is not passed.
      */
     public function __construct(
