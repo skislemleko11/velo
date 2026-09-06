@@ -58,10 +58,10 @@ final class CorsMiddleware implements MiddlewareInterface
     private function isPreflightRequestAllowed(CorsConfig $config, Request $request): bool
     {
         $requestedMethod = RequestMethod::tryFromString(
-            $request->getHeader(CorsRequestHeaderName::REQUEST_METHOD->value, ''),
-            null);
+            $request->getHeader(CorsRequestHeaderName::REQUEST_METHOD->value, '')
+        );
 
-        if ($requestedMethod === null) {
+        if ($requestedMethod === RequestMethod::UNKNOWN) {
             return false;
         }
 
