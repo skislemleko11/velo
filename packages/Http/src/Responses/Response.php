@@ -11,7 +11,7 @@ use Velo\Http\RenderContext;
  */
 abstract class Response
 {
-    public const string CONTENT_TYPE_HEADER = 'content-type';
+    final public const string CONTENT_TYPE_HEADER = 'content-type';
 
     /**
      * @var array<string, string>
@@ -34,7 +34,7 @@ abstract class Response
     /**
      * @return string|null Header's value if header is set, $default otherwise.
      */
-    public function getHeader(string $name, ?string $default = null): string|null
+    final public function getHeader(string $name, ?string $default = null): string|null
     {
         $headers = $this->getHeaders();
 
@@ -44,7 +44,7 @@ abstract class Response
     /**
      * @return array<string, string>
      */
-    public function getHeaders(): array
+    final public function getHeaders(): array
     {
         return $this->headers;
     }
@@ -53,7 +53,7 @@ abstract class Response
      * @param string $name Will be converted to lowercase and trimmed.
      * @param string $value Will be trimmed.
      */
-    public function setHeader(string $name, string $value): self
+    final public function setHeader(string $name, string $value): self
     {
         $name = HeadersUtils::makeLowerCaseAndTrim($name);
         $value = trim($value);
@@ -67,7 +67,7 @@ abstract class Response
      * @param array<string, string> $headers Keys - headers names will be converted to lowercase and trimmed,
      * values - headers values will be trimmed.
      */
-    public function setHeaders(array $headers): self
+    final public function setHeaders(array $headers): self
     {
         foreach ($headers as $name => $value) {
             $this->setHeader($name, $value);
@@ -82,7 +82,7 @@ abstract class Response
      * @param string $name Will be converted to lowercase and trimmed.
      * @param string $value Will be trimmed.
      */
-    public function appendValueToHeader(string $name, string $value): self
+    final public function appendValueToHeader(string $name, string $value): self
     {
         $value = trim($value);
         $currentValue = $this->getHeader($name);

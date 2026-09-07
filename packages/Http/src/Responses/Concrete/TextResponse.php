@@ -12,7 +12,7 @@ use Velo\Http\Responses\Response;
  *
  * Defaults to 'text/plain; charset=utf-8' unless another Content-Type is provided in $headers in the constructor.
  */
-class TextResponse extends Response
+final class TextResponse extends Response
 {
     /**
      * @param array<string, string> $headers Don't forget to pass the 'Content-Type' header if you want it to be different from 'text/plain; charset=utf-8',

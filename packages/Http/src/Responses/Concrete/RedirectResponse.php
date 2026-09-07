@@ -9,7 +9,7 @@ use Velo\Http\Responses\Response;
 /**
  * Represents a redirect HTTP response.
  */
-class RedirectResponse extends Response
+final class RedirectResponse extends Response
 {
     /**
      * @param array<string, string> $headers

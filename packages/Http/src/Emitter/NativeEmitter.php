@@ -5,7 +5,7 @@ namespace Velo\Http\Emitter;
 
 use Velo\Http\Emitter\Interfaces\EmitterInterface;
 
-class NativeEmitter implements EmitterInterface
+final class NativeEmitter implements EmitterInterface
 {
     public function sendHeader(string $name, string $value): self
     {

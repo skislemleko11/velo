@@ -217,7 +217,8 @@ final class ErrorResponseFormatterTest extends TestCase
 
         $formatter->expects($this->once())
             ->method('formatPlainText')
-            ->with($exception);
+            ->with($exception)
+            ->willReturn(new TextResponse('a'));
 
         $this->pathResolver
             ->expects($this->once())

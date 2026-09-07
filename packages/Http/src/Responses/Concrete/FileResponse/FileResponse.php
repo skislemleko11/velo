@@ -10,7 +10,7 @@ use Velo\Http\Responses\Response;
 /**
  * Represents an HTTP response containing the content of the provided file.
  */
-class FileResponse extends Response
+final class FileResponse extends Response
 {
     /**
      * @param array<string, string> $headers

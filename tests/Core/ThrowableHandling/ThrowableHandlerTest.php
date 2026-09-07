@@ -68,7 +68,7 @@ final class ThrowableHandlerTest extends TestCase
             __LINE__
         );
 
-        $response = self::createStub(JsonResponse::class);
+        $response = new JsonResponse('');
 
         $this->loggerMock
             ->expects($this->once())
@@ -113,7 +113,7 @@ final class ThrowableHandlerTest extends TestCase
             }
         };
 
-        $response = self::createStub(JsonResponse::class);
+        $response = new JsonResponse('');
 
         $this->loggerMock
             ->expects($this->once())
@@ -158,7 +158,7 @@ final class ThrowableHandlerTest extends TestCase
             }
         };
 
-        $response = self::createStub(JsonResponse::class);
+        $response = new JsonResponse('');
 
         $this->loggerMock
             ->expects($this->never())
@@ -187,7 +187,7 @@ final class ThrowableHandlerTest extends TestCase
     {
         $exception = new Exception('something went wrong');
 
-        $response = self::createStub(JsonResponse::class);
+        $response = new JsonResponse('');
 
         $this->loggerMock
             ->expects($this->once())
@@ -232,7 +232,7 @@ final class ThrowableHandlerTest extends TestCase
             }
         };
 
-        $response = self::createStub(JsonResponse::class);
+        $response = new JsonResponse('');
 
         $this->loggerMock
             ->expects($this->never())
@@ -269,7 +269,7 @@ final class ThrowableHandlerTest extends TestCase
         $_SERVER['HTTP_ACCEPT'] = 'text/html';
 
         $exception = new Exception('boom');
-        $response = self::createStub(ViewResponse::class);
+        $response = new ViewResponse('');
 
         $this->errorResponseFormatterMock
             ->expects($this->once())
@@ -299,7 +299,7 @@ final class ThrowableHandlerTest extends TestCase
         $_SERVER['HTTP_ACCEPT'] = 'text/plain';
 
         $exception = new Exception('boom');
-        $response = self::createStub(TextResponse::class);
+        $response = new TextResponse('a');
 
         $this->errorResponseFormatterMock
             ->expects($this->once())
@@ -327,7 +327,7 @@ final class ThrowableHandlerTest extends TestCase
     public function it_formats_json_response_by_default(): void
     {
         $exception = new Exception('boom');
-        $response = self::createStub(JsonResponse::class);
+        $response = new JsonResponse('');
 
         $this->errorResponseFormatterMock
             ->expects($this->once())

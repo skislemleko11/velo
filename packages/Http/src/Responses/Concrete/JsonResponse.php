@@ -10,7 +10,7 @@ use Velo\Http\Responses\Response;
 /**
  * Represents an HTTP response containing JSON content.
  */
-class JsonResponse extends Response
+final class JsonResponse extends Response
 {
     /**
      * @param array<string, string> $headers

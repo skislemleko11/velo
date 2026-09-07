@@ -13,7 +13,7 @@ use Velo\View\ViewResolver\Exceptions\ViewNotFoundException;
 /**
  * Represents an HTTP response containing the content of the provided view file.
  */
-class ViewResponse extends Response
+final class ViewResponse extends Response
 {
     /**
      * @param string $relativeToViewsDirFilePath Must be a relative path to 'views' directory from PathResolver.

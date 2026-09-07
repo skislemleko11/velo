@@ -9,7 +9,7 @@ use Velo\Http\Responses\Response;
 /**
  * Represents an HTTP response containing no content.
  */
-class NoContentResponse extends Response
+final class NoContentResponse extends Response
 {
     /**
      * @param array<string, string> $headers
