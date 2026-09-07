@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Velo\Tests\Middlewares\Cors;
 
+use Exception;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -10,8 +11,9 @@ use Velo\Http\Request;
 use Velo\Http\RequestMethod;
 use Velo\Http\Responses\Concrete\NoContentResponse;
 use Velo\Http\Responses\Response;
-use Velo\Middlewares\Cors\CorsConfig\CorsConfig;
+use Velo\Middlewares\Cors\CorsConfig;
 use Velo\Middlewares\Cors\CorsMiddleware;
+use Velo\Middlewares\Cors\Exceptions\CorsResponseActionException;
 
 final class CorsMiddlewareTest extends TestCase
 {
@@ -492,6 +494,31 @@ final class CorsMiddlewareTest extends TestCase
         );
 
         self::assertSame(403, $result->statusCode);
+    }
+
+    #[Test]
+    public function it_puts_got_Throwable_and_CorsResponseProcessor_into_CorsResponseActionException_and_throws_it(): void
+    {
+        $request = $this->createRequest(
+            RequestMethod::GET,
+            [
+                'Origin' => 'a',
+            ]
+        );
+
+        $thrownException = new Exception();
+
+        $this->expectException(CorsResponseActionException::class);
+
+        $this->middleware->handle(
+            $request,
+            function () use ($thrownException) {
+                throw $thrownException;
+            },
+            new CorsConfig(
+                allowedOrigins: ['a'],
+            ),
+        );
     }
 
     /**

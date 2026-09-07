@@ -3,45 +3,81 @@ declare(strict_types=1);
 
 namespace Velo\Middlewares\Cors;
 
+use Throwable;
 use Velo\Http\Request;
 use Velo\Http\RequestMethod;
 use Velo\Http\Responses\Concrete\NoContentResponse;
 use Velo\Http\Responses\Response;
-use Velo\Middlewares\Cors\CorsConfig\CorsConfig;
+use Velo\Middlewares\Cors\Exceptions\CorsResponseActionException;
+use Velo\Middlewares\Cors\Headers\CorsRequestHeaderName;
 use Velo\Router\Middlewares\MiddlewareInterface;
 
 final class CorsMiddleware implements MiddlewareInterface
 {
+    /**
+     * @throws CorsResponseActionException
+     */
     public function handle(
         Request    $request,
         callable   $next,
-        CorsConfig $config = new CorsConfig(),
+        CorsConfig $config = new CorsConfig()
     ): Response
     {
-        $origin = $request->getHeader(CorsRequestHeaderName::ORIGIN->value);
         $requestedMethod = $request->getHeader(CorsRequestHeaderName::REQUEST_METHOD->value);
 
-        if (!$this->isPreflight($request, $origin, $requestedMethod)) {
+        if (!$this->isPreflight($request, $requestedMethod)) {
+            return $this->handleNonPreflightRequestOrWrapThrowable($request, $next, $config);
+        }
+
+        if ($this->isPreflightRequestAllowed($config, $request)) {
+            return new CorsResponseProcessor($config, $this->getRequestOrigin($request))
+                ->buildPreflightResponse();
+        }
+
+        return new NoContentResponse(403);
+    }
+
+    private function getRequestOrigin(Request $request): string|null
+    {
+        return $request->getHeader(CorsRequestHeaderName::ORIGIN->value);
+    }
+
+    private function isPreflight(Request $request, ?string $requestedMethod): bool
+    {
+        $origin = $this->getRequestOrigin($request);
+
+        return $request->method === RequestMethod::OPTIONS && $origin !== null && $requestedMethod !== null;
+    }
+
+    /**
+     * @throws CorsResponseActionException
+     */
+    private function handleNonPreflightRequestOrWrapThrowable(
+        Request    $request,
+        callable   $next,
+        CorsConfig $config
+    ): Response
+    {
+        $origin = $this->getRequestOrigin($request);
+
+        try {
             $response = $next($request);
 
             if (
-                $this->isMethodAllowed($request->method, $config->allowedMethods) &&
-                $this->isOriginAllowed($origin, $config)
+                $this->isOriginAllowed($origin, $config) &&
+                $this->isMethodAllowed($request->method, $config->allowedMethods)
             ) {
                 new CorsResponseProcessor($config, $origin)
                     ->addCorsHeaders($response);
             }
 
             return $response;
+        } catch (Throwable $throwable) {
+            throw new CorsResponseActionException(
+                new CorsResponseProcessor($config, $origin),
+                $throwable
+            );
         }
-
-
-        if ($this->isPreflightRequestAllowed($config, $request)) {
-            return new CorsResponseProcessor($config, $origin)
-                ->buildPreflightResponse();
-        }
-
-        return new NoContentResponse(403);
     }
 
     private function isOriginAllowed(?string $origin, CorsConfig $config): bool
@@ -50,9 +86,12 @@ final class CorsMiddleware implements MiddlewareInterface
             ($config->allowAllOrigins || in_array($origin, $config->allowedOrigins, true));
     }
 
-    private function isPreflight(Request $request, ?string $origin, ?string $requestedMethod): bool
+    /**
+     * @param list<RequestMethod> $allowedMethods
+     */
+    private function isMethodAllowed(RequestMethod $method, array $allowedMethods): bool
     {
-        return $request->method === RequestMethod::OPTIONS && $origin !== null && $requestedMethod !== null;
+        return in_array($method, $allowedMethods, true);
     }
 
     private function isPreflightRequestAllowed(CorsConfig $config, Request $request): bool
@@ -65,7 +104,9 @@ final class CorsMiddleware implements MiddlewareInterface
             return false;
         }
 
-        if (!$this->isOriginAllowed($request->getHeader(CorsRequestHeaderName::ORIGIN->value), $config) ||
+        $origin = $this->getRequestOrigin($request);
+
+        if (!$this->isOriginAllowed($origin, $config) ||
             !$this->isMethodAllowed($requestedMethod, $config->allowedMethods)
         ) {
             return false;
@@ -76,14 +117,6 @@ final class CorsMiddleware implements MiddlewareInterface
         );
 
         return $this->areHeadersAllowed($requestedHeaders, $config);
-    }
-
-    /**
-     * @param list<RequestMethod> $allowedMethods
-     */
-    private function isMethodAllowed(RequestMethod $method, array $allowedMethods): bool
-    {
-        return in_array($method, $allowedMethods, true);
     }
 
     /**

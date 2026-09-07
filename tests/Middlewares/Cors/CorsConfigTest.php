@@ -5,8 +5,8 @@ namespace Velo\Tests\Middlewares\Cors;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Velo\Middlewares\Cors\CorsConfig\CorsConfig;
-use Velo\Middlewares\Cors\CorsConfig\Exceptions\InvalidConfigurationException;
+use Velo\Middlewares\Cors\CorsConfig;
+use Velo\Middlewares\Cors\Exceptions\InvalidConfigurationException;
 
 final class CorsConfigTest extends TestCase
 {

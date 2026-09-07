@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Middlewares\Cors;
+namespace Velo\Middlewares\Cors\Headers;
 
 enum CorsRequestHeaderName: string
 {

@@ -188,7 +188,7 @@ final class ErrorResponseFormatterTest extends TestCase
         $this->pathResolver
             ->expects($this->once())
             ->method('resolveErrorFilePath')
-            ->with('403')
+            ->with(403)
             ->willReturn('/views/error403.php');
 
         $response = $this->formatter->formatView($exception);

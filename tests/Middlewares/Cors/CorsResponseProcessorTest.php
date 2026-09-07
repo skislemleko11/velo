@@ -8,10 +8,10 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Velo\Http\RequestMethod;
 use Velo\Http\Responses\Concrete\NoContentResponse;
-use Velo\Middlewares\Cors\CorsConfig\CorsConfig;
-use Velo\Middlewares\Cors\CorsRequestHeaderName;
-use Velo\Middlewares\Cors\CorsResponseHeaderName;
+use Velo\Middlewares\Cors\CorsConfig;
 use Velo\Middlewares\Cors\CorsResponseProcessor;
+use Velo\Middlewares\Cors\Headers\CorsRequestHeaderName;
+use Velo\Middlewares\Cors\Headers\CorsResponseHeaderName;
 
 final class CorsResponseProcessorTest extends TestCase
 {

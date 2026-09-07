@@ -5,7 +5,8 @@ namespace Velo\Middlewares\Cors;
 
 use Velo\Http\Responses\Concrete\NoContentResponse;
 use Velo\Http\Responses\Response;
-use Velo\Middlewares\Cors\CorsConfig\CorsConfig;
+use Velo\Middlewares\Cors\Headers\CorsRequestHeaderName;
+use Velo\Middlewares\Cors\Headers\CorsResponseHeaderName;
 
 final readonly class CorsResponseProcessor
 {

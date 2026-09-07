@@ -18,6 +18,8 @@ use Velo\Http\ResponseRenderer;
 use Velo\Http\Responses\Concrete\JsonResponse;
 use Velo\Http\Responses\Concrete\TextResponse;
 use Velo\Http\Responses\Concrete\ViewResponse;
+use Velo\Http\Responses\Response;
+use Velo\Middlewares\Exceptions\ThrowableResponseActionException;
 
 #[AllowMockObjectsWithoutExpectations]
 final class ThrowableHandlerTest extends TestCase
@@ -26,6 +28,7 @@ final class ThrowableHandlerTest extends TestCase
     private LoggerInterface&MockObject $loggerMock;
     private ResponseRenderer&MockObject $responseRendererMock;
     private ErrorResponseFormatter&MockObject $errorResponseFormatterMock;
+    private ThrowableHandler $handler;
 
     protected function setUp(): void
     {
@@ -34,6 +37,11 @@ final class ThrowableHandlerTest extends TestCase
         $this->loggerMock = $this->createMock(LoggerInterface::class);
         $this->responseRendererMock = $this->createMock(ResponseRenderer::class);
         $this->errorResponseFormatterMock = $this->createMock(ErrorResponseFormatter::class);
+        $this->handler = new ThrowableHandler(
+            $this->loggerMock,
+            $this->responseRendererMock,
+            $this->errorResponseFormatterMock
+        );
 
         unset($_SERVER['HTTP_ACCEPT']);
     }
@@ -82,13 +90,7 @@ final class ThrowableHandlerTest extends TestCase
             ->method('render')
             ->with(self::identicalTo($response));
 
-        $handler = new ThrowableHandler(
-            $this->loggerMock,
-            $this->responseRendererMock,
-            $this->errorResponseFormatterMock
-        );
-
-        $handler->handleThrowable($exception);
+        $this->handler->handleThrowable($exception);
     }
 
     #[Test]
@@ -133,13 +135,7 @@ final class ThrowableHandlerTest extends TestCase
             ->method('render')
             ->with(self::identicalTo($response));
 
-        $handler = new ThrowableHandler(
-            $this->loggerMock,
-            $this->responseRendererMock,
-            $this->errorResponseFormatterMock
-        );
-
-        $handler->handleThrowable($exception);
+        $this->handler->handleThrowable($exception);
     }
 
     #[Test]
@@ -183,13 +179,7 @@ final class ThrowableHandlerTest extends TestCase
             ->method('render')
             ->with(self::identicalTo($response));
 
-        $handler = new ThrowableHandler(
-            $this->loggerMock,
-            $this->responseRendererMock,
-            $this->errorResponseFormatterMock
-        );
-
-        $handler->handleThrowable($exception);
+        $this->handler->handleThrowable($exception);
     }
 
     #[Test]
@@ -219,13 +209,58 @@ final class ThrowableHandlerTest extends TestCase
             ->method('render')
             ->with(self::identicalTo($response));
 
-        $handler = new ThrowableHandler(
-            $this->loggerMock,
-            $this->responseRendererMock,
-            $this->errorResponseFormatterMock
-        );
+        $this->handler->handleThrowable($exception);
+    }
 
-        $handler->handleThrowable($exception);
+    #[Test]
+    public function it_uses_the_wrapped_throwable_for_logging_semantics_when_action_wrappers_are_present(): void
+    {
+        $exception = new class('not found') extends Exception implements HttpResponseExceptionInterface {
+            public function getStatusCode(): int
+            {
+                return 404;
+            }
+
+            public function shouldLogException(): bool
+            {
+                return false;
+            }
+
+            public function getPublicMessage(): string
+            {
+                return 'hehe';
+            }
+        };
+
+        $response = self::createStub(JsonResponse::class);
+
+        $this->loggerMock
+            ->expects($this->never())
+            ->method('error');
+
+        $this->loggerMock
+            ->expects($this->never())
+            ->method('critical');
+
+        $this->errorResponseFormatterMock
+            ->expects($this->once())
+            ->method('formatJson')
+            ->with(self::identicalTo($exception))
+            ->willReturn($response);
+
+        $this->responseRendererMock
+            ->expects($this->once())
+            ->method('render')
+            ->with(self::identicalTo($response));
+
+        $actionException = new class($exception) extends ThrowableResponseActionException {
+            protected function executeAction(Response $response): Response
+            {
+                return $response;
+            }
+        };
+
+        $this->handler->handleThrowable($actionException);
     }
 
     #[Test]
@@ -255,13 +290,7 @@ final class ThrowableHandlerTest extends TestCase
             ->method('render')
             ->with(self::identicalTo($response));
 
-        $handler = new ThrowableHandler(
-            $this->loggerMock,
-            $this->responseRendererMock,
-            $this->errorResponseFormatterMock
-        );
-
-        $handler->handleThrowable($exception);
+        $this->handler->handleThrowable($exception);
     }
 
     #[Test]
@@ -291,20 +320,12 @@ final class ThrowableHandlerTest extends TestCase
             ->method('render')
             ->with(self::identicalTo($response));
 
-        $handler = new ThrowableHandler(
-            $this->loggerMock,
-            $this->responseRendererMock,
-            $this->errorResponseFormatterMock
-        );
-
-        $handler->handleThrowable($exception);
+        $this->handler->handleThrowable($exception);
     }
 
     #[Test]
     public function it_formats_json_response_by_default(): void
     {
-        unset($_SERVER['HTTP_ACCEPT']);
-
         $exception = new Exception('boom');
         $response = self::createStub(JsonResponse::class);
 
@@ -327,27 +348,15 @@ final class ThrowableHandlerTest extends TestCase
             ->method('render')
             ->with(self::identicalTo($response));
 
-        $handler = new ThrowableHandler(
-            $this->loggerMock,
-            $this->responseRendererMock,
-            $this->errorResponseFormatterMock
-        );
-
-        $handler->handleThrowable($exception);
+        $this->handler->handleThrowable($exception);
     }
 
     #[Test]
     public function it_returns_false_when_error_reporting_is_disabled(): void
     {
-        $handler = new ThrowableHandler(
-            $this->loggerMock,
-            $this->responseRendererMock,
-            $this->errorResponseFormatterMock
-        );
-
         error_reporting(0);
 
-        $result = $handler->throwErrorException(
+        $result = $this->handler->throwErrorException(
             E_USER_NOTICE,
             'msg',
             __FILE__,
@@ -360,18 +369,12 @@ final class ThrowableHandlerTest extends TestCase
     #[Test]
     public function it_throws_ErrorException_when_error_reporting_is_enabled(): void
     {
-        $handler = new ThrowableHandler(
-            $this->loggerMock,
-            $this->responseRendererMock,
-            $this->errorResponseFormatterMock
-        );
-
         error_reporting(E_ALL);
 
         $this->expectException(ErrorException::class);
         $this->expectExceptionMessageIs('msg');
 
-        $handler->throwErrorException(
+        $this->handler->throwErrorException(
             E_USER_NOTICE,
             'msg',
             __FILE__,
@@ -382,18 +385,44 @@ final class ThrowableHandlerTest extends TestCase
     #[Test]
     public function it_sets_exception_and_error_global_handler_to_its_methods(): void
     {
-        $handler = new ThrowableHandler(
-            $this->loggerMock,
-            $this->responseRendererMock,
-            $this->errorResponseFormatterMock
-        );
+        $previousExceptionHandler = get_exception_handler();
+        $previousErrorHandler = get_error_handler();
 
-        $handler->setAsGlobalExceptionAndErrorHandler();
+        $this->handler->setAsGlobalExceptionAndErrorHandler();
 
-        self::assertEquals([$handler, 'handleThrowable'], get_exception_handler());
-        self::assertEquals([$handler, 'throwErrorException'], get_error_handler());
+        self::assertEquals([$this->handler, 'handleThrowable'], get_exception_handler());
+        self::assertEquals([$this->handler, 'throwErrorException'], get_error_handler());
 
-        set_exception_handler(null);
-        set_error_handler(null);
+        set_exception_handler($previousExceptionHandler);
+        set_error_handler($previousErrorHandler);
+    }
+
+    #[Test]
+    public function it_applies_throwables_actions_to_created_responses(): void
+    {
+        $_SERVER['HTTP_ACCEPT'] = 'text/plain';
+
+        $baseException = new Exception();
+        $response = new TextResponse('hehe');
+
+        $this->errorResponseFormatterMock->expects($this->once())
+            ->method('formatPlainText')
+            ->with(self::identicalTo($baseException))
+            ->willReturn($response);
+
+        $this->responseRendererMock->expects($this->once())
+            ->method('render')
+            ->with(self::identicalTo($response));
+
+        $actionException = new class($baseException) extends ThrowableResponseActionException {
+            protected function executeAction(Response $response): Response
+            {
+                return $response->setHeader('a', 'a');
+            }
+        };
+
+        $this->handler->handleThrowable($actionException);
+
+        self::assertSame('a', $response->getHeader('a'));
     }
 }

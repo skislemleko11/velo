@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Middlewares\Cors\CorsConfig;
+namespace Velo\Middlewares\Cors;
 
 use Velo\Http\RequestMethod;
-use Velo\Middlewares\Cors\CorsConfig\Exceptions\InvalidConfigurationException;
+use Velo\Middlewares\Cors\Exceptions\InvalidConfigurationException;
 
 final readonly class CorsConfig
 {
