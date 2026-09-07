@@ -12,7 +12,7 @@ use Velo\Router\Middlewares\MiddlewareInterface;
 /**
  * Logs Requests.
  */
-readonly class RequestLoggerMiddleware implements MiddlewareInterface
+final readonly class RequestLoggerMiddleware implements MiddlewareInterface
 {
     /**
      * @param Closure|null $customLogFunction Should take a request.

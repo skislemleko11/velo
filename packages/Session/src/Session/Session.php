@@ -8,7 +8,7 @@ use Velo\Session\Session\Interfaces\SessionInterface;
 /**
  * Native PHP session implementation.
  */
-class Session implements SessionInterface
+final class Session implements SessionInterface
 {
     /**
      * Session key used to store all the flash data.

@@ -16,7 +16,7 @@ use Velo\Session\Session\Interfaces\SessionInterface;
  * Authentication is handled with session-based User IDs.
  * User ID is stored in $_SESSION['user_id'].
  */
-readonly class WebGuestMiddleware implements MiddlewareInterface
+final readonly class WebGuestMiddleware implements MiddlewareInterface
 {
     /**
      * @param Closure|null $customResponseHandler Closure should take 2 arguments - Request request and string redirectUrl.

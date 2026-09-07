@@ -21,7 +21,7 @@ use Velo\Http\Responses\Concrete\JsonResponse;
  * Anti CSRF token is stored in $_SESSION['csrf_token'].
  * The token in the POST form should be called 'csrf_token'.
  */
-readonly class AntiCsrfMiddleware implements MiddlewareInterface
+final readonly class AntiCsrfMiddleware implements MiddlewareInterface
 {
     private const string CSRF_TOKEN_NAME = 'csrf_token';
 

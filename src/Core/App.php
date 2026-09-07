@@ -26,7 +26,7 @@ use Velo\Router\Router\Router;
 /**
  * Runs the application.
  */
-class App
+final class App
 {
     use AddMiddlewaresTrait {
         addMiddleware as addGlobalMiddleware;
