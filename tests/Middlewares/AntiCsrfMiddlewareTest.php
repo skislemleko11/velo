@@ -12,7 +12,6 @@ use Velo\FileSystem\PathResolver\PathResolver;
 use Velo\Http\Request;
 use Velo\Http\Responses\Concrete\ViewResponse;
 use Velo\Middlewares\AntiCsrfMiddleware;
-use Velo\Middlewares\Exceptions\InvalidRequestMethodMiddlewareExceptionInterface;
 use Velo\Session\Session\Interfaces\SessionInterface;
 use Velo\Session\Session\Session;
 use Velo\Http\RequestMethod;
@@ -55,13 +54,6 @@ final class AntiCsrfMiddlewareTest extends TestCase
         $reflection = new ReflectionClass($response);
 
         return $reflection->getProperty('relativeToViewsDirFilePath')->getValue($response);
-    }
-
-    #[Test]
-    public function it_throws_exception_with_GET_method(): void
-    {
-        $this->expectException(InvalidRequestMethodMiddlewareExceptionInterface::class);
-        $this->middleware->handle(new Request('/hehe', RequestMethod::GET), fn() => new ViewResponse('hehe'));
     }
 
     #[Test]

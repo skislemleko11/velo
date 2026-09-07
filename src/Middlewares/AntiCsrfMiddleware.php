@@ -9,10 +9,8 @@ use Velo\FileSystem\PathResolver\Exceptions\PathNotFoundException;
 use Velo\FileSystem\PathResolver\PathResolver;
 use Velo\Http\Request;
 use Velo\Http\Responses\Concrete\ViewResponse;
-use Velo\Middlewares\Exceptions\InvalidRequestMethodMiddlewareExceptionInterface;
 use Velo\Router\Middlewares\MiddlewareInterface;
 use Velo\Session\Session\Interfaces\SessionInterface;
-use Velo\Http\RequestMethod;
 use Velo\Http\Responses\Response;
 use Velo\Http\Responses\Concrete\JsonResponse;
 
@@ -41,22 +39,14 @@ readonly class AntiCsrfMiddleware implements MiddlewareInterface
     /**
      * Handles the given Request.
      *
-     * You cannot use it with GET method, it will result in InvalidRequestMethodMiddlewareException.
      * If the CSRF token is invalid, it will be regenerated and the result of getInvalidTokenResponse(request) will be returned.
      * If the CSRF token is valid, the request will be passed to the next middleware.
      *
      * @throws PathNotFoundException
      * @throws RandomException
-     * @throws InvalidRequestMethodMiddlewareExceptionInterface
      */
     public function handle(Request $request, callable $next): Response
     {
-        if ($request->method === RequestMethod::GET) {
-            throw new InvalidRequestMethodMiddlewareExceptionInterface(
-                'Cannot use ' . self::class . ' with GET method!',
-            );
-        }
-
         $sessionToken = (string)$this->session->get(self::CSRF_TOKEN_NAME);
         $requestToken = (string)$request->getPostArg(self::CSRF_TOKEN_NAME);
 
