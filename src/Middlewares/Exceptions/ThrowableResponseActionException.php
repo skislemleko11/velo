@@ -6,8 +6,12 @@ namespace Velo\Middlewares\Exceptions;
 use Throwable;
 use Exception;
 use Velo\Http\Responses\Response;
+use Velo\Middlewares\Exceptions\Interfaces\MiddlewareExceptionInterface;
 
-abstract class ThrowableResponseActionException extends Exception
+/**
+ * Base exception class allowing to modify the final Response after it's created in ThrowableHandler.
+ */
+abstract class ThrowableResponseActionException extends Exception implements MiddlewareExceptionInterface
 {
     public function __construct(
         private readonly Throwable $baseThrowable
@@ -16,6 +20,9 @@ abstract class ThrowableResponseActionException extends Exception
         parent::__construct();
     }
 
+    /**
+     * Executes nested actions if there are any, and then the current action.
+     */
     final public function execute(Response $response): Response
     {
         if ($this->baseThrowable instanceof ThrowableResponseActionException) {
@@ -25,6 +32,10 @@ abstract class ThrowableResponseActionException extends Exception
         return $this->executeAction($response);
     }
 
+    /**
+     * Implement this method to provide the action, it should return the modified Response,
+     * but it can just change the given one and return it ofc.
+     */
     abstract protected function executeAction(Response $response): Response;
 
     final public function getBaseThrowable(): Throwable
