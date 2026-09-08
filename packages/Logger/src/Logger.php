@@ -11,7 +11,7 @@ use Velo\Logger\Interfaces\LogFormatter;
 /**
  * Basic Logger following Psr\Log\LoggerInterface.
  */
-class Logger extends AbstractLogger
+final class Logger extends AbstractLogger
 {
     public function __construct(
         private readonly string       $logFilePath,

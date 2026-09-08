@@ -13,7 +13,7 @@ use Velo\Logger\Interfaces\LogFormatter;
  *
  * You can extend it to change FORMAT or THROWABLE_FORMAT consts.
  */
-class LogTextFormatter implements LogFormatter
+final class NativeLogTextFormatter implements LogFormatter
 {
     protected const string FORMAT = "[%datetime%] [%level%] %message%\n%context%\n";
     protected const string THROWABLE_FORMAT = "--- Stack Trace: %s: %s in %s:%d\n%s";

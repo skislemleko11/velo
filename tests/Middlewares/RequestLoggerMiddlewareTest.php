@@ -5,20 +5,20 @@ namespace Velo\Tests\Middlewares;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
+use Psr\Log\LoggerInterface;
 use Velo\Http\Request;
 use Velo\Http\Responses\Concrete\ViewResponse;
-use Velo\Logger\Logger;
 use Velo\Middlewares\RequestLoggerMiddleware;
 use PHPUnit\Framework\TestCase;
 use Velo\Http\RequestMethod;
 
 final class RequestLoggerMiddlewareTest extends TestCase
 {
-    private Logger&MockObject $logger;
+    private LoggerInterface&MockObject $logger;
 
     protected function setUp(): void
     {
-        $this->logger = $this->createMock(Logger::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
     }
 
     #[Test]
@@ -35,7 +35,7 @@ final class RequestLoggerMiddlewareTest extends TestCase
 
         $wasCalledNext = 0;
         $httpResponse = new ViewResponse('hehe');
-        $next = function (Request $request) use (&$wasCalledNext, $httpResponse) {
+        $next = function () use (&$wasCalledNext, $httpResponse) {
             $wasCalledNext++;
             return $httpResponse;
         };
@@ -54,7 +54,7 @@ final class RequestLoggerMiddlewareTest extends TestCase
 
         $wasCalledNext = 0;
         $httpResponse = new ViewResponse('hehe');
-        $next = function (Request $request) use (&$wasCalledNext, $httpResponse) {
+        $next = function () use (&$wasCalledNext, $httpResponse) {
             $wasCalledNext++;
             return $httpResponse;
         };

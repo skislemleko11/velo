@@ -13,29 +13,33 @@ use Psr\Log\LogLevel;
 use stdClass;
 use Velo\Logger\Interfaces\LogFormatter;
 use Velo\Logger\Logger;
-use Velo\Logger\LogTextFormatter;
 use InvalidArgumentException;
 
 #[AllowMockObjectsWithoutExpectations]
 final class LoggerTest extends TestCase
 {
-    private Logger&MockObject $loggerMock;
     private LogFormatter&MockObject $logFormatterMock;
-    private const string LOG_PATH = 'testfile.log';
+    private string $logPath;
 
     protected function setUp(): void
     {
-        $this->logFormatterMock = $this->createMock(LogTextFormatter::class);
-        $this->loggerMock = $this->getMockBuilder(Logger::class)
-            ->setConstructorArgs([self::LOG_PATH, $this->logFormatterMock])
-            ->onlyMethods(['write'])
-            ->getMock();
+        $this->logFormatterMock = $this->createMock(LogFormatter::class);
+        $this->logPath = sys_get_temp_dir() . '/velo_logger_test_' . uniqid('', true) . '.log';
+    }
+
+    protected function tearDown(): void
+    {
+        if (file_exists($this->logPath)) {
+            unlink($this->logPath);
+        }
     }
 
     #[Test]
     public function it_takes_string_log_level(): void
     {
-        $this->loggerMock->log('a', 'Test message');
+        $logger = new Logger($this->logPath, $this->logFormatterMock);
+
+        $logger->log('a', 'Test message');
 
         $this->expectNotToPerformAssertions();
     }
@@ -43,18 +47,22 @@ final class LoggerTest extends TestCase
     #[Test]
     public function it_takes_stringable_log_level(): void
     {
-        $this->loggerMock->log(new Exception('hehe'), 'Test message');
+        $logger = new Logger($this->logPath, $this->logFormatterMock);
+
+        $logger->log(new Exception('hehe'), 'Test message');
 
         $this->expectNotToPerformAssertions();
     }
 
     #[Test]
     #[DataProvider('invalidLogLevelsTestCases')]
-    public function it_throws_excetion_when_log_level_is_invalid(mixed $val): void
+    public function it_throws_exception_when_log_level_is_invalid(mixed $val): void
     {
+        $logger = new Logger($this->logPath, $this->logFormatterMock);
+
         $this->expectException(InvalidArgumentException::class);
 
-        $this->loggerMock->log($val, 'Test message');
+        $logger->log($val, 'Test message');
     }
 
     /**
@@ -72,23 +80,18 @@ final class LoggerTest extends TestCase
     }
 
     #[Test]
-    public function it_formats_log_message(): void
+    public function it_formats_and_writes_log_message(): void
     {
+        $logger = new Logger($this->logPath, $this->logFormatterMock);
+
         $this->logFormatterMock->expects($this->once())
             ->method('format')
             ->with('info', 'Test message', [])
             ->willReturn('Formatted message');
 
-        $this->loggerMock->log('info', 'Test message');
-    }
+        $logger->log('info', 'Test message');
 
-    #[Test]
-    public function it_writes_log_message(): void
-    {
-        $this->loggerMock->expects($this->once())
-            ->method('write');
-
-        $this->loggerMock->log('info', 'Test message');
+        self::assertStringEqualsFile($this->logPath, 'Formatted message');
     }
 
     #[Test]
@@ -98,15 +101,12 @@ final class LoggerTest extends TestCase
         $message = 'Test message';
         $context = ['hehe'];
 
-        $logger = $this->getMockBuilder(Logger::class)
-            ->setConstructorArgs([self::LOG_PATH, $this->logFormatterMock])
-            ->onlyMethods(['log'])
-            ->getMock();
+        $this->logFormatterMock->expects($this->once())
+            ->method('format')
+            ->with($logLevel, $message, $context)
+            ->willReturn('Formatted message');
 
-        $logger->expects($this->once())
-            ->method('log')
-            ->with($logLevel, $message, $context);
-
+        $logger = new Logger($this->logPath, $this->logFormatterMock);
         $logger->$methodName($message, $context);
     }
 

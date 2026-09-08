@@ -7,15 +7,15 @@ use Exception;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use stdClass;
-use Velo\Logger\LogTextFormatter;
+use Velo\Logger\NativeLogTextFormatter;
 
 final class LogTextFormatterTest extends TestCase
 {
-    private LogTextFormatter $formatter;
+    private NativeLogTextFormatter $formatter;
 
     protected function setUp(): void
     {
-        $this->formatter = new LogTextFormatter();
+        $this->formatter = new NativeLogTextFormatter();
     }
 
     #[Test]
