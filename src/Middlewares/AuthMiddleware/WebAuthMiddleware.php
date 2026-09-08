@@ -17,7 +17,7 @@ use Velo\Http\RedirectUrl;
  * Authentication is handled with session-based User IDs.
  * User ID is stored in $_SESSION['user_id'].
  */
-readonly class WebAuthMiddleware implements MiddlewareInterface
+final readonly class WebAuthMiddleware implements MiddlewareInterface
 {
     /**
      * @param Closure|null $customResponseHandler Closure should take 2 arguments - Request request and string redirectUrl.

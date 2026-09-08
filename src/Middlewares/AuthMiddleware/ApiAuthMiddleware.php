@@ -16,7 +16,7 @@ use Velo\Session\Session\Interfaces\SessionInterface;
  * Authentication is handled with session-based User IDs.
  * User ID is stored in $_SESSION['user_id'].
  */
-readonly class ApiAuthMiddleware implements MiddlewareInterface
+final readonly class ApiAuthMiddleware implements MiddlewareInterface
 {
     /**
      * @param Closure|null $customResponseHandler Closure should take 2 arguments - Request request and array response.
