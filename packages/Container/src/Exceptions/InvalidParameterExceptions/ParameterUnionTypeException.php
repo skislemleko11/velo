@@ -6,7 +6,7 @@ namespace Velo\Container\Exceptions\InvalidParameterExceptions;
 use Exception;
 use Velo\Container\Exceptions\InvalidParameterExceptions\Interfaces\InvalidParameterExceptionInterface;
 
-class ParameterUnionTypeException extends Exception implements InvalidParameterExceptionInterface
+final class ParameterUnionTypeException extends Exception implements InvalidParameterExceptionInterface
 {
     protected $message = 'Parameter cannot be of a union type!';
 }
