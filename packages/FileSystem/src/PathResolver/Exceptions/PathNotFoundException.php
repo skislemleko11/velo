@@ -9,7 +9,7 @@ use Velo\FileSystem\Exceptions\Interfaces\FileSystemExceptionInterface;
 /**
  * This Exception should be thrown when a Path in PathResolver was not found.
  */
-class PathNotFoundException extends Exception implements FileSystemExceptionInterface
+final class PathNotFoundException extends Exception implements FileSystemExceptionInterface
 {
     protected $message = 'The requested path not found!';
 }

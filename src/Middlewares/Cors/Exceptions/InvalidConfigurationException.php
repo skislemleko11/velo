@@ -7,7 +7,7 @@ use Exception;
 use Velo\Middlewares\Cors\CorsConfig;
 use Velo\Middlewares\Exceptions\Interfaces\MiddlewareExceptionInterface;
 
-class InvalidConfigurationException extends Exception implements MiddlewareExceptionInterface
+final class InvalidConfigurationException extends Exception implements MiddlewareExceptionInterface
 {
     protected $message = 'Invalid configuration of ' . CorsConfig::class;
 }

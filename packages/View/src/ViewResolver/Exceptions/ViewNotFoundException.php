@@ -6,7 +6,7 @@ namespace Velo\View\ViewResolver\Exceptions;
 use Velo\Exceptions\NotFoundException;
 use Velo\View\Exceptions\Interfaces\ViewExceptionInterface;
 
-class ViewNotFoundException extends NotFoundException implements ViewExceptionInterface
+final class ViewNotFoundException extends NotFoundException implements ViewExceptionInterface
 {
     protected $message = 'The requested view file was not found!';
 
