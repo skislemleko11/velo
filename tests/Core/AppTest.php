@@ -21,10 +21,10 @@ use Velo\Http\RequestMethod;
 #[AllowMockObjectsWithoutExpectations]
 final class AppTest extends TestCase
 {
-    protected Router&MockObject $router;
-    protected Container&MockObject $container;
-    protected Pipeline $pipeline;
-    protected ResponseRenderer&MockObject $responseRenderer;
+    private Router&MockObject $router;
+    private Container&MockObject $container;
+    private Pipeline $pipeline;
+    private ResponseRenderer&MockObject $responseRenderer;
 
     protected function setUp(): void
     {
@@ -95,7 +95,7 @@ final class AppTest extends TestCase
 
         $middleware->expects($this->once())
             ->method('handle')
-            ->willReturnCallback(function (Request $req, callable $next) use ($expectedResponse) {
+            ->willReturnCallback(function () use ($expectedResponse) {
                 return $expectedResponse;
             });
 
