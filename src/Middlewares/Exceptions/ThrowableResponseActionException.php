@@ -10,6 +10,7 @@ use Velo\Middlewares\Exceptions\Interfaces\MiddlewareExceptionInterface;
 
 /**
  * Base exception class allowing to modify the final Response after it's created in ThrowableHandler.
+ * Basically a wrapper for the real exception, plus an action on the final Response.
  */
 abstract class ThrowableResponseActionException extends Exception implements MiddlewareExceptionInterface
 {

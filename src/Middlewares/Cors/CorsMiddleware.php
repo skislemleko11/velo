@@ -10,6 +10,11 @@ use Velo\Http\Responses\Response;
 use Velo\Middlewares\Cors\Exceptions\CorsResponseActionException;
 use Velo\Router\Middlewares\MiddlewareInterface;
 
+/**
+ * CORS middleware.
+ *
+ * IMPORTANT! Don't bind it to Routes with using a callable function, because it won't work for Preflight Requests!
+ */
 final class CorsMiddleware implements MiddlewareInterface
 {
     /**
@@ -57,6 +62,10 @@ final class CorsMiddleware implements MiddlewareInterface
 
             return $response;
         } catch (Throwable $throwable) {
+            if ($origin === null) {
+                throw $throwable;
+            }
+
             throw new CorsResponseActionException(
                 new CorsResponseProcessor($config, $origin),
                 $throwable

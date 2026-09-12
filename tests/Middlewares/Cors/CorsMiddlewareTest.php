@@ -7,7 +7,6 @@ use Exception;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Velo\Http\Request;
 use Velo\Http\RequestMethod;
 use Velo\Http\Responses\Concrete\NoContentResponse;
 use Velo\Http\Responses\Response;
@@ -32,7 +31,7 @@ final class CorsMiddlewareTest extends TestCase
     #[Test]
     public function it_adds_cors_headers_to_allowed_request(): void
     {
-        $request = $this->createRequest(
+        $request = CorsTestsUtils::createRequest(
             RequestMethod::GET,
             [
                 'Origin' => 'https://example.com',
@@ -67,7 +66,7 @@ final class CorsMiddlewareTest extends TestCase
     #[Test]
     public function it_does_not_add_cors_headers_when_origin_is_not_allowed(): void
     {
-        $request = $this->createRequest(
+        $request = CorsTestsUtils::createRequest(
             RequestMethod::GET,
             [
                 'Origin' => 'https://evil.example',
@@ -91,7 +90,7 @@ final class CorsMiddlewareTest extends TestCase
     #[Test]
     public function it_does_not_add_cors_headers_when_method_is_not_allowed(): void
     {
-        $request = $this->createRequest(
+        $request = CorsTestsUtils::createRequest(
             RequestMethod::POST,
             [
                 'Origin' => 'https://example.com',
@@ -115,7 +114,7 @@ final class CorsMiddlewareTest extends TestCase
     #[Test]
     public function it_adds_wildcard_cors_header_when_all_origins_are_allowed(): void
     {
-        $request = $this->createRequest(
+        $request = CorsTestsUtils::createRequest(
             RequestMethod::GET,
             [
                 'Origin' => 'https://example.com',
@@ -139,7 +138,7 @@ final class CorsMiddlewareTest extends TestCase
     #[Test]
     public function it_does_not_add_cors_headers_when_origin_header_is_missing(): void
     {
-        $request = $this->createRequest(RequestMethod::GET);
+        $request = CorsTestsUtils::createRequest(RequestMethod::GET);
 
         $response = new NoContentResponse(200);
 
@@ -163,7 +162,7 @@ final class CorsMiddlewareTest extends TestCase
     #[Test]
     public function it_appends_origin_to_existing_vary_header_on_allowed_request(): void
     {
-        $request = $this->createRequest(
+        $request = CorsTestsUtils::createRequest(
             RequestMethod::GET,
             [
                 'Origin' => 'https://example.com',
@@ -187,7 +186,7 @@ final class CorsMiddlewareTest extends TestCase
     #[Test]
     public function it_allows_credentials_when_configured(): void
     {
-        $request = $this->createRequest(
+        $request = CorsTestsUtils::createRequest(
             RequestMethod::GET,
             [
                 'Origin' => 'https://example.com',
@@ -224,7 +223,7 @@ final class CorsMiddlewareTest extends TestCase
     #[Test]
     public function it_returns_no_content_response_for_successful_preflight(): void
     {
-        $request = $this->createRequest(
+        $request = CorsTestsUtils::createRequest(
             RequestMethod::OPTIONS,
             [
                 'Origin' => 'https://example.com',
@@ -273,7 +272,7 @@ final class CorsMiddlewareTest extends TestCase
     #[Test]
     public function it_allows_preflight_without_requested_headers(): void
     {
-        $request = $this->createRequest(
+        $request = CorsTestsUtils::createRequest(
             RequestMethod::OPTIONS,
             [
                 'Origin' => 'https://example.com',
@@ -299,7 +298,7 @@ final class CorsMiddlewareTest extends TestCase
     #[Test]
     public function it_returns_forbidden_response_for_preflight_with_disallowed_method(): void
     {
-        $request = $this->createRequest(
+        $request = CorsTestsUtils::createRequest(
             RequestMethod::OPTIONS,
             [
                 'Origin' => 'https://example.com',
@@ -326,7 +325,7 @@ final class CorsMiddlewareTest extends TestCase
     #[DataProvider('headersProvider')]
     public function it_returns_forbidden_response_for_preflight_with_disallowed_header(string $requestedHeader): void
     {
-        $request = $this->createRequest(
+        $request = CorsTestsUtils::createRequest(
             RequestMethod::OPTIONS,
             [
                 'Origin' => 'https://example.com',
@@ -355,7 +354,7 @@ final class CorsMiddlewareTest extends TestCase
     #[DataProvider('headersProvider')]
     public function it_returns_response_for_preflight_with_allowed_header_case_insensitive(string $requestedHeader): void
     {
-        $request = $this->createRequest(
+        $request = CorsTestsUtils::createRequest(
             RequestMethod::OPTIONS,
             [
                 'Origin' => 'https://example.com',
@@ -398,7 +397,7 @@ final class CorsMiddlewareTest extends TestCase
     #[Test]
     public function it_allows_preflight_with_wildcard_headers(): void
     {
-        $request = $this->createRequest(
+        $request = CorsTestsUtils::createRequest(
             RequestMethod::OPTIONS,
             [
                 'Origin' => 'https://example.com',
@@ -425,7 +424,7 @@ final class CorsMiddlewareTest extends TestCase
     #[Test]
     public function it_returns_forbidden_response_for_preflight_with_disallowed_origin(): void
     {
-        $request = $this->createRequest(
+        $request = CorsTestsUtils::createRequest(
             RequestMethod::OPTIONS,
             [
                 'Origin' => 'https://evil.example',
@@ -450,7 +449,7 @@ final class CorsMiddlewareTest extends TestCase
     #[Test]
     public function it_passes_ordinary_options_request_to_next_middleware(): void
     {
-        $request = $this->createRequest(
+        $request = CorsTestsUtils::createRequest(
             RequestMethod::OPTIONS,
             [
                 'Origin' => 'https://example.com',
@@ -480,7 +479,7 @@ final class CorsMiddlewareTest extends TestCase
     #[Test]
     public function it_rejects_preflight_with_invalid_requested_method(): void
     {
-        $request = $this->createRequest(RequestMethod::OPTIONS, [
+        $request = CorsTestsUtils::createRequest(RequestMethod::OPTIONS, [
             'origin' => 'hehe',
             'access-control-request-method' => 'no'
         ]);
@@ -499,7 +498,7 @@ final class CorsMiddlewareTest extends TestCase
     #[Test]
     public function it_puts_got_Throwable_and_CorsResponseProcessor_into_CorsResponseActionException_and_throws_it(): void
     {
-        $request = $this->createRequest(
+        $request = CorsTestsUtils::createRequest(
             RequestMethod::GET,
             [
                 'Origin' => 'a',
@@ -516,25 +515,28 @@ final class CorsMiddlewareTest extends TestCase
                 throw $thrownException;
             },
             new CorsConfig(
-                allowedOrigins: ['a'],
+                allowedOrigins: ['a']
             ),
         );
     }
 
-    /**
-     * @param array<string, string> $headers
-     */
-    private function createRequest(
-        RequestMethod $method,
-        array         $headers = [],
-    ): Request
+    #[Test]
+    public function it_does_not_put_exception_into_CorsResponseActionException_when_there_is_no_origin_header(): void
     {
-        $request = new Request('', $method);
+        $request = CorsTestsUtils::createRequest(RequestMethod::GET);
 
-        foreach ($headers as $name => $value) {
-            $_SERVER['HTTP_' . $name] = $value;
+        $thrownException = new Exception();
+
+        try {
+            $this->middleware->handle(
+                $request,
+                function () use ($thrownException) {
+                    throw $thrownException;
+                },
+                new CorsConfig()
+            );
+        } catch (Exception $e) {
+            self::assertSame($thrownException, $e);
         }
-
-        return $request;
     }
 }
