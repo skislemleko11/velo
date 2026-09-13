@@ -5,22 +5,19 @@ namespace Velo\Core;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use ReflectionException;
-use Velo\Container\Exceptions\InvalidParameterExceptions\UnexpectedInvalidParameterException;
-use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterIntersectionTypeException;
-use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterMissingTypeDeclarationException;
-use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterNoDefaultValueException;
-use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterUnionTypeException;
-use Velo\Container\Exceptions\IsNotInstantiableException;
 use Velo\Http\Request;
 use Velo\Http\Responses\Response;
 use Velo\Http\RequestMethod;
 use Velo\Http\ResponseRenderer;
 use Velo\Router\Middlewares\AddMiddlewaresTrait;
-use Velo\Router\Pipeline\Exceptions\MiddlewareNotFoundException;
 use Velo\Router\Pipeline\Exceptions\MustImplementMiddlewareInterfaceException;
 use Velo\Router\Pipeline\Pipeline;
+use Velo\Router\Router\Exceptions\InvalidControllerSignatureException;
+use Velo\Router\Router\Exceptions\MethodNotAllowedException;
+use Velo\Router\Router\Exceptions\NotFoundControllerException;
+use Velo\Router\Router\Exceptions\NotFoundControllerMethodException;
+use Velo\Router\Router\Exceptions\RouteNotFound;
 use Velo\Router\Router\Router;
 
 /**
@@ -41,19 +38,14 @@ final class App
     }
 
     /**
-     * Runs the application with the given Request.
-     *
      * @throws ContainerExceptionInterface
-     * @throws UnexpectedInvalidParameterException
-     * @throws IsNotInstantiableException
-     * @throws MiddlewareNotFoundException
      * @throws MustImplementMiddlewareInterfaceException
-     * @throws NotFoundExceptionInterface
-     * @throws ParameterIntersectionTypeException
-     * @throws ParameterMissingTypeDeclarationException
-     * @throws ParameterNoDefaultValueException
-     * @throws ParameterUnionTypeException
      * @throws ReflectionException
+     * @throws NotFoundControllerMethodException
+     * @throws NotFoundControllerException
+     * @throws InvalidControllerSignatureException
+     * @throws RouteNotFound
+     * @throws MethodNotAllowedException
      */
     public function run(Request $request): void
     {
@@ -70,7 +62,12 @@ final class App
     /**
      * @throws ContainerExceptionInterface
      * @throws MustImplementMiddlewareInterfaceException
-     * @throws MiddlewareNotFoundException
+     * @throws ReflectionException
+     * @throws NotFoundControllerMethodException
+     * @throws NotFoundControllerException
+     * @throws InvalidControllerSignatureException
+     * @throws RouteNotFound
+     * @throws MethodNotAllowedException
      */
     private function executeMiddlewaresChainAndResolveRequest(Request $request, Pipeline $pipeline): Response
     {
@@ -82,7 +79,7 @@ final class App
     }
 
     /**
-     * Renders the given Response with ResponseRenderer's render method.
+     * @throws ContainerExceptionInterface
      */
     private function renderResponse(Response $response, RequestMethod $requestMethod): void
     {

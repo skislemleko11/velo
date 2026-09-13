@@ -10,11 +10,7 @@ use ReflectionException;
 use ReflectionIntersectionType;
 use ReflectionNamedType;
 use ReflectionUnionType;
-use Velo\Container\Exceptions\InvalidParameterExceptions\UnexpectedInvalidParameterException;
-use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterIntersectionTypeException;
-use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterMissingTypeDeclarationException;
-use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterNoDefaultValueException;
-use Velo\Container\Exceptions\InvalidParameterExceptions\ParameterUnionTypeException;
+use Velo\Container\Exceptions\InvalidConstructorSignatureException;
 use Velo\Container\Exceptions\IsNotInstantiableException;
 
 /**
@@ -54,12 +50,8 @@ class Container implements ContainerInterface
     /**
      * It gets an object of the requested id.
      *
-     * @throws UnexpectedInvalidParameterException
+     * @throws InvalidConstructorSignatureException
      * @throws IsNotInstantiableException
-     * @throws ParameterIntersectionTypeException
-     * @throws ParameterMissingTypeDeclarationException
-     * @throws ParameterNoDefaultValueException
-     * @throws ParameterUnionTypeException
      * @throws ReflectionException
      */
     public function get(string $id): object
@@ -118,12 +110,8 @@ class Container implements ContainerInterface
      *
      * @param string $id Dependency ID - class name or alias/interface.
      *
-     * @throws UnexpectedInvalidParameterException
      * @throws IsNotInstantiableException
-     * @throws ParameterIntersectionTypeException
-     * @throws ParameterMissingTypeDeclarationException
-     * @throws ParameterNoDefaultValueException
-     * @throws ParameterUnionTypeException
+     * @throws InvalidConstructorSignatureException
      * @throws ReflectionException
      */
     private function resolve(string $id): object
@@ -148,15 +136,11 @@ class Container implements ContainerInterface
                 $paramType = $param->getType();
 
                 if (!$paramType) {
-                    throw new ParameterMissingTypeDeclarationException(
-                        'Failed to resolve dependency: "' . $id . '" because "' . $paramName . '" is missing a type declaration!'
-                    );
+                    throw InvalidConstructorSignatureException::missingTypeDeclaration($id, $paramName);
                 }
 
                 if ($paramType instanceof ReflectionUnionType) {
-                    throw new ParameterUnionTypeException(
-                        'Failed to resolve dependency: "' . $id . '" because param"' . $paramName . '" is of a union type!'
-                    );
+                    throw InvalidConstructorSignatureException::unionTypeNotSupported($id, $paramName);
                 }
 
                 if ($paramType instanceof ReflectionNamedType) {
@@ -164,9 +148,7 @@ class Container implements ContainerInterface
                         if ($param->isDefaultValueAvailable()) {
                             $dependencies[] = $param->getDefaultValue();
                         } else {
-                            throw new ParameterNoDefaultValueException(
-                                'Failed to resolve dependency: "' . $id . '" because invalid param"' . $paramName . '" (no default value)'
-                            );
+                            throw InvalidConstructorSignatureException::noDefaultValue($id, $paramName);
                         }
                     } else {
                         $typeName = $paramType->getName();
@@ -182,14 +164,10 @@ class Container implements ContainerInterface
                         }
                     }
                 } elseif ($paramType instanceof ReflectionIntersectionType) {
-                    throw new ParameterIntersectionTypeException(
-                        'Failed to resolve dependency: "' . $id . '" because param"' . $paramName . '" is of an intersection type!'
-                    );
+                    throw InvalidConstructorSignatureException::intersectionTypeNotSupported($id, $paramName);
                 } else {
                     // Probably it's not reachable in current(8.5) PHP, but I'm leaving it in case of future changes or bugs
-                    throw new UnexpectedInvalidParameterException(
-                        'Failed to resolve dependency: "' . $id . '" because invalid param"' . $paramName . '"'
-                    );
+                    throw InvalidConstructorSignatureException::unexpectedInvalidParameter($id, $paramName);
                 }
             }
 

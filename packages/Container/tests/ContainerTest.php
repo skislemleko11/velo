@@ -8,7 +8,8 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Velo\Container\Container;
-use Velo\Container\Exceptions\Interfaces\ContainerExceptionInterface;
+use Velo\Container\Exceptions\InvalidConstructorSignatureException;
+use Velo\Container\Exceptions\IsNotInstantiableException;
 
 final class ContainerTest extends TestCase
 {
@@ -52,7 +53,7 @@ final class ContainerTest extends TestCase
     #[Test]
     public function it_throws_not_instanciable_exception(): void
     {
-        $this->expectException(ContainerExceptionInterface::class);
+        $this->expectException(IsNotInstantiableException::class);
         $this->container->get(SimpleInterface::class);
     }
 
@@ -85,7 +86,7 @@ final class ContainerTest extends TestCase
             }
         };
 
-        $this->expectException(ContainerExceptionInterface::class);
+        $this->expectException(InvalidConstructorSignatureException::class);
         $this->container->get($testClass::class);
     }
 
@@ -98,21 +99,21 @@ final class ContainerTest extends TestCase
             }
         };
 
-        $this->expectException(ContainerExceptionInterface::class);
+        $this->expectException(InvalidConstructorSignatureException::class);
         $this->container->get($testClass::class);
     }
 
     #[Test]
     public function it_throws_intersection_type_hint_exception(): void
     {
-        $this->expectException(ContainerExceptionInterface::class);
+        $this->expectException(InvalidConstructorSignatureException::class);
         $this->container->get(NeedsIntersection::class);
     }
 
     #[Test]
     public function it_throws_no_default_value_exception(): void
     {
-        $this->expectException(ContainerExceptionInterface::class);
+        $this->expectException(InvalidConstructorSignatureException::class);
         $this->container->get(NeedsNoDefaultValue::class);
     }
 
@@ -360,4 +361,3 @@ class NeedsNoDefaultValue
     {
     }
 }
-

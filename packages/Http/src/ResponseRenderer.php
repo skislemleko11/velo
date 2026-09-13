@@ -6,9 +6,6 @@ namespace Velo\Http;
 use Velo\Http\Emitter\Interfaces\EmitterInterface;
 use Velo\Http\Responses\Response;
 
-/**
- * Renders Responses.
- */
 readonly class ResponseRenderer
 {
     public function __construct(
@@ -18,9 +15,6 @@ readonly class ResponseRenderer
     {
     }
 
-    /**
-     * Renders the given HttpResponse.
-     */
     public function render(
         Response      $response,
         RequestMethod $requestMethod = RequestMethod::GET
