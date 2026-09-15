@@ -3,12 +3,12 @@ declare(strict_types=1);
 
 namespace Velo\Http;
 
-use Velo\View\ViewRenderer;
+use Velo\View\ViewRendererInterface;
 
 readonly class RenderContext
 {
     public function __construct(
-        public ViewRenderer $viewRenderer
+        public ViewRendererInterface $viewRenderer
     )
     {
     }

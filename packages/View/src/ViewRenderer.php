@@ -10,7 +10,7 @@ use Velo\View\ViewResolver\Exceptions\InvalidViewExtensionException;
 use Velo\View\ViewResolver\Exceptions\ViewNotFoundException;
 use Velo\View\ViewResolver\ViewResolver;
 
-readonly class ViewRenderer
+final readonly class ViewRenderer implements ViewRendererInterface
 {
     public function __construct(
         private ViewResolver           $viewResolver,

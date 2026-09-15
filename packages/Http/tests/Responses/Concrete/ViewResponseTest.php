@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Velo\Http\RenderContext;
 use Velo\Http\Responses\Concrete\ViewResponse;
-use Velo\View\ViewRenderer;
+use Velo\View\ViewRendererInterface;
 
 final class ViewResponseTest extends TestCase
 {
@@ -25,7 +25,7 @@ final class ViewResponseTest extends TestCase
     {
         $response = new ViewResponse('view', ['key' => 'value']);
 
-        $viewRenderer = $this->createMock(ViewRenderer::class);
+        $viewRenderer = $this->createMock(ViewRendererInterface::class);
 
         $viewRenderer
             ->expects(self::once())
