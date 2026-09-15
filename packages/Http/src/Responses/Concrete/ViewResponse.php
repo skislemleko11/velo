@@ -35,7 +35,6 @@ final class ViewResponse extends Response
 
     /**
      * @throws ViewNotFoundException
-     * @throws PathNotFoundException
      * @throws InvalidViewExtensionException
      */
     public function render(RenderContext $context): string

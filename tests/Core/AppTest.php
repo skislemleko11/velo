@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Velo\Core\App;
 use Velo\Http\Request;
-use Velo\Http\ResponseRenderer;
+use Velo\Http\ResponseRendererInterface;
 use Velo\Http\Responses\Concrete\JsonResponse;
 use Velo\Http\Responses\Concrete\ViewResponse;
 use Velo\Router\Middlewares\MiddlewareInterface;
@@ -24,13 +24,13 @@ final class AppTest extends TestCase
     private Router&MockObject $router;
     private ContainerInterface&MockObject $container;
     private Pipeline $pipeline;
-    private ResponseRenderer&MockObject $responseRenderer;
+    private ResponseRendererInterface&MockObject $responseRenderer;
 
     protected function setUp(): void
     {
         $this->router = $this->createMock(Router::class);
         $this->container = $this->createMock(ContainerInterface::class);
-        $this->responseRenderer = $this->createMock(ResponseRenderer::class);
+        $this->responseRenderer = $this->createMock(ResponseRendererInterface::class);
 
         $this->pipeline = new Pipeline($this->container);
 
@@ -39,7 +39,7 @@ final class AppTest extends TestCase
             ->willReturnCallback(function (string $class) {
                 return match ($class) {
                     Pipeline::class => $this->pipeline,
-                    ResponseRenderer::class => $this->responseRenderer,
+                    ResponseRendererInterface::class => $this->responseRenderer,
                     default => null,
                 };
             });

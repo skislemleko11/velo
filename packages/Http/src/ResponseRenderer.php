@@ -6,7 +6,7 @@ namespace Velo\Http;
 use Velo\Http\Emitter\EmitterInterface;
 use Velo\Http\Responses\Response;
 
-readonly class ResponseRenderer
+final readonly class ResponseRenderer implements ResponseRendererInterface
 {
     public function __construct(
         private EmitterInterface $emitter,

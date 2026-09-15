@@ -9,7 +9,7 @@ use Throwable;
 use Velo\Core\ThrowableHandling\ErrorResponseFormatter\ErrorResponseFormatterInterface;
 use Velo\Exceptions\HttpResponseExceptionInterface;
 use Velo\Http\ResponseFormat;
-use Velo\Http\ResponseRenderer;
+use Velo\Http\ResponseRendererInterface;
 use Velo\Http\Responses\Response;
 use Velo\Middlewares\Exceptions\ThrowableResponseActionException;
 
@@ -20,7 +20,7 @@ final readonly class ThrowableHandler
 {
     public function __construct(
         private LoggerInterface                 $logger,
-        private ResponseRenderer                $responseRenderer,
+        private ResponseRendererInterface       $responseRenderer,
         private ErrorResponseFormatterInterface $errorResponseFormatter
     )
     {

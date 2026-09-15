@@ -7,9 +7,9 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use ReflectionException;
 use Velo\Http\Request;
+use Velo\Http\ResponseRendererInterface;
 use Velo\Http\Responses\Response;
 use Velo\Http\RequestMethod;
-use Velo\Http\ResponseRenderer;
 use Velo\Router\Middlewares\AddMiddlewaresTrait;
 use Velo\Router\Pipeline\Exceptions\MustImplementMiddlewareInterfaceException;
 use Velo\Router\Pipeline\Pipeline;
@@ -84,9 +84,9 @@ final class App
     private function renderResponse(Response $response, RequestMethod $requestMethod): void
     {
         /**
-         * @var ResponseRenderer $responseRenderer
+         * @var ResponseRendererInterface $responseRenderer
          */
-        $responseRenderer = $this->container->get(ResponseRenderer::class);
+        $responseRenderer = $this->container->get(ResponseRendererInterface::class);
 
         $responseRenderer->render($response, $requestMethod);
     }
