@@ -23,7 +23,7 @@ use Velo\Session\Session\SessionInterface;
  */
 final readonly class AntiCsrfMiddleware implements MiddlewareInterface
 {
-    private const string CSRF_TOKEN_NAME = 'csrf_token';
+    public const string CSRF_TOKEN_NAME = 'csrf_token';
 
     /**
      * @param Closure|null $customResponseHandler Closure should take 1 argument - Request request.
@@ -47,18 +47,33 @@ final readonly class AntiCsrfMiddleware implements MiddlewareInterface
      */
     public function handle(Request $request, callable $next): Response
     {
-        $sessionToken = (string)$this->session->get(self::CSRF_TOKEN_NAME);
-        $requestToken = (string)$request->getPostArg(self::CSRF_TOKEN_NAME);
+        $sessionToken = $this->session->get(self::CSRF_TOKEN_NAME);
+        $requestToken = $request->getPostArg(self::CSRF_TOKEN_NAME);
 
-        if (!$sessionToken || !$requestToken || !hash_equals($sessionToken, $requestToken)) {
-            $this->session->setCsrfToken(
-                bin2hex(random_bytes(32))
-            );
+        if (
+            !is_string($sessionToken)
+            || $sessionToken === ''
+            || !is_string($requestToken)
+            || $requestToken === ''
+            || !hash_equals($sessionToken, $requestToken)
+        ) {
+            $this->regenerateToken();
 
             return $this->getInvalidTokenResponse($request);
         }
 
         return $next($request);
+    }
+
+    /**
+     * @throws RandomException
+     */
+    private function regenerateToken(): void
+    {
+        $this->session->set(
+            self::CSRF_TOKEN_NAME,
+            bin2hex(random_bytes(32))
+        );
     }
 
     /**
@@ -78,7 +93,9 @@ final readonly class AntiCsrfMiddleware implements MiddlewareInterface
 
         $responseDataOrBody = ['error' => 'Invalid anti CSRF token!'];
 
-        if (($viewFile = $this->pathResolver->resolveErrorFilePath(403)) === false) {
+        $viewFile = $this->pathResolver->resolveErrorFilePath(403);
+
+        if ($viewFile === false) {
             return new JsonResponse($responseDataOrBody, 403);
         }
 

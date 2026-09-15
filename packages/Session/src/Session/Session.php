@@ -13,12 +13,6 @@ final class Session implements SessionInterface
      */
     private const string FLASH_KEY = 'flash_data';
 
-    /**
-     * Session key used to store the CSRF token.
-     */
-    private const string CSRF_TOKEN_KEY = 'csrf_token';
-
-
     public function __construct()
     {
         if (session_status() === PHP_SESSION_NONE) {
@@ -73,10 +67,5 @@ final class Session implements SessionInterface
     public function hasFlash(string $key): bool
     {
         return isset($_SESSION[self::FLASH_KEY][$key]);
-    }
-
-    public function setCsrfToken(string $value): self
-    {
-        return $this->set(Session::CSRF_TOKEN_KEY, $value);
     }
 }
