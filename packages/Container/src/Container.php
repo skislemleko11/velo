@@ -16,7 +16,7 @@ use Velo\Container\Exceptions\IsNotInstantiableException;
 /**
  * Dependency Injection Container
  */
-class Container implements ContainerInterface
+final class Container implements ContainerInterface
 {
     /**
      * @var array<string, callable|string>

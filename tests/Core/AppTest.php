@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Velo\Container\Container;
+use Psr\Container\ContainerInterface;
 use Velo\Core\App;
 use Velo\Http\Request;
 use Velo\Http\ResponseRenderer;
@@ -22,14 +22,14 @@ use Velo\Http\RequestMethod;
 final class AppTest extends TestCase
 {
     private Router&MockObject $router;
-    private Container&MockObject $container;
+    private ContainerInterface&MockObject $container;
     private Pipeline $pipeline;
     private ResponseRenderer&MockObject $responseRenderer;
 
     protected function setUp(): void
     {
         $this->router = $this->createMock(Router::class);
-        $this->container = $this->createMock(Container::class);
+        $this->container = $this->createMock(ContainerInterface::class);
         $this->responseRenderer = $this->createMock(ResponseRenderer::class);
 
         $this->pipeline = new Pipeline($this->container);
