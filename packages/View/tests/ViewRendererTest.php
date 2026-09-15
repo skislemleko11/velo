@@ -9,19 +9,19 @@ use PHPUnit\Framework\TestCase;
 use Velo\Session\FlashMessages\FlashMessagesInterface;
 use Velo\Session\Session\SessionInterface;
 use Velo\View\ViewRenderer;
-use Velo\View\ViewResolver\ViewResolver;
+use Velo\View\ViewResolver\ViewResolverInterface;
 
 final class ViewRendererTest extends TestCase
 {
     private ViewRenderer $viewRenderer;
-    private ViewResolver&MockObject $viewResolver;
+    private ViewResolverInterface&MockObject $viewResolver;
     private SessionInterface $session;
     private FlashMessagesInterface $flashMessages;
     private string $viewPath = '';
 
     protected function setUp(): void
     {
-        $this->viewResolver = $this->createMock(ViewResolver::class);
+        $this->viewResolver = $this->createMock(ViewResolverInterface::class);
         $this->session = self::createStub(SessionInterface::class);
         $this->flashMessages = self::createStub(FlashMessagesInterface::class);
 

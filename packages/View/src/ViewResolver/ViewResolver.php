@@ -11,7 +11,7 @@ use Velo\View\ViewResolver\Exceptions\ViewNotFoundException;
 /**
  * Resolves Views using PathResolver.
  */
-readonly class ViewResolver
+final readonly class ViewResolver implements ViewResolverInterface
 {
     public function __construct(private PathResolver $pathResolver)
     {

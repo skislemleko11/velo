@@ -1,18 +1,16 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\View;
+namespace Velo\View\ViewResolver;
 
 use Velo\View\ViewResolver\Exceptions\InvalidViewExtensionException;
 use Velo\View\ViewResolver\Exceptions\ViewNotFoundException;
 
-interface ViewRendererInterface
+interface ViewResolverInterface
 {
     /**
-     * @return string Content to echo.
-     *
      * @throws ViewNotFoundException
      * @throws InvalidViewExtensionException
      */
-    public function render(string $viewFile, array $dataToExtract = []): string;
+    public function resolve(string $viewFile): string;
 }

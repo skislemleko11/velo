@@ -3,17 +3,16 @@ declare(strict_types=1);
 
 namespace Velo\View;
 
-use Velo\FileSystem\PathResolver\Exceptions\PathNotFoundException;
 use Velo\Session\FlashMessages\FlashMessagesInterface;
 use Velo\Session\Session\SessionInterface;
 use Velo\View\ViewResolver\Exceptions\InvalidViewExtensionException;
 use Velo\View\ViewResolver\Exceptions\ViewNotFoundException;
-use Velo\View\ViewResolver\ViewResolver;
+use Velo\View\ViewResolver\ViewResolverInterface;
 
 final readonly class ViewRenderer implements ViewRendererInterface
 {
     public function __construct(
-        private ViewResolver           $viewResolver,
+        private ViewResolverInterface  $viewResolver,
         private SessionInterface       $session,
         private FlashMessagesInterface $flashMessages
     )
@@ -25,7 +24,6 @@ final readonly class ViewRenderer implements ViewRendererInterface
      * @param array<string, mixed> $dataToExtract
      *
      * @throws ViewNotFoundException
-     * @throws PathNotFoundException
      * @throws InvalidViewExtensionException
      */
     public function render(string $viewFile, array $dataToExtract = []): string
@@ -42,7 +40,7 @@ final readonly class ViewRenderer implements ViewRendererInterface
      */
     private function renderHtml(string $viewPath): string
     {
-        if(($content = file_get_contents($viewPath)) === false) {
+        if (($content = file_get_contents($viewPath)) === false) {
             throw new ViewNotFoundException(
                 "Failed reading view file '$viewPath'!"
             );
