@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Velo\Exceptions;
 
 use Exception;
-use Velo\Exceptions\Interfaces\HttpResponseExceptionInterface;
 
 /**
  * Base exception for resources that cannot be found.

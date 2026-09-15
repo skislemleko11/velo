@@ -11,9 +11,9 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
-use Velo\Core\ThrowableHandling\ErrorResponseFormatter\ErrorResponseFormatter;
-use Velo\Exceptions\Interfaces\HttpResponseExceptionInterface;
-use Velo\Exceptions\Interfaces\HttpResponseExceptionWithHeadersInterface;
+use Velo\Core\ThrowableHandling\ErrorResponseFormatter\NativeErrorResponseFormatter;
+use Velo\Exceptions\HttpResponseExceptionInterface;
+use Velo\Exceptions\HttpResponseExceptionWithHeadersInterface;
 use Velo\FileSystem\PathResolver\PathResolver;
 use Velo\Http\Responses\Concrete\JsonResponse;
 use Velo\Http\Responses\Concrete\TextResponse;
@@ -22,13 +22,13 @@ use Velo\Http\Responses\Concrete\ViewResponse;
 #[AllowMockObjectsWithoutExpectations]
 final class ErrorResponseFormatterTest extends TestCase
 {
-    private ErrorResponseFormatter $formatter;
+    private NativeErrorResponseFormatter $formatter;
     private PathResolver&MockObject $pathResolver;
 
     protected function setUp(): void
     {
         $this->pathResolver = $this->createMock(PathResolver::class);
-        $this->formatter = new ErrorResponseFormatter($this->pathResolver);
+        $this->formatter = new NativeErrorResponseFormatter($this->pathResolver);
     }
 
     private function getProperty(object $object, string $property): mixed
@@ -104,7 +104,7 @@ final class ErrorResponseFormatterTest extends TestCase
         return [
             'basic_exception' => [
                 new Exception(),
-                ErrorResponseFormatter::DEFAULT_ERROR_MESSAGE,
+                NativeErrorResponseFormatter::DEFAULT_ERROR_MESSAGE,
                 500,
                 []
             ],
@@ -208,7 +208,7 @@ final class ErrorResponseFormatterTest extends TestCase
     #[Test]
     public function it_formats_plain_text_response_when_no_error_view_exists(): void
     {
-        $formatter = $this->getMockBuilder(ErrorResponseFormatter::class)
+        $formatter = $this->getMockBuilder(NativeErrorResponseFormatter::class)
             ->setConstructorArgs([$this->pathResolver])
             ->onlyMethods(['formatPlainText'])
             ->getMock();

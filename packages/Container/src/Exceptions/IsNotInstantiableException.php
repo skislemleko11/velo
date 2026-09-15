@@ -5,7 +5,7 @@ namespace Velo\Container\Exceptions;
 
 use Exception;
 use Psr\Container\ContainerExceptionInterface;
-use Velo\Exceptions\Interfaces\VeloExceptionInterface;
+use Velo\Exceptions\VeloExceptionInterface;
 
 final class IsNotInstantiableException extends Exception implements VeloExceptionInterface, ContainerExceptionInterface
 {

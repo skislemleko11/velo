@@ -6,8 +6,8 @@ namespace Velo\View\Tests;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Velo\Session\FlashMessages\Interfaces\FlashMessagesInterface;
-use Velo\Session\Session\Interfaces\SessionInterface;
+use Velo\Session\FlashMessages\FlashMessagesInterface;
+use Velo\Session\Session\SessionInterface;
 use Velo\View\ViewRenderer;
 use Velo\View\ViewResolver\ViewResolver;
 

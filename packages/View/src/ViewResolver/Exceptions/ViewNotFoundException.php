@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Velo\View\ViewResolver\Exceptions;
 
 use Velo\Exceptions\NotFoundException;
-use Velo\View\Exceptions\Interfaces\ViewExceptionInterface;
+use Velo\View\Exceptions\ViewExceptionInterface;
 
 final class ViewNotFoundException extends NotFoundException implements ViewExceptionInterface
 {

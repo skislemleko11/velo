@@ -4,12 +4,12 @@ declare(strict_types=1);
 namespace Velo\Middlewares\AuthMiddleware;
 
 use Closure;
+use Velo\Http\RedirectUrl;
 use Velo\Http\Request;
 use Velo\Http\Responses\Concrete\RedirectResponse;
 use Velo\Http\Responses\Response;
 use Velo\Router\Middlewares\MiddlewareInterface;
-use Velo\Session\Session\Interfaces\SessionInterface;
-use Velo\Http\RedirectUrl;
+use Velo\Session\Session\SessionInterface;
 
 /**
  * Auth Middleware for Web. It's the opposite of WebGuestMiddleware.

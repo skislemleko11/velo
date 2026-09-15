@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Session\FlashMessages\Interfaces;
+namespace Velo\Session\FlashMessages;
 
 interface FlashMessagesInterface
 {

@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace Velo\Database;
 
 use Generator;
-use PDO, PDOStatement;
-use Velo\Database\Interfaces\DatabaseInterface;
+use PDO;
+use PDOStatement;
 
 /**
  * Facade for PDO.

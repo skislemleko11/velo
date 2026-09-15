@@ -4,11 +4,11 @@ declare(strict_types=1);
 namespace Velo\View;
 
 use Velo\FileSystem\PathResolver\Exceptions\PathNotFoundException;
-use Velo\Session\FlashMessages\Interfaces\FlashMessagesInterface;
-use Velo\Session\Session\Interfaces\SessionInterface;
+use Velo\Session\FlashMessages\FlashMessagesInterface;
+use Velo\Session\Session\SessionInterface;
 use Velo\View\ViewResolver\Exceptions\InvalidViewExtensionException;
-use Velo\View\ViewResolver\ViewResolver;
 use Velo\View\ViewResolver\Exceptions\ViewNotFoundException;
+use Velo\View\ViewResolver\ViewResolver;
 
 readonly class ViewRenderer
 {

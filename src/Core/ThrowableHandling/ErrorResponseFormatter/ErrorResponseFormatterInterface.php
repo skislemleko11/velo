@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Core\ThrowableHandling\ErrorResponseFormatter\Interfaces;
+namespace Velo\Core\ThrowableHandling\ErrorResponseFormatter;
 
+use Throwable;
 use Velo\Http\Responses\Concrete\JsonResponse;
 use Velo\Http\Responses\Concrete\TextResponse;
 use Velo\Http\Responses\Concrete\ViewResponse;
-use Throwable;
 
 interface ErrorResponseFormatterInterface
 {

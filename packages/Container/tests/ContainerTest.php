@@ -51,7 +51,7 @@ final class ContainerTest extends TestCase
     }
 
     #[Test]
-    public function it_throws_not_instanciable_exception(): void
+    public function it_throws_not_instantiable_exception(): void
     {
         $this->expectException(IsNotInstantiableException::class);
         $this->container->get(SimpleInterface::class);

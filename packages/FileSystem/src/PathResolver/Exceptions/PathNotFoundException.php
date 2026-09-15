@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Velo\FileSystem\PathResolver\Exceptions;
 
 use Exception;
-use Velo\FileSystem\Exceptions\Interfaces\FileSystemExceptionInterface;
+use Velo\FileSystem\Exceptions\FileSystemExceptionInterface;
 
 /**
  * This Exception should be thrown when a Path in PathResolver was not found.

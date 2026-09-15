@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Velo\Session\FlashMessages\FlashMessages;
-use Velo\Session\Session\Interfaces\SessionInterface;
+use Velo\Session\Session\SessionInterface;
 
 final class FlashMessagesTest extends TestCase
 {

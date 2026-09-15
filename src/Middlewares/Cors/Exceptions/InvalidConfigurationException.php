@@ -5,7 +5,7 @@ namespace Velo\Middlewares\Cors\Exceptions;
 
 use Exception;
 use Velo\Middlewares\Cors\CorsConfig;
-use Velo\Middlewares\Exceptions\Interfaces\MiddlewareExceptionInterface;
+use Velo\Middlewares\Exceptions\MiddlewareExceptionInterface;
 
 final class InvalidConfigurationException extends Exception implements MiddlewareExceptionInterface
 {

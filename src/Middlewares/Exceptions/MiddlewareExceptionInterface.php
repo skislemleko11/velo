@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Middlewares\Exceptions\Interfaces;
+namespace Velo\Middlewares\Exceptions;
 
-use Velo\Exceptions\Interfaces\VeloExceptionInterface;
+use Velo\Exceptions\VeloExceptionInterface;
 
 interface MiddlewareExceptionInterface extends VeloExceptionInterface
 {

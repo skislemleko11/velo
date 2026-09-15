@@ -3,10 +3,9 @@ declare(strict_types=1);
 
 namespace Velo\Logger;
 
+use InvalidArgumentException;
 use Psr\Log\AbstractLogger;
 use Stringable;
-use InvalidArgumentException;
-use Velo\Logger\Interfaces\LogFormatter;
 
 /**
  * Basic Logger following Psr\Log\LoggerInterface.

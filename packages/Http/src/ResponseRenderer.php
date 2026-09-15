@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Velo\Http;
 
-use Velo\Http\Emitter\Interfaces\EmitterInterface;
+use Velo\Http\Emitter\EmitterInterface;
 use Velo\Http\Responses\Response;
 
 readonly class ResponseRenderer

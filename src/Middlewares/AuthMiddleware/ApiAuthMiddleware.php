@@ -8,7 +8,7 @@ use Velo\Http\Request;
 use Velo\Http\Responses\Concrete\JsonResponse;
 use Velo\Http\Responses\Response;
 use Velo\Router\Middlewares\MiddlewareInterface;
-use Velo\Session\Session\Interfaces\SessionInterface;
+use Velo\Session\Session\SessionInterface;
 
 /**
  * Auth Middleware for API. It's the opposite of ApiGuestMiddleware.

@@ -1,9 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Database\Interfaces;
+namespace Velo\Database;
 
-use PDO, PDOStatement, Generator;
+use Generator;
+use PDO;
+use PDOStatement;
 
 /**
  * Database Interface forcing basic features implementation.

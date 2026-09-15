@@ -4,14 +4,14 @@ declare(strict_types=1);
 namespace Velo\Tests\Middlewares\GuestMiddleware;
 
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 use Velo\Http\Request;
+use Velo\Http\RequestMethod;
 use Velo\Http\Responses\Concrete\JsonResponse;
 use Velo\Http\Responses\Concrete\TextResponse;
 use Velo\Middlewares\GuestMiddleware\ApiGuestMiddleware;
-use PHPUnit\Framework\TestCase;
-use Velo\Session\Session\Interfaces\SessionInterface;
 use Velo\Session\Session\Session;
-use Velo\Http\RequestMethod;
+use Velo\Session\Session\SessionInterface;
 
 class ApiGuestMiddlewareTest extends TestCase
 {

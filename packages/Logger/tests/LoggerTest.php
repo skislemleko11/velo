@@ -4,16 +4,16 @@ declare(strict_types=1);
 namespace Velo\Logger\Tests;
 
 use Exception;
+use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use Psr\Log\LogLevel;
 use stdClass;
-use Velo\Logger\Interfaces\LogFormatter;
+use Velo\Logger\LogFormatter;
 use Velo\Logger\Logger;
-use InvalidArgumentException;
 
 #[AllowMockObjectsWithoutExpectations]
 final class LoggerTest extends TestCase

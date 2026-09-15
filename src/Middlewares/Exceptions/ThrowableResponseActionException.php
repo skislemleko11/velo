@@ -3,10 +3,9 @@ declare(strict_types=1);
 
 namespace Velo\Middlewares\Exceptions;
 
-use Throwable;
 use Exception;
+use Throwable;
 use Velo\Http\Responses\Response;
-use Velo\Middlewares\Exceptions\Interfaces\MiddlewareExceptionInterface;
 
 /**
  * Base exception class allowing to modify the final Response after it's created in ThrowableHandler.

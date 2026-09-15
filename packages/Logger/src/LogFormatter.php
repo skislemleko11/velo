@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Logger\Interfaces;
+namespace Velo\Logger;
 
 /**
  * Enforces format method implementation. It's a general Interface for all log formatters for Logger class.

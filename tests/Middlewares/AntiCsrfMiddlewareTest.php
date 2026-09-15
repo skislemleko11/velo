@@ -10,11 +10,11 @@ use ReflectionClass;
 use Velo\Container\Container;
 use Velo\FileSystem\PathResolver\PathResolver;
 use Velo\Http\Request;
+use Velo\Http\RequestMethod;
 use Velo\Http\Responses\Concrete\ViewResponse;
 use Velo\Middlewares\AntiCsrfMiddleware;
-use Velo\Session\Session\Interfaces\SessionInterface;
 use Velo\Session\Session\Session;
-use Velo\Http\RequestMethod;
+use Velo\Session\Session\SessionInterface;
 
 final class AntiCsrfMiddlewareTest extends TestCase
 {

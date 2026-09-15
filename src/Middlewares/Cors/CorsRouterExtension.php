@@ -7,7 +7,7 @@ use Velo\Http\Request;
 use Velo\Http\RequestMethod;
 use Velo\Middlewares\Cors\Headers\CorsRequestHeaderName;
 use Velo\Router\Route;
-use Velo\Router\Router\Interfaces\CorsRouterExtensionInterface;
+use Velo\Router\Router\CorsRouterExtensionInterface;
 
 final class CorsRouterExtension implements CorsRouterExtensionInterface
 {

@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace Velo\Session\Session;
 
-use Velo\Session\Session\Interfaces\SessionInterface;
-
 /**
  * Native PHP session implementation.
  */

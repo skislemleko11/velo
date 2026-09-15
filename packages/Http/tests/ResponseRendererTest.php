@@ -7,7 +7,7 @@ use Exception;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Velo\Http\Emitter\Interfaces\EmitterInterface;
+use Velo\Http\Emitter\EmitterInterface;
 use Velo\Http\RenderContext;
 use Velo\Http\RequestMethod;
 use Velo\Http\ResponseRenderer;

@@ -4,13 +4,13 @@ declare(strict_types=1);
 namespace Velo\Tests\Middlewares\GuestMiddleware;
 
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 use Velo\Http\Request;
+use Velo\Http\RequestMethod;
 use Velo\Http\Responses\Concrete\ViewResponse;
 use Velo\Middlewares\GuestMiddleware\WebGuestMiddleware;
-use PHPUnit\Framework\TestCase;
-use Velo\Session\Session\Interfaces\SessionInterface;
 use Velo\Session\Session\Session;
-use Velo\Http\RequestMethod;
+use Velo\Session\Session\SessionInterface;
 
 class WebGuestMiddlewareTest extends TestCase
 {

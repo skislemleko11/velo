@@ -8,7 +8,7 @@ use Velo\Http\Request;
 use Velo\Http\Responses\Concrete\RedirectResponse;
 use Velo\Http\Responses\Response;
 use Velo\Router\Middlewares\MiddlewareInterface;
-use Velo\Session\Session\Interfaces\SessionInterface;
+use Velo\Session\Session\SessionInterface;
 
 /**
  * Guest Middleware for Web. It's the opposite of WebAuthMiddleware.

@@ -11,9 +11,9 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Velo\Core\ThrowableHandling\ErrorResponseFormatter\ErrorResponseFormatter;
+use Velo\Core\ThrowableHandling\ErrorResponseFormatter\NativeErrorResponseFormatter;
 use Velo\Core\ThrowableHandling\ThrowableHandler;
-use Velo\Exceptions\Interfaces\HttpResponseExceptionInterface;
+use Velo\Exceptions\HttpResponseExceptionInterface;
 use Velo\Http\ResponseRenderer;
 use Velo\Http\Responses\Concrete\JsonResponse;
 use Velo\Http\Responses\Concrete\TextResponse;
@@ -27,7 +27,7 @@ final class ThrowableHandlerTest extends TestCase
     private int $originalErrorReporting;
     private LoggerInterface&MockObject $loggerMock;
     private ResponseRenderer&MockObject $responseRendererMock;
-    private ErrorResponseFormatter&MockObject $errorResponseFormatterMock;
+    private NativeErrorResponseFormatter&MockObject $errorResponseFormatterMock;
     private ThrowableHandler $handler;
 
     protected function setUp(): void
@@ -36,7 +36,7 @@ final class ThrowableHandlerTest extends TestCase
 
         $this->loggerMock = $this->createMock(LoggerInterface::class);
         $this->responseRendererMock = $this->createMock(ResponseRenderer::class);
-        $this->errorResponseFormatterMock = $this->createMock(ErrorResponseFormatter::class);
+        $this->errorResponseFormatterMock = $this->createMock(NativeErrorResponseFormatter::class);
         $this->handler = new ThrowableHandler(
             $this->loggerMock,
             $this->responseRendererMock,

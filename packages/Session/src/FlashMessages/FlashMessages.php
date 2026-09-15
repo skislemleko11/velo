@@ -3,8 +3,7 @@ declare(strict_types=1);
 
 namespace Velo\Session\FlashMessages;
 
-use Velo\Session\FlashMessages\Interfaces\FlashMessagesInterface;
-use Velo\Session\Session\Interfaces\SessionInterface;
+use Velo\Session\Session\SessionInterface;
 
 /**
  * Manages flash messages stored in the session.

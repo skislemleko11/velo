@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Exceptions\Interfaces;
+namespace Velo\Exceptions;
 
 /**
  * Defines an HTTP exception that can provide additional response headers.

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Session\Session\Interfaces;
+namespace Velo\Session\Session;
 
 interface SessionInterface
 {

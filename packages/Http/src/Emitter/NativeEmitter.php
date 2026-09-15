@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace Velo\Http\Emitter;
 
-use Velo\Http\Emitter\Interfaces\EmitterInterface;
-
 final class NativeEmitter implements EmitterInterface
 {
     public function sendHeader(string $name, string $value): self

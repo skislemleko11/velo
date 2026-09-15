@@ -6,7 +6,6 @@ namespace Velo\Logger;
 use DateTimeImmutable;
 use Stringable;
 use Throwable;
-use Velo\Logger\Interfaces\LogFormatter;
 
 /**
  * Basic text log formatter for Logger Class.

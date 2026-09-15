@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Http\Emitter\Interfaces;
+namespace Velo\Http\Emitter;
 
 interface EmitterInterface
 {

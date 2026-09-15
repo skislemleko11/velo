@@ -4,9 +4,8 @@ declare(strict_types=1);
 namespace Velo\Core\ThrowableHandling\ErrorResponseFormatter;
 
 use Throwable;
-use Velo\Core\ThrowableHandling\ErrorResponseFormatter\Interfaces\ErrorResponseFormatterInterface;
-use Velo\Exceptions\Interfaces\HttpResponseExceptionInterface;
-use Velo\Exceptions\Interfaces\HttpResponseExceptionWithHeadersInterface;
+use Velo\Exceptions\HttpResponseExceptionInterface;
+use Velo\Exceptions\HttpResponseExceptionWithHeadersInterface;
 use Velo\FileSystem\PathResolver\PathResolver;
 use Velo\Http\Responses\Concrete\JsonResponse;
 use Velo\Http\Responses\Concrete\TextResponse;
@@ -18,7 +17,7 @@ use Velo\Http\Responses\Concrete\ViewResponse;
  * It's used in Throwable Handler to return an aproperiate Response when an error occurs.
  * Feel free to extend this class and override the format methods to provide custom error response handling.
  */
-class ErrorResponseFormatter implements ErrorResponseFormatterInterface
+class NativeErrorResponseFormatter implements ErrorResponseFormatterInterface
 {
     public const string DEFAULT_ERROR_MESSAGE = 'An error occurred';
 
