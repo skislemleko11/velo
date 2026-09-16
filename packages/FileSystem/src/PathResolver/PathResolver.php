@@ -128,8 +128,7 @@ class PathResolver
      *
      * @return string|false String - filePath on success, false on failure.
      *
-     * @noinspection PhpUnhandledExceptionInspection
-     * @noinspection PhpDocMissingThrowsInspection
+     * @throws PathNotFoundException
      */
     public function resolveErrorFilePath(int $statusCode): string|false
     {
