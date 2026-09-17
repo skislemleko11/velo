@@ -129,6 +129,9 @@ final class CorsRouterExtensionTest extends TestCase
         return RequestMethodTest::methodsOfAnyCaseProvider();
     }
 
+    /**
+     * @param list<MiddlewareInterface> $middlewaresInstances
+     */
     #[Test]
     #[DataProvider('routesWithCorsMiddlewareInstancesProvider')]
     public function it_returns_true_when_there_is_cors_middleware_instance(array $middlewaresInstances): void
@@ -186,6 +189,9 @@ final class CorsRouterExtensionTest extends TestCase
         };
     }
 
+    /**
+     * @param list<string> $middlewares
+     */
     #[Test]
     #[DataProvider('routesWithCorsMiddlewareNameProvider')]
     public function it_returns_true_when_there_is_fully_qualified_cors_middleware_name(array $middlewares): void
@@ -197,7 +203,7 @@ final class CorsRouterExtensionTest extends TestCase
 
 
     /**
-     * @return array<string, list<string>>
+     * @return array<string, array{0: list<string>}>
      */
     public static function routesWithCorsMiddlewareNameProvider(): array
     {
@@ -231,6 +237,9 @@ final class CorsRouterExtensionTest extends TestCase
         ];
     }
 
+    /**
+     * @param list<list<mixed>> $middlewares
+     */
     #[Test]
     #[DataProvider('routesWithArrayAsMiddlewareProvider')]
     public function it_returns_true_when_there_is_array_with_cors_middleware(array $middlewares): void
