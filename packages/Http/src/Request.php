@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Velo\Http;
 
-use ValueError;
+use JsonException;
 
 /**
  * Represents an HTTP request.
@@ -57,11 +57,46 @@ final class Request
 
     private function getRealMethod(RequestMethod $actualMethod): RequestMethod
     {
-        if ($actualMethod === RequestMethod::POST && $formMethod = (string)$this->getPostArg(self::METHOD_FORM_KEY)) {
+        if ($actualMethod === RequestMethod::POST && $formMethod = (string)$this->getFormValue(self::METHOD_FORM_KEY)) {
             return RequestMethod::tryFromString($formMethod, $actualMethod);
         }
 
         return $actualMethod;
+    }
+
+    public function getContent(): string
+    {
+        return file_get_contents('php://input') ?: '';
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function getContentJson(): mixed
+    {
+        return json_decode(
+            $this->getContent(),
+            associative: true,
+            flags: JSON_THROW_ON_ERROR
+        );
+    }
+
+    /**
+     * Gets POST key, returns default value if the key is not set.
+     */
+    public function getFormValue(string $key, mixed $default = null): mixed
+    {
+        return $this->getFormData()[$key] ?? $default;
+    }
+
+    /**
+     * Returns $_POST superglobal.
+     *
+     * @return array<string, mixed>
+     */
+    public function getFormData(): array
+    {
+        return $_POST;
     }
 
     /**
@@ -79,45 +114,11 @@ final class Request
     /**
      * @return string|null Header's value if header is set, $default otherwise.
      */
-    public function getHeader(string $name, ?string $default = null): string|null
+    public function getHeader(string $name, ?string $default = null): ?string
     {
         $headers = $this->getHeaders();
 
         return $headers[HeadersUtils::makeLowerCaseAndTrim($name)] ?? $default;
-    }
-
-    /**
-     * Gets POST key, returns default value if the key is not set.
-     */
-    public function getPostArg(string $key, mixed $default = null): mixed
-    {
-        return $this->getPostData()[$key] ?? $default;
-    }
-
-    /**
-     * Returns $_POST superglobal.
-     *
-     * @return array<string, mixed>
-     */
-    public function getPostData(): array
-    {
-        return $_POST;
-    }
-
-    /**
-     * @throws ValueError
-     */
-    public function changeMethodFromHeadToGet(): self
-    {
-        if ($this->method !== RequestMethod::HEAD) {
-            throw new ValueError(
-                "Cannot change HTTP request method: {$this->method->value} from get, because it is not HEAD."
-            );
-        }
-
-        $this->method = RequestMethod::GET;
-
-        return $this;
     }
 
     /**

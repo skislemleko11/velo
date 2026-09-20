@@ -3,10 +3,8 @@ declare(strict_types=1);
 
 namespace Velo\Http\Tests;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use ValueError;
 use Velo\Http\RenderContext;
 use Velo\Http\Request;
 use Velo\Http\RequestMethod;
@@ -77,41 +75,31 @@ final class RequestTest extends TestCase
     }
 
     #[Test]
-    public function it_gets_post_arg_value(): void
+    public function it_gets_form_value(): void
     {
         $_POST['key'] = 'value';
-        self::assertSame('value', $this->request->getPostArg('key'));
+        self::assertSame('value', $this->request->getFormValue('key'));
     }
 
     #[Test]
-    public function it_gets_post_arg_default_null(): void
+    public function it_gets_form_value_default_null(): void
     {
         unset($_POST['key']);
-        self::assertNull($this->request->getPostArg('key'));
+        self::assertNull($this->request->getFormValue('key'));
     }
 
     #[Test]
-    public function it_gets_post_arg_default(): void
+    public function it_gets_form_value_default(): void
     {
         unset($_POST['key']);
-        self::assertSame('value', $this->request->getPostArg('key', 'value'));
+        self::assertSame('value', $this->request->getFormValue('key', 'value'));
     }
 
     #[Test]
     public function it_gets_post_data(): void
     {
         $_POST = ['hehe' => 'hihi', 'key' => 'value'];
-        self::assertSame($_POST, $this->request->getPostData());
-    }
-
-    #[Test]
-    public function it_changes_method_from_head_to_get(): void
-    {
-        $request = new Request(self::URL, RequestMethod::HEAD);
-        $result = $request->changeMethodFromHeadToGet();
-
-        self::assertSame(RequestMethod::GET, $request->method);
-        self::assertSame($request, $result);
+        self::assertSame($_POST, $this->request->getFormData());
     }
 
     #[Test]
@@ -140,29 +128,6 @@ final class RequestTest extends TestCase
         self::assertEquals('hihi', $response->getHeader('hehe'));
         self::assertEquals('b', $response->getHeader('A    '));
         self::assertEquals('D', $response->getHeader('c   '));
-    }
-
-    #[Test]
-    #[DataProvider('nonHeadMethodsProvider')]
-    public function it_throws_value_error_when_changing_method_from_non_head(RequestMethod $method): void
-    {
-        $request = new Request(self::URL, $method);
-
-        $this->expectException(ValueError::class);
-        $this->expectExceptionMessageIs("Cannot change HTTP request method: $method->value from get, because it is not HEAD.");
-
-        $request->changeMethodFromHeadToGet();
-    }
-
-    /**
-     * @return list<array{0: RequestMethod}>
-     */
-    public static function nonHeadMethodsProvider(): array
-    {
-        return array_map(
-            fn(RequestMethod $method) => [$method],
-            array_filter(RequestMethod::cases(), fn(RequestMethod $m) => $m !== RequestMethod::HEAD)
-        );
     }
 
     #[Test]
