@@ -13,28 +13,28 @@
             <directory>tests</directory>
         </testsuite>
         <testsuite name="Container Test Suite">
-            <directory>packages/container/tests</directory>
+            <directory>packages/Container/tests</directory>
         </testsuite>
         <testsuite name="Database Test Suite">
-            <directory>packages/database/tests</directory>
+            <directory>packages/Database/tests</directory>
         </testsuite>
         <testsuite name="Http Test Suite">
-            <directory>packages/http/tests</directory>
+            <directory>packages/Http/tests</directory>
         </testsuite>
         <testsuite name="Logger Test Suite">
-            <directory>packages/logger/tests</directory>
+            <directory>packages/Logger/tests</directory>
         </testsuite>
         <testsuite name="Router Test Suite">
-            <directory>packages/router/tests</directory>
+            <directory>packages/Router/tests</directory>
         </testsuite>
         <testsuite name="Session Test Suite">
-            <directory>packages/session/tests</directory>
+            <directory>packages/Session/tests</directory>
         </testsuite>
         <testsuite name="FileSystem Test Suite">
             <directory>packages/FileSystem/tests</directory>
         </testsuite>
         <testsuite name="View Test Suite">
-            <directory>packages/view/tests</directory>
+            <directory>packages/View/tests</directory>
         </testsuite>
     </testsuites>
 </phpunit>
