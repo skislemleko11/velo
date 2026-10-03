@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Velo\Middlewares;
 
-use Closure;
 use Random\RandomException;
 use Velo\FileSystem\PathResolver\Exceptions\PathNotFoundException;
 use Velo\FileSystem\PathResolver\PathResolver;
@@ -23,15 +22,11 @@ use Velo\Session\Session\SessionInterface;
  */
 final readonly class AntiCsrfMiddleware implements MiddlewareInterface
 {
-    public const string CSRF_TOKEN_NAME = 'csrf_token';
+    public const string CSRF_SESSION_TOKEN_NAME = 'csrf_token';
 
-    /**
-     * @param Closure|null $customResponseHandler Closure should take 1 argument - Request request.
-     */
     public function __construct(
         private PathResolver     $pathResolver,
-        private SessionInterface $session,
-        private ?Closure         $customResponseHandler = null
+        private SessionInterface $session
     )
     {
     }
@@ -45,10 +40,14 @@ final readonly class AntiCsrfMiddleware implements MiddlewareInterface
      * @throws PathNotFoundException
      * @throws RandomException
      */
-    public function handle(Request $request, callable $next): Response
+    public function handle(
+        Request        $request,
+        callable       $next,
+        AntiCsrfConfig $config = new AntiCsrfConfig()
+    ): Response
     {
-        $sessionToken = $this->session->get(self::CSRF_TOKEN_NAME);
-        $requestToken = $request->getPostArg(self::CSRF_TOKEN_NAME);
+        $sessionToken = $this->session->get(self::CSRF_SESSION_TOKEN_NAME);
+        $requestToken = $request->getJsonInputOrFormValue($config->tokenName);
 
         if (
             !is_string($sessionToken)
@@ -59,7 +58,7 @@ final readonly class AntiCsrfMiddleware implements MiddlewareInterface
         ) {
             $this->regenerateToken();
 
-            return $this->getInvalidTokenResponse($request);
+            return $this->getInvalidTokenResponse($request, $config);
         }
 
         return $next($request);
@@ -71,7 +70,7 @@ final readonly class AntiCsrfMiddleware implements MiddlewareInterface
     private function regenerateToken(): void
     {
         $this->session->set(
-            self::CSRF_TOKEN_NAME,
+            self::CSRF_SESSION_TOKEN_NAME,
             bin2hex(random_bytes(32))
         );
     }
@@ -85,10 +84,10 @@ final readonly class AntiCsrfMiddleware implements MiddlewareInterface
      *
      * @throws PathNotFoundException
      */
-    private function getInvalidTokenResponse(Request $request): Response
+    private function getInvalidTokenResponse(Request $request, AntiCsrfConfig $config): Response
     {
-        if ($this->customResponseHandler) {
-            return ($this->customResponseHandler)($request);
+        if ($config->customResponseHandler) {
+            return ($config->customResponseHandler)($request);
         }
 
         $responseDataOrBody = ['error' => 'Invalid anti CSRF token!'];

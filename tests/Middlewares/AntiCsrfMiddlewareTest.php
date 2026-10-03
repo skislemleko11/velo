@@ -14,6 +14,7 @@ use Velo\Http\RequestMethod;
 use Velo\Http\Responses\Concrete\JsonResponse;
 use Velo\Http\Responses\Concrete\ViewResponse;
 use Velo\Http\Responses\Response;
+use Velo\Middlewares\AntiCsrfConfig;
 use Velo\Middlewares\AntiCsrfMiddleware;
 use Velo\Session\Session\SessionInterface;
 
@@ -23,6 +24,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
     private AntiCsrfMiddleware $middleware;
     private PathResolver $pathResolver;
     private SessionInterface $session;
+    private AntiCsrfConfig $config;
 
     protected function setUp(): void
     {
@@ -39,6 +41,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
 
         $this->session = $this->createMock(SessionInterface::class);
         $this->middleware = new AntiCsrfMiddleware($this->pathResolver, $this->session);
+        $this->config = new AntiCsrfConfig();
     }
 
     protected function tearDown(): void
@@ -48,10 +51,18 @@ final class AntiCsrfMiddlewareTest extends TestCase
 
     #[Test]
     #[DataProvider('invalidTokenProvider')]
-    public function it_handles_invalid_tokens(mixed $sessionToken, mixed $postToken): void
+    public function it_handles_invalid_tokens_from_json_and_post_if_json_one_does_not_exist(
+        mixed $sessionToken,
+        mixed $requestTokenPost,
+        mixed $requestTokenJson
+    ): void
     {
-        if ($postToken !== null) {
-            $_POST['csrf_token'] = $postToken;
+        if ($requestTokenJson !== null) {
+            $jsonContent = json_encode(['csrf_token' => $requestTokenJson]);
+        }
+
+        if ($requestTokenPost !== null) {
+            $_POST['csrf_token'] = $requestTokenPost;
         }
 
         $this->willReturnCsrfToken($sessionToken);
@@ -64,7 +75,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
             return new ViewResponse('/next');
         };
 
-        $request = new Request('/hehe', RequestMethod::POST);
+        $request = $this->getRequestWithJsonData(content: $jsonContent ?? '');
 
         $response = $this->middleware->handle($request, $next);
 
@@ -83,11 +94,14 @@ final class AntiCsrfMiddlewareTest extends TestCase
     public static function invalidTokenProvider(): array
     {
         return [
-            'missing_session_token' => [null, 'valid_token'],
-            'missing_post_token' => ['valid_token', null],
-            'mismatched_tokens' => ['token_a', 'token_b'],
-            'empty_session_token' => ['', 'valid_token'],
-            'empty_post_token' => ['valid_token', ''],
+            'missing_session_token' => [null, 'valid_token', null],
+            'missing_request_token' => ['valid_token', null, null],
+            'mismatched_tokens_post' => ['token_a', 'token_b', null],
+            'mismatched_tokens_json' => ['token_a', null, 'token_b'],
+            'empty_session_token' => ['', 'valid_token', 'valid_token'],
+            'empty_post_token' => ['valid_token', '', null],
+            'empty_json_token' => ['valid_token', null, ''],
+            'prioritizes_json_token_which_is_invalid_here' => ['token_a', 'token_a', 'token_b']
         ];
     }
 
@@ -95,7 +109,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
     {
         $this->session->expects(self::once())
             ->method('get')
-            ->with(AntiCsrfMiddleware::CSRF_TOKEN_NAME)
+            ->with(AntiCsrfMiddleware::CSRF_SESSION_TOKEN_NAME)
             ->willReturn($token);
     }
 
@@ -104,11 +118,22 @@ final class AntiCsrfMiddlewareTest extends TestCase
         $this->session->expects(self::once())
             ->method('set')
             ->with(
-                AntiCsrfMiddleware::CSRF_TOKEN_NAME,
+                AntiCsrfMiddleware::CSRF_SESSION_TOKEN_NAME,
                 self::callback(
                     static fn(mixed $token): bool => is_string($token) && strlen($token) === 64
                 )
             );
+    }
+
+    private function getRequestWithJsonData(string $url = 'hehe', RequestMethod $method = RequestMethod::POST, string $content = ''): Request
+    {
+        $stream = fopen('php://memory', 'r+');
+        fwrite($stream, json_encode($content));
+        rewind($stream);
+
+        $streamUrl = 'data://text/plain;base64,' . base64_encode($content);
+
+        return new Request($url, $method, $streamUrl);
     }
 
     private function getFilePath(ViewResponse $response): string
@@ -119,19 +144,28 @@ final class AntiCsrfMiddlewareTest extends TestCase
     }
 
     #[Test]
-    public function it_passes_execution_to_next_when_tokens_match(): void
+    #[DataProvider('matchingTokensProvider')]
+    public function it_passes_execution_to_next_when_tokens_match(
+        string  $sessionToken,
+        ?string $requestTokenPost,
+        ?string $requestTokenJson
+    ): void
     {
-        $validToken = bin2hex(random_bytes(32));
-
-        $this->willReturnCsrfToken($validToken);
+        $this->willReturnCsrfToken($sessionToken);
 
         $this->session
             ->expects(self::never())
             ->method('set');
 
-        $_POST[AntiCsrfMiddleware::CSRF_TOKEN_NAME] = $validToken;
+        if ($requestTokenPost !== null) {
+            $_POST[AntiCsrfMiddleware::CSRF_SESSION_TOKEN_NAME] = $requestTokenPost;
+        }
 
-        $request = new Request('/hehe', RequestMethod::POST);
+        if ($requestTokenJson !== null) {
+            $jsonContent = json_encode(['csrf_token' => $requestTokenJson]);
+        }
+
+        $request = $this->getRequestWithJsonData(content: $jsonContent ?? '');
         $nextResponse = new ViewResponse('/success');
 
         $response = $this->middleware->handle(
@@ -144,6 +178,18 @@ final class AntiCsrfMiddlewareTest extends TestCase
         );
 
         self::assertSame($nextResponse, $response);
+    }
+
+    /**
+     * @return array<string, list<string|null>>
+     */
+    public static function matchingTokensProvider(): array
+    {
+        return [
+            'json_token_matches_post_one_does_not_exist' => ['hehe', null, 'hehe'],
+            'json_token_matches_post_one_is_wrong' => ['hehe', 'nope', 'hehe'],
+            'post_token_matches_json_one_does_not_exist' => ['hehe', 'hehe', null]
+        ];
     }
 
     #[Test]
@@ -170,10 +216,17 @@ final class AntiCsrfMiddlewareTest extends TestCase
     #[DataProvider('invalidTokenTypeProvider')]
     public function it_rejects_non_string_tokens(
         mixed $sessionToken,
-        mixed $postToken
+        mixed $postToken,
+        mixed $jsonToken
     ): void
     {
-        $_POST[AntiCsrfMiddleware::CSRF_TOKEN_NAME] = $postToken;
+        if ($postToken !== null) {
+            $_POST[AntiCsrfMiddleware::CSRF_SESSION_TOKEN_NAME] = $postToken;
+        }
+
+        if ($jsonToken !== null) {
+            $jsonContent = json_encode(['csrf_token' => $jsonToken]);
+        }
 
         $this->willReturnCsrfToken($sessionToken);
 
@@ -181,13 +234,16 @@ final class AntiCsrfMiddlewareTest extends TestCase
 
         $nextCalled = false;
 
+        $request = $this->getRequestWithJsonData(content: $jsonContent ?? '');
+
         $this->middleware->handle(
-            new Request('/hehe', RequestMethod::POST),
+            $request,
             function () use (&$nextCalled) {
                 $nextCalled = true;
 
                 return new ViewResponse('/success');
-            }
+            },
+            $this->config
         );
 
         self::assertFalse($nextCalled);
@@ -199,36 +255,59 @@ final class AntiCsrfMiddlewareTest extends TestCase
     public static function invalidTokenTypeProvider(): array
     {
         return [
-            'array session token' => [
+            'array_session_token' => [
                 ['csrf_token'],
                 'valid-token',
+                null,
             ],
-            'array post token' => [
+            'array_post_token' => [
+                'valid-token',
+                ['csrf_token'],
+                null,
+            ],
+            'array_json_token' => [
+                'valid-token',
                 'valid-token',
                 ['csrf_token'],
             ],
-            'integer session token' => [
+            'integer_session_token' => [
                 12345,
                 '12345',
+                null,
             ],
-            'integer post token' => [
+            'integer_post_token' => [
                 '12345',
                 12345,
+                null,
             ],
-            'boolean session token' => [
+            'integer_json_token' => [
+                '12345',
+                'valid-token',
+                12345,
+            ],
+            'boolean_session_token' => [
                 true,
                 '1',
+                null,
             ],
-            'boolean post token' => [
+            'boolean_post_token' => [
+                'valid-token',
+                true,
+                null,
+            ],
+            'boolean_json_token' => [
+                'valid-token',
                 'valid-token',
                 true,
             ],
-            'null session token' => [
+            'null_session_token' => [
                 null,
                 'valid-token',
+                null,
             ],
-            'null post token' => [
+            'null_post_token' => [
                 'valid-token',
+                null,
                 null,
             ],
         ];
@@ -252,26 +331,76 @@ final class AntiCsrfMiddlewareTest extends TestCase
 
         $middleware = new AntiCsrfMiddleware(
             $this->pathResolver,
-            $this->session,
-            function (Request $receivedRequest) use (
-                $request,
-                $customResponse,
-                &$handlerCalled
-            ): Response {
-                $handlerCalled = true;
-
-                self::assertSame($request, $receivedRequest);
-
-                return $customResponse;
-            }
+            $this->session
         );
 
         $response = $middleware->handle(
             $request,
-            static fn() => new ViewResponse('/success')
+            static fn() => new ViewResponse('/success'),
+            new AntiCsrfConfig(
+                customResponseHandler: function (Request $receivedRequest) use (
+                    $request,
+                    $customResponse,
+                    &$handlerCalled
+                ): Response {
+                    $handlerCalled = true;
+
+                    self::assertSame($request, $receivedRequest);
+
+                    return $customResponse;
+                }
+            )
         );
 
         self::assertTrue($handlerCalled);
         self::assertSame($customResponse, $response);
+    }
+
+    #[Test]
+    public function it_accepts_custom_token_name_when_tokens_match(): void
+    {
+        $this->willReturnCsrfToken('custom-token');
+
+        $this->session
+            ->expects(self::never())
+            ->method('set');
+
+        $jsonContent = json_encode(['my_token' => 'custom-token']);
+
+        $request = $this->getRequestWithJsonData(content: $jsonContent);
+
+        $nextResponse = new ViewResponse('/ok');
+
+        $response = $this->middleware->handle(
+            $request,
+            function (Request $receivedRequest) use ($request, $nextResponse) {
+                self::assertSame($request, $receivedRequest);
+
+                return $nextResponse;
+            },
+            new AntiCsrfConfig(tokenName: 'my_token')
+        );
+
+        self::assertSame($nextResponse, $response);
+    }
+
+    #[Test]
+    public function it_rejects_invalid_token_for_custom_token_name(): void
+    {
+        $this->willReturnCsrfToken('session_token');
+
+        $this->expects64LengthTokenSet();
+
+        $jsonContent = json_encode(['my_token' => ['not', 'string']]);
+
+        $request = $this->getRequestWithJsonData(content: $jsonContent);
+
+        $response = $this->middleware->handle(
+            $request,
+            static fn() => new ViewResponse('/success'),
+            new AntiCsrfConfig(tokenName: 'my_token')
+        );
+
+        self::assertSame(403, $response->statusCode);
     }
 }
