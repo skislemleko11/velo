@@ -3,12 +3,11 @@ declare(strict_types=1);
 
 namespace Velo\Http\Tests;
 
+use JsonException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Velo\Http\RenderContext;
 use Velo\Http\Request;
 use Velo\Http\RequestMethod;
-use Velo\Http\Responses\Response;
 
 final class RequestTest extends TestCase
 {
@@ -105,29 +104,37 @@ final class RequestTest extends TestCase
     #[Test]
     public function it_gets_headers(): void
     {
-        $response = $this->getResponseWithHeaders();
+        $server = $_SERVER;
 
-        self::assertEquals(['hehe' => 'hihi', 'a' => 'b', 'c' => 'D'], $response->getHeaders());
-    }
+        $_SERVER = [
+            'HTTP_HOST' => 'example.com',
+            'HTTP_CONTENT_TYPE' => ' application/json ',
+            'HTTP_X_CUSTOM_HEADER' => ' custom value ',
+            'SOME_OTHER_VALUE' => 'should be ignored',
+            'SERVER_NAME' => 'example.com',
+        ];
 
-    private function getResponseWithHeaders(): Response
-    {
-        return new class(200, ['hehe' => 'hihi', 'a' => 'b', 'C    ' => 'D']) extends Response {
-            public function render(RenderContext $context): string
-            {
-                return '';
-            }
-        };
+        try {
+            self::assertSame([
+                'host' => 'example.com',
+                'content-type' => ' application/json ',
+                'x-custom-header' => ' custom value ',
+            ], $this->request->getHeaders());
+        } finally {
+            $_SERVER = $server;
+        }
     }
 
     #[Test]
-    public function it_gets_header(): void
+    public function it_gets_single_header_from_server_super_global(): void
     {
-        $response = $this->getResponseWithHeaders();
+        $_SERVER['HTTP_X_CUSTOM_HEADER'] = 'SecretValue';
 
-        self::assertEquals('hihi', $response->getHeader('hehe'));
-        self::assertEquals('b', $response->getHeader('A    '));
-        self::assertEquals('D', $response->getHeader('c   '));
+        $request = new Request(self::URL, RequestMethod::GET);
+
+        self::assertSame('SecretValue', $request->getHeader('  x-custom-header'));
+        self::assertSame('SecretValue', $request->getHeader(' X-CUSTOM-HEADER   '));
+        self::assertSame('default', $request->getHeader('non-existing', 'default'));
     }
 
     #[Test]
@@ -172,5 +179,210 @@ final class RequestTest extends TestCase
         $request = new Request(self::URL, RequestMethod::tryFromString('NOT_A_VALID_METHOD'));
 
         self::assertSame(RequestMethod::UNKNOWN, $request->method);
+    }
+
+    #[Test]
+    public function it_returns_raw_input_from_input_stream_file(): void
+    {
+        $content = 'hehe';
+        $streamUrl = $this->createStreamWithContent($content);
+
+        $request = new Request(self::URL, RequestMethod::POST, $streamUrl);
+
+        self::assertSame($content, $request->getRawInput());
+    }
+
+    private function createStreamWithContent(string $content): string
+    {
+        $stream = fopen('php://memory', 'r+');
+        fwrite($stream, $content);
+        rewind($stream);
+
+        return 'data://text/plain;base64,' . base64_encode($content);
+    }
+
+    #[Test]
+    public function it_returns_empty_string_when_input_file_does_not_exist(): void
+    {
+        $request = new Request(self::URL, RequestMethod::POST, 'hehe');
+
+        self::assertSame('', @$request->getRawInput());
+    }
+
+    #[Test]
+    public function it_returns_default_when_there_is_no_content(): void
+    {
+        self::assertSame('hehe', $this->request->getJsonInput(default: 'hehe'));
+    }
+
+    #[Test]
+    public function it_returns_all_data_when_no_key_provided(): void
+    {
+        $data = [
+            1 => 1,
+            2 => 2,
+            4 => 4
+        ];
+        $request = $this->createStreamWithContentAndCreateRequest($data);
+
+        self::assertEquals($data, $request->getJsonInput());
+    }
+
+    private function createStreamWithContentAndCreateRequest(mixed $data): Request
+    {
+        $content = is_string($data) ? $data : json_encode($data);
+        $streamUrl = $this->createStreamWithContent($content);
+
+        return new Request(self::URL, RequestMethod::POST, $streamUrl);
+    }
+
+    #[Test]
+    public function it_thorws_json_exception_when_file_is_not_a_valid_json(): void
+    {
+        $data = '{"name": "Jan", "age": 30';
+        $request = $this->createStreamWithContentAndCreateRequest($data);
+
+        $this->expectException(JsonException::class);
+        $request->getJsonInput();
+    }
+
+    #[Test]
+    public function it_returns_default_when_json_is_scalar_and_key_is_provided(): void
+    {
+        $validJsonScalar = json_encode('hello');
+
+        $streamUrl = $this->createStreamWithContent($validJsonScalar);
+        $request = new Request(self::URL, RequestMethod::POST, $streamUrl);
+
+        self::assertSame('hello', $request->getJsonInput(null));
+        self::assertSame('default', $request->getJsonInput('some_key', 'default'));
+    }
+
+    #[Test]
+    public function it_returns_default_when_input_does_not_have_requested_key(): void
+    {
+        $data = [
+            1 => 1,
+            2 => 2
+        ];
+        $request = $this->createStreamWithContentAndCreateRequest($data);
+        $default = 'hehe';
+
+        self::assertEquals($default, $request->getJsonInput(3, $default));
+    }
+
+    #[Test]
+    public function it_returns_null_when_value_is_null(): void
+    {
+        $data = [1 => null];
+        $request = $this->createStreamWithContentAndCreateRequest($data);
+        $default = 'hehe';
+
+        self::assertEquals(null, $request->getJsonInput(1, $default));
+    }
+
+    #[Test]
+    public function it_gets_value_from_json_input(): void
+    {
+        $data = [1 => 'value'];
+        $request = $this->createStreamWithContentAndCreateRequest($data);
+
+        self::assertEquals('value', $request->getJsonInput(1));
+    }
+
+    #[Test]
+    public function it_prioritizes_json_over_form_and_gets_json(): void
+    {
+        $data = [1 => 'value'];
+        $_POST[1] = 'nope';
+
+        $request = $this->createStreamWithContentAndCreateRequest($data);
+
+        self::assertEquals('value', $request->getJsonInputOrFormValue(1));
+    }
+
+    #[Test]
+    public function it_returns_form_value_when_input_file_does_not_exist(): void
+    {
+        $_POST[1] = 'value';
+
+        $request = new Request(self::URL, RequestMethod::POST, 'hehe');
+
+        self::assertSame('value', @$request->getJsonInputOrFormValue(1));
+    }
+
+    #[Test]
+    public function it_returns_form_value_when_there_is_no_content(): void
+    {
+        $_POST['a'] = 'v';
+
+        self::assertSame('v', $this->request->getJsonInputOrFormValue('a'));
+    }
+
+    #[Test]
+    public function it_prioritizes_json_and_thorws_json_exception_when_file_is_not_a_valid_json(): void
+    {
+        $_POST['a'] = 'v';
+        $data = '{"a": 30';
+        $request = $this->createStreamWithContentAndCreateRequest($data);
+
+        $this->expectException(JsonException::class);
+        $request->getJsonInputOrFormValue('a');
+    }
+
+    #[Test]
+    public function it_returns_form_value_when_input_does_not_have_requested_key(): void
+    {
+        $_POST['a'] = 'v';
+        $data = [1 => 2];
+
+        $request = $this->createStreamWithContentAndCreateRequest($data);
+
+        self::assertSame('v', $request->getJsonInputOrFormValue('a'));
+    }
+
+    #[Test]
+    public function it_returns_null_when_input_value_is_null(): void
+    {
+        $_POST['a'] = 'v';
+        $data = ['a' => null];
+
+        $request = $this->createStreamWithContentAndCreateRequest($data);
+
+        self::assertSame(null, $request->getJsonInputOrFormValue('a'));
+    }
+
+    #[Test]
+    public function it_returns_null_when_no_json_key_and_form_value_is_null(): void
+    {
+        $_POST['a'] = null;
+        $data = ['b' => null];
+
+        $request = $this->createStreamWithContentAndCreateRequest($data);
+
+        self::assertSame(null, $request->getJsonInputOrFormValue('a', 'default'));
+    }
+
+    #[Test]
+    public function it_returns_default_when_both_input_and_form_value_does_not_exist(): void
+    {
+        unset($_POST['a']);
+        $data = ['b' => null];
+
+        $request = $this->createStreamWithContentAndCreateRequest($data);
+
+        self::assertSame('default', $request->getJsonInputOrFormValue('a', 'default'));
+    }
+
+    #[Test]
+    public function it_returns_json_value_even_if_it_is_equal_to_default_instead_of_form_value(): void
+    {
+        $_POST['a'] = 'v';
+        $default = 'hehe';
+        $data = ['a' => $default];
+
+        $request = $this->createStreamWithContentAndCreateRequest($data);
+
+        self::assertSame($default, $request->getJsonInputOrFormValue('a', $default));
     }
 }

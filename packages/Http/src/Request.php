@@ -28,10 +28,13 @@ final class Request
      * @var array<string, string>
      */
     private array $headers;
+    private string $rawInput;
+    private mixed $jsonInput;
 
     public function __construct(
-        string        $url,
-        RequestMethod $method
+        string                  $url,
+        RequestMethod           $method,
+        private readonly string $inputStream = 'php://input'
     )
     {
         $this->url = trim($url);
@@ -64,21 +67,60 @@ final class Request
         return $actualMethod;
     }
 
-    public function getContent(): string
+    public function getRawInput(): string
     {
-        return file_get_contents('php://input') ?: '';
+        if (!isset($this->rawInput)) {
+            $this->rawInput = file_get_contents($this->inputStream) ?: '';
+        }
+
+        return $this->rawInput;
     }
 
     /**
+     * @param string|int|null $key Passing null will result in retrievieng all data.
+     *
      * @throws JsonException
      */
-    public function getContentJson(): mixed
+    public function getJsonInput(string|int|null $key = null, mixed $default = null): mixed
     {
-        return json_decode(
-            $this->getContent(),
-            associative: true,
-            flags: JSON_THROW_ON_ERROR
-        );
+        if (!$rawInput = $this->getRawInput()) {
+            return $default;
+        }
+
+        if (!isset($this->jsonInput)) {
+            $this->jsonInput = json_decode(
+                $rawInput,
+                associative: true,
+                flags: JSON_THROW_ON_ERROR
+            );
+        }
+
+        if ($key === null) {
+            return $this->jsonInput;
+        }
+
+        return $this->hasJsonKey($key) ? $this->jsonInput[$key] : $default;
+    }
+
+    private function hasJsonKey(string|int $key): bool
+    {
+        return isset($this->jsonInput) && is_array($this->jsonInput) && array_key_exists($key, $this->jsonInput);
+    }
+
+    /**
+     * JSON is checked first.
+     *
+     * @throws JsonException
+     */
+    public function getJsonInputOrFormValue(string|int $key, mixed $default = null): mixed
+    {
+        $jsonValue = $this->getJsonInput($key, $default);
+
+        if ($this->hasJsonKey($key)) {
+            return $jsonValue;
+        }
+
+        return $this->getFormValue((string)$key, $default);
     }
 
     /**
@@ -86,7 +128,9 @@ final class Request
      */
     public function getFormValue(string $key, mixed $default = null): mixed
     {
-        return $this->getFormData()[$key] ?? $default;
+        $post = $this->getFormData();
+
+        return array_key_exists($key, $post) ? $post[$key] : $default;
     }
 
     /**
