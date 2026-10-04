@@ -37,7 +37,7 @@ final class Session implements SessionInterface
         return isset($_SESSION[$key]);
     }
 
-    public function remove(string $key): SessionInterface
+    public function remove(string $key): self
     {
         unset($_SESSION[$key]);
 

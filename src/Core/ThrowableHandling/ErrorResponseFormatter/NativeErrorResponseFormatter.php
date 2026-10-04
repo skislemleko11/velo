@@ -86,7 +86,7 @@ class NativeErrorResponseFormatter implements ErrorResponseFormatterInterface
 
     protected function getPublicMessage(Throwable $throwable): string
     {
-        return $throwable instanceof HttpResponseExceptionInterface ? $throwable->getPublicMessage() : self::DEFAULT_ERROR_MESSAGE;
+        return $throwable instanceof HttpResponseExceptionInterface ? $throwable->getPublicMessage() : static::DEFAULT_ERROR_MESSAGE;
     }
 
     /**

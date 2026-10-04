@@ -8,7 +8,7 @@ interface FlashMessagesInterface
     /**
      * Adds a flash message.
      */
-    public function add(string $type, string $value): self;
+    public function add(string $type, string $value): static;
 
     /**
      * Retrieves and removes all flash messages of the given type.
@@ -33,20 +33,20 @@ interface FlashMessagesInterface
     /**
      * Adds a success flash message.
      */
-    public function success(string $message): self;
+    public function success(string $message): static;
 
     /**
      * Adds an error flash message.
      */
-    public function error(string $message): self;
+    public function error(string $message): static;
 
     /**
      * Adds a warning flash message.
      */
-    public function warning(string $message): self;
+    public function warning(string $message): static;
 
     /**
      * Adds an info flash message.
      */
-    public function info(string $message): self;
+    public function info(string $message): static;
 }

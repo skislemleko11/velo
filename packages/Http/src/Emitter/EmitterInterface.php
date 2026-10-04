@@ -8,19 +8,19 @@ interface EmitterInterface
     /**
      * Sets the given header if headers are not sent.
      */
-    public function sendHeader(string $name, string $value): self;
+    public function sendHeader(string $name, string $value): static;
 
     /**
      * Sets the given array of headers if headers are not sent.
      *
      * @param array<string, string> $headers
      */
-    public function sendHeaders(array $headers): self;
+    public function sendHeaders(array $headers): static;
 
     /**
      * Sets status code if headers are not sent.
      */
-    public function setStatusCode(int $code): self;
+    public function setStatusCode(int $code): static;
 
     /**
      * Terminates the script.

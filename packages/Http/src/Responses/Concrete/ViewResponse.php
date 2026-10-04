@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Velo\Http\Responses\Concrete;
 
-use Velo\FileSystem\PathResolver\Exceptions\PathNotFoundException;
 use Velo\Http\RenderContext;
 use Velo\Http\ResponseFormat;
 use Velo\Http\Responses\Response;

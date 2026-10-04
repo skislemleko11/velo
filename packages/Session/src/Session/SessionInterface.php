@@ -8,7 +8,7 @@ interface SessionInterface
     /**
      * Stores a value in the session.
      */
-    public function set(string $key, mixed $value): self;
+    public function set(string $key, mixed $value): static;
 
     /**
      * Retrieves a value from the session.
@@ -25,12 +25,12 @@ interface SessionInterface
     /**
      * Removes the given key from the session.
      */
-    public function remove(string $key): self;
+    public function remove(string $key): static;
 
     /**
      * Stores flash data that will be available until it is retrieved.
      */
-    public function setFlash(string $key, mixed $value): self;
+    public function setFlash(string $key, mixed $value): static;
 
     /**
      * Retrieves and removes flash data.

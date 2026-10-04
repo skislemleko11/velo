@@ -26,7 +26,7 @@ class PathResolver
      */
     protected array $filePaths = [];
 
-    public function setDirPath(string $key, string $path): self
+    public function setDirPath(string $key, string $path): static
     {
         $this->dirPaths[$key] = $path;
 
@@ -45,7 +45,7 @@ class PathResolver
         return rtrim($this->dirPaths[$key], '/') . '/';
     }
 
-    public function setFilePath(string $key, string $path): self
+    public function setFilePath(string $key, string $path): static
     {
         $this->filePaths[$key] = $path;
 
@@ -71,7 +71,7 @@ class PathResolver
      */
     public function getErrorFilePath(int $statusCode): string
     {
-        return $this->getFilePath(self::ERROR_KEYS_PREFIX . $statusCode);
+        return $this->getFilePath(static::ERROR_KEYS_PREFIX . $statusCode);
     }
 
     /**
@@ -81,23 +81,23 @@ class PathResolver
      */
     public function getErrorGeneralFilePath(): string
     {
-        return $this->getFilePath(self::ERROR_GENERAL_KEY);
+        return $this->getFilePath(static::ERROR_GENERAL_KEY);
     }
 
     /**
      * @param string $filePath Must be relative to the views dir.
      */
-    public function setErrorFilePath(int $statusCode, string $filePath): self
+    public function setErrorFilePath(int $statusCode, string $filePath): static
     {
-        return $this->setFilePath(self::ERROR_KEYS_PREFIX . $statusCode, $filePath);
+        return $this->setFilePath(static::ERROR_KEYS_PREFIX . $statusCode, $filePath);
     }
 
     /**
      * @param string $filePath Must be relative to the views dir.
      */
-    public function setErrorGeneralFilePath(string $filePath): self
+    public function setErrorGeneralFilePath(string $filePath): static
     {
-        return $this->setFilePath(self::ERROR_GENERAL_KEY, $filePath);
+        return $this->setFilePath(static::ERROR_GENERAL_KEY, $filePath);
     }
 
     public function isDirRegistered(string $key): bool
@@ -112,12 +112,12 @@ class PathResolver
 
     public function isErrorFileRegistered(int $statusCode): bool
     {
-        return $this->isFileRegistered(self::ERROR_KEYS_PREFIX . $statusCode);
+        return $this->isFileRegistered(static::ERROR_KEYS_PREFIX . $statusCode);
     }
 
     public function isErrorGeneralFileRegistered(): bool
     {
-        return $this->isFileRegistered(self::ERROR_GENERAL_KEY);
+        return $this->isFileRegistered(static::ERROR_GENERAL_KEY);
     }
 
     /**
