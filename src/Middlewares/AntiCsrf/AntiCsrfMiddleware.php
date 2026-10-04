@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Middlewares;
+namespace Velo\Middlewares\AntiCsrf;
 
 use Random\RandomException;
 use Velo\FileSystem\PathResolver\Exceptions\PathNotFoundException;

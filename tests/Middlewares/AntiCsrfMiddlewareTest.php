@@ -14,8 +14,8 @@ use Velo\Http\RequestMethod;
 use Velo\Http\Responses\Concrete\JsonResponse;
 use Velo\Http\Responses\Concrete\ViewResponse;
 use Velo\Http\Responses\Response;
-use Velo\Middlewares\AntiCsrfConfig;
-use Velo\Middlewares\AntiCsrfMiddleware;
+use Velo\Middlewares\AntiCsrf\AntiCsrfConfig;
+use Velo\Middlewares\AntiCsrf\AntiCsrfMiddleware;
 use Velo\Session\Session\SessionInterface;
 
 #[AllowMockObjectsWithoutExpectations]
