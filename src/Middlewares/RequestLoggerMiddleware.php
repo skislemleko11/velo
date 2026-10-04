@@ -15,11 +15,10 @@ use Velo\Router\Middlewares\MiddlewareInterface;
 final readonly class RequestLoggerMiddleware implements MiddlewareInterface
 {
     /**
-     * @param Closure|null $customLogFunction Should take a request.
+     * @param LoggerInterface|Closure $loggerOrLogFunction Closure should take a request.
      */
     public function __construct(
-        private LoggerInterface $logger,
-        private ?Closure        $customLogFunction = null,
+        private LoggerInterface|Closure $loggerOrLogFunction
     )
     {
     }
@@ -30,8 +29,8 @@ final readonly class RequestLoggerMiddleware implements MiddlewareInterface
      */
     public function handle(Request $request, callable $next): Response
     {
-        if ($this->customLogFunction) {
-            ($this->customLogFunction)($request);
+        if ($this->loggerOrLogFunction instanceof Closure) {
+            ($this->loggerOrLogFunction)($request);
         } else {
             $this->logRequestWithLogger($request);
         }
@@ -47,7 +46,7 @@ final readonly class RequestLoggerMiddleware implements MiddlewareInterface
      */
     private function logRequestWithLogger(Request $request): void
     {
-        $this->logger->info("Request:\nUrl: {url}\nMethod: {method}", [
+        $this->loggerOrLogFunction->info("Request:\nUrl: {url}\nMethod: {method}", [
             'url' => $request->url,
             'url path' => $request->urlPath,
             'method' => $request->method->value,

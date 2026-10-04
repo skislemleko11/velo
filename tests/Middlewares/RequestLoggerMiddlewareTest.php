@@ -28,7 +28,7 @@ final class RequestLoggerMiddlewareTest extends TestCase
 
         $wasCalled = 0;
 
-        $middleware = new RequestLoggerMiddleware($this->logger, function (Request $request) use (&$wasCalled) {
+        $middleware = new RequestLoggerMiddleware(function (Request $request) use (&$wasCalled) {
             $wasCalled++;
             return $request;
         });
