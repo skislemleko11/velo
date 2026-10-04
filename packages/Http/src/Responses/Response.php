@@ -50,6 +50,8 @@ abstract class Response
     }
 
     /**
+     * Sets a header, if it's already set, it gets replaced.
+     *
      * @param string $name Will be converted to lowercase and trimmed.
      * @param string $value Will be trimmed.
      */
@@ -64,6 +66,8 @@ abstract class Response
     }
 
     /**
+     * Sets headers, headers which are already set get replaced.
+     *
      * @param array<string, string> $headers Keys - headers names will be converted to lowercase and trimmed,
      * values - headers values will be trimmed.
      */
