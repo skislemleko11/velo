@@ -13,18 +13,18 @@ class PathResolver
     public const string ROOT_DIR_KEY = 'root';
     public const string PUBLIC_DIR_KEY = 'public';
     public const string VIEWS_DIR_KEY = 'views';
-    private const string ERROR_GENERAL_KEY = 'error';
-    private const string ERROR_KEYS_PREFIX = 'error_';
+    protected const string ERROR_GENERAL_KEY = 'error';
+    protected const string ERROR_KEYS_PREFIX = 'error_';
 
     /**
      * @var array<string, string>
      */
-    private array $dirPaths = [];
+    protected array $dirPaths = [];
 
     /**
      * @var array<string, string>
      */
-    private array $filePaths = [];
+    protected array $filePaths = [];
 
     public function setDirPath(string $key, string $path): self
     {

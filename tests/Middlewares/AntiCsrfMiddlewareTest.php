@@ -6,6 +6,7 @@ namespace Velo\Tests\Middlewares;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Velo\FileSystem\PathResolver\PathResolver;
@@ -22,7 +23,7 @@ use Velo\Session\Session\SessionInterface;
 final class AntiCsrfMiddlewareTest extends TestCase
 {
     private AntiCsrfMiddleware $middleware;
-    private PathResolver $pathResolver;
+    private PathResolver&MockObject $pathResolver;
     private SessionInterface $session;
     private AntiCsrfConfig $config;
 
@@ -30,16 +31,8 @@ final class AntiCsrfMiddlewareTest extends TestCase
     {
         $_POST = [];
 
-        $this->pathResolver = new PathResolver()
-            ->setDirPath(PathResolver::ROOT_DIR_KEY, '/')
-            ->setDirPath(PathResolver::PUBLIC_DIR_KEY, '/public/')
-            ->setDirPath(PathResolver::VIEWS_DIR_KEY, '/views/')
-            ->setErrorGeneralFilePath('error.php')
-            ->setErrorFilePath(403, 'error403.php')
-            ->setErrorFilePath(404, 'error404.php')
-            ->setErrorFilePath(500, 'error500.php');
-
-        $this->session = $this->createMock(SessionInterface::class);
+        $this->pathResolver = self::createMock(PathResolver::class);
+        $this->session = self::createMock(SessionInterface::class);
         $this->middleware = new AntiCsrfMiddleware($this->pathResolver, $this->session);
         $this->config = new AntiCsrfConfig();
     }
@@ -69,13 +62,18 @@ final class AntiCsrfMiddlewareTest extends TestCase
 
         $this->expects64LengthTokenSet();
 
+        $this->pathResolver->expects(self::once())
+            ->method('resolveErrorFilePath')
+            ->with(403)
+            ->willReturn('error403.php');
+
         $nextCalled = false;
         $next = function () use (&$nextCalled) {
             $nextCalled = true;
             return new ViewResponse('/next');
         };
 
-        $request = $this->getRequestWithJsonData(content: $jsonContent ?? '');
+        $request = $this->getRequestWithJsonData($jsonContent ?? '');
 
         $response = $this->middleware->handle($request, $next);
 
@@ -83,7 +81,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
         self::assertSame(403, $response->statusCode);
         self::assertInstanceOf(ViewResponse::class, $response);
         self::assertSame(
-            $this->pathResolver->getErrorFilePath(403),
+            'error403.php',
             $this->getFilePath($response)
         );
     }
@@ -125,7 +123,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
             );
     }
 
-    private function getRequestWithJsonData(string $url = 'hehe', RequestMethod $method = RequestMethod::POST, string $content = ''): Request
+    private function getRequestWithJsonData(string $content = ''): Request
     {
         $stream = fopen('php://memory', 'r+');
         fwrite($stream, json_encode($content));
@@ -133,7 +131,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
 
         $streamUrl = 'data://text/plain;base64,' . base64_encode($content);
 
-        return new Request($url, $method, $streamUrl);
+        return new Request('', RequestMethod::POST, $streamUrl);
     }
 
     private function getFilePath(ViewResponse $response): string
@@ -165,7 +163,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
             $jsonContent = json_encode(['csrf_token' => $requestTokenJson]);
         }
 
-        $request = $this->getRequestWithJsonData(content: $jsonContent ?? '');
+        $request = $this->getRequestWithJsonData($jsonContent ?? '');
         $nextResponse = new ViewResponse('/success');
 
         $response = $this->middleware->handle(
@@ -234,7 +232,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
 
         $nextCalled = false;
 
-        $request = $this->getRequestWithJsonData(content: $jsonContent ?? '');
+        $request = $this->getRequestWithJsonData($jsonContent ?? '');
 
         $this->middleware->handle(
             $request,
@@ -367,7 +365,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
 
         $jsonContent = json_encode(['my_token' => 'custom-token']);
 
-        $request = $this->getRequestWithJsonData(content: $jsonContent);
+        $request = $this->getRequestWithJsonData($jsonContent);
 
         $nextResponse = new ViewResponse('/ok');
 
@@ -393,7 +391,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
 
         $jsonContent = json_encode(['my_token' => ['not', 'string']]);
 
-        $request = $this->getRequestWithJsonData(content: $jsonContent);
+        $request = $this->getRequestWithJsonData($jsonContent);
 
         $response = $this->middleware->handle(
             $request,
