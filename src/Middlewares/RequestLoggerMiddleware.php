@@ -14,23 +14,22 @@ use Velo\Router\Middlewares\MiddlewareInterface;
  */
 final readonly class RequestLoggerMiddleware implements MiddlewareInterface
 {
-    /**
-     * @param LoggerInterface|Closure $loggerOrLogFunction Closure should take a request.
-     */
     public function __construct(
-        private LoggerInterface|Closure $loggerOrLogFunction
+        private LoggerInterface $logger
     )
     {
     }
 
     /**
-     * It handles the given Request. If the custom log function was provided in the constructor, calls customLogFunction($request),
-     * otherwise calls logRequestWithLogger($request). Then calls next(request).
+     * Handles the given Request.
+     *
+     * @param callable|null $customLogFuntion Provide to handle logging with your own function,
+     * it'll be executed with this->logger and request as arguments.
      */
-    public function handle(Request $request, callable $next): Response
+    public function handle(Request $request, callable $next, ?callable $customLogFuntion = null): Response
     {
-        if ($this->loggerOrLogFunction instanceof Closure) {
-            ($this->loggerOrLogFunction)($request);
+        if ($customLogFuntion instanceof Closure) {
+            ($customLogFuntion)($this->logger, $request);
         } else {
             $this->logRequestWithLogger($request);
         }
@@ -46,7 +45,7 @@ final readonly class RequestLoggerMiddleware implements MiddlewareInterface
      */
     private function logRequestWithLogger(Request $request): void
     {
-        $this->loggerOrLogFunction->info("Request:\nUrl: {url}\nMethod: {method}", [
+        $this->logger->info("Request:\nUrl: {url}\nMethod: {method}", [
             'url' => $request->url,
             'url path' => $request->urlPath,
             'method' => $request->method->value,

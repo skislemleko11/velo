@@ -28,10 +28,7 @@ final class RequestLoggerMiddlewareTest extends TestCase
 
         $wasCalled = 0;
 
-        $middleware = new RequestLoggerMiddleware(function (Request $request) use (&$wasCalled) {
-            $wasCalled++;
-            return $request;
-        });
+        $middleware = new RequestLoggerMiddleware($this->logger);
 
         $wasCalledNext = 0;
         $httpResponse = new ViewResponse('hehe');
@@ -41,7 +38,14 @@ final class RequestLoggerMiddlewareTest extends TestCase
         };
 
         $request = new Request('/', RequestMethod::GET);
-        self::assertSame($httpResponse, $middleware->handle($request, $next));
+        self::assertSame($httpResponse, $middleware->handle(
+            $request,
+            $next,
+            function (LoggerInterface $logger, Request $request) use (&$wasCalled) {
+                $wasCalled++;
+                return $request;
+            }
+        ));
 
         self::assertEquals(1, $wasCalled);
         self::assertEquals(1, $wasCalledNext);
