@@ -37,7 +37,7 @@ final class LoggerTest extends TestCase
     #[Test]
     public function it_takes_string_log_level(): void
     {
-        $logger = new Logger($this->logPath, $this->logFormatterMock);
+        $logger = new Logger($this->logFormatterMock, $this->logPath);
 
         $logger->log('a', 'Test message');
 
@@ -47,7 +47,7 @@ final class LoggerTest extends TestCase
     #[Test]
     public function it_takes_stringable_log_level(): void
     {
-        $logger = new Logger($this->logPath, $this->logFormatterMock);
+        $logger = new Logger($this->logFormatterMock, $this->logPath);
 
         $logger->log(new Exception('hehe'), 'Test message');
 
@@ -58,7 +58,7 @@ final class LoggerTest extends TestCase
     #[DataProvider('invalidLogLevelsTestCases')]
     public function it_throws_exception_when_log_level_is_invalid(mixed $val): void
     {
-        $logger = new Logger($this->logPath, $this->logFormatterMock);
+        $logger = new Logger($this->logFormatterMock, $this->logPath);
 
         $this->expectException(InvalidArgumentException::class);
 
@@ -82,7 +82,7 @@ final class LoggerTest extends TestCase
     #[Test]
     public function it_formats_and_writes_log_message(): void
     {
-        $logger = new Logger($this->logPath, $this->logFormatterMock);
+        $logger = new Logger($this->logFormatterMock, $this->logPath);
 
         $this->logFormatterMock->expects($this->once())
             ->method('format')
@@ -106,7 +106,7 @@ final class LoggerTest extends TestCase
             ->with($logLevel, $message, $context)
             ->willReturn('Formatted message');
 
-        $logger = new Logger($this->logPath, $this->logFormatterMock);
+        $logger = new Logger($this->logFormatterMock, $this->logPath);
         $logger->$methodName($message, $context);
     }
 

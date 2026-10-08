@@ -13,8 +13,8 @@ use Stringable;
 final class Logger extends AbstractLogger
 {
     public function __construct(
-        private readonly string       $logFilePath,
-        private readonly LogFormatter $logFormatter
+        private readonly LogFormatter $logFormatter,
+        private readonly string       $logFilePath = 'app.log'
     )
     {
     }
