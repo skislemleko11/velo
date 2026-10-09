@@ -53,12 +53,14 @@ final class DefaultContainerFactoryTest extends TestCase
         $this->assertHasDefaultBindings($container);
     }
 
-    private function assertHasDefaultBindings(Container $container): void
+    private function assertHasDefaultBindings(Container $container, array $excludeKeys = []): void
     {
         self::assertSame($container, $container->get(ContainerInterface::class));
 
-        foreach (self::DEFAULT_BINDINGS as $interface => $concreteClass) {
-            self::assertInstanceOf($concreteClass, $container->get($interface));
+        foreach (self::DEFAULT_BINDINGS as $key => $concreteClass) {
+            if (!isset($excludeKeys[$key])) {
+                self::assertInstanceOf($concreteClass, $container->get($key));
+            }
         }
     }
 
@@ -77,5 +79,22 @@ final class DefaultContainerFactoryTest extends TestCase
         self::assertInstanceOf(ViewResolver::class, $container->get('hihi'));
     }
 
-    // TODO: ADD A TEST FOR CHANGING THE DEFAULT BINDINGS
+    #[Test]
+    public function it_changes_default_bindings_when_changed_in_extra_bindings(): void
+    {
+        $viewResolverStub = self::createStub(ViewResolverInterface::class);
+        $logFormatterStub = self::createStub(LogFormatter::class);
+
+        $extraBindings = [
+            ViewResolverInterface::class => $viewResolverStub,
+            LogFormatter::class => $logFormatterStub
+        ];
+
+        $container = DefaultContainerFactory::create($extraBindings);
+
+        self::assertSame($viewResolverStub, $container->get(ViewResolverInterface::class));
+        self::assertSame($logFormatterStub, $container->get(LogFormatter::class));
+
+        $this->assertHasDefaultBindings($container, $extraBindings);
+    }
 }
