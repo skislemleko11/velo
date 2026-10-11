@@ -25,16 +25,15 @@ final class AntiCsrfMiddlewareTest extends TestCase
     private AntiCsrfMiddleware $middleware;
     private PathResolver&MockObject $pathResolver;
     private SessionInterface $session;
-    private AntiCsrfConfig $config;
 
     protected function setUp(): void
     {
         $_POST = [];
+        $_SERVER['HTTP_ACCEPT'] = 'text/html';
 
         $this->pathResolver = self::createMock(PathResolver::class);
         $this->session = self::createMock(SessionInterface::class);
         $this->middleware = new AntiCsrfMiddleware($this->pathResolver, $this->session);
-        $this->config = new AntiCsrfConfig();
     }
 
     protected function tearDown(): void
@@ -62,10 +61,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
 
         $this->expects64LengthTokenSet();
 
-        $this->pathResolver->expects(self::once())
-            ->method('resolveErrorFilePath')
-            ->with(403)
-            ->willReturn('error403.php');
+        $this->pathResolverWillReturn403ErrorPath();
 
         $nextCalled = false;
         $next = function () use (&$nextCalled) {
@@ -121,6 +117,14 @@ final class AntiCsrfMiddlewareTest extends TestCase
                     static fn(mixed $token): bool => is_string($token) && strlen($token) === 64
                 )
             );
+    }
+
+    private function pathResolverWillReturn403ErrorPath(): void
+    {
+        $this->pathResolver->expects(self::once())
+            ->method('resolveErrorFilePath')
+            ->with(403)
+            ->willReturn('error403.php');
     }
 
     private function getRequestWithJsonData(string $content = ''): Request
@@ -197,7 +201,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
         $this->expects64LengthTokenSet();
 
         $middleware = new AntiCsrfMiddleware(
-            new PathResolver(),
+            $this->pathResolver,
             $this->session
         );
 
@@ -240,8 +244,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
                 $nextCalled = true;
 
                 return new ViewResponse('/success');
-            },
-            $this->config
+            }
         );
 
         self::assertFalse($nextCalled);
@@ -400,5 +403,29 @@ final class AntiCsrfMiddlewareTest extends TestCase
         );
 
         self::assertSame(403, $response->statusCode);
+    }
+
+    #[Test]
+    public function it_gets_json_error_response_when_accept_is_json(): void
+    {
+        $this->willReturnCsrfToken('token');
+        $this->expects64LengthTokenSet();
+
+        $this->pathResolver->expects(self::never())
+            ->method('resolveErrorFilePath');
+
+        $request = $this->getRequestWithJsonData();
+
+        $_SERVER['HTTP_ACCEPT'] = 'application/json';
+
+        $response = $this->middleware->handle(
+            $request,
+            function (Request $r) {
+                self::fail('Expected JSON error response');
+            }
+        );
+
+        self::assertSame(403, $response->statusCode);
+        self::assertInstanceOf(JsonResponse::class, $response);
     }
 }

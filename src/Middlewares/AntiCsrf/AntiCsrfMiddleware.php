@@ -7,6 +7,7 @@ use Random\RandomException;
 use Velo\FileSystem\PathResolver\Exceptions\PathNotFoundException;
 use Velo\FileSystem\PathResolver\PathResolver;
 use Velo\Http\Request;
+use Velo\Http\ResponseFormat;
 use Velo\Http\Responses\Concrete\JsonResponse;
 use Velo\Http\Responses\Concrete\ViewResponse;
 use Velo\Http\Responses\Response;
@@ -92,16 +93,22 @@ final readonly class AntiCsrfMiddleware implements MiddlewareInterface
 
         $responseDataOrBody = ['error' => 'Invalid anti CSRF token!'];
 
-        $viewFile = $this->pathResolver->resolveErrorFilePath(403);
+        $format = ResponseFormat::fromGivenAcceptHeader($request->getHeader('Accept', ResponseFormat::JSON->value));
 
-        if ($viewFile === false) {
-            return new JsonResponse($responseDataOrBody, 403);
+        if ($format === ResponseFormat::HTML) {
+            $viewFile = $this->pathResolver->resolveErrorFilePath(403);
+
+            if ($viewFile === false) {
+                return new JsonResponse($responseDataOrBody, 403);
+            }
+
+            return new ViewResponse(
+                $viewFile,
+                $responseDataOrBody,
+                403
+            );
         }
 
-        return new ViewResponse(
-            $viewFile,
-            $responseDataOrBody,
-            403
-        );
+        return new JsonResponse($responseDataOrBody, 403);
     }
 }
