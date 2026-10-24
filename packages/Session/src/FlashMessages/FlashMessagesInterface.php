@@ -5,6 +5,11 @@ namespace Velo\Session\FlashMessages;
 
 interface FlashMessagesInterface
 {
+    public const string SUCCESS = 'success';
+    public const string ERROR = 'error';
+    public const string WARNING = 'warning';
+    public const string INFO = 'info';
+    
     /**
      * Adds a flash message.
      */

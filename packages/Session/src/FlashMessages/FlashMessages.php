@@ -10,11 +10,6 @@ use Velo\Session\Session\SessionInterface;
  */
 final readonly class FlashMessages implements FlashMessagesInterface
 {
-    public const string SUCCESS = 'success';
-    public const string ERROR = 'error';
-    public const string WARNING = 'warning';
-    public const string INFO = 'info';
-
     /**
      * Session key used to store all the flash messages.
      */
