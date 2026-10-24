@@ -15,6 +15,8 @@ use Velo\Http\ResponseRendererInterface;
 use Velo\Logger\LogFormatter;
 use Velo\Logger\Logger;
 use Velo\Logger\NativeLogTextFormatter;
+use Velo\Middlewares\AntiCsrf\AntiCsrfTokenManager;
+use Velo\Middlewares\AntiCsrf\AntiCsrfTokenManagerInterface;
 use Velo\Middlewares\Cors\CorsRouterExtension;
 use Velo\Router\Router\CorsRouterExtensionInterface;
 use Velo\Session\FlashMessages\FlashMessages;
@@ -43,6 +45,7 @@ class DefaultContainerFactory
         LogFormatter::class => NativeLogTextFormatter::class,
         ViewRendererInterface::class => ViewRenderer::class,
         ViewResolverInterface::class => ViewResolver::class,
+        AntiCsrfTokenManagerInterface::class => AntiCsrfTokenManager::class
     ];
 
     public static function create(array $extraBindings = []): Container

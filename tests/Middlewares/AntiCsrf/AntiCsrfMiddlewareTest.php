@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Velo\Tests\Middlewares;
+namespace Middlewares\AntiCsrf;
 
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -17,14 +17,14 @@ use Velo\Http\Responses\Concrete\ViewResponse;
 use Velo\Http\Responses\Response;
 use Velo\Middlewares\AntiCsrf\AntiCsrfConfig;
 use Velo\Middlewares\AntiCsrf\AntiCsrfMiddleware;
-use Velo\Session\Session\SessionInterface;
+use Velo\Middlewares\AntiCsrf\AntiCsrfTokenManagerInterface;
 
 #[AllowMockObjectsWithoutExpectations]
 final class AntiCsrfMiddlewareTest extends TestCase
 {
     private AntiCsrfMiddleware $middleware;
     private PathResolver&MockObject $pathResolver;
-    private SessionInterface $session;
+    private AntiCsrfTokenManagerInterface&MockObject $tokenManager;
 
     protected function setUp(): void
     {
@@ -32,8 +32,8 @@ final class AntiCsrfMiddlewareTest extends TestCase
         $_SERVER['HTTP_ACCEPT'] = 'text/html';
 
         $this->pathResolver = self::createMock(PathResolver::class);
-        $this->session = self::createMock(SessionInterface::class);
-        $this->middleware = new AntiCsrfMiddleware($this->pathResolver, $this->session);
+        $this->tokenManager = self::createMock(AntiCsrfTokenManagerInterface::class);
+        $this->middleware = new AntiCsrfMiddleware($this->pathResolver, $this->tokenManager);
     }
 
     protected function tearDown(): void
@@ -57,10 +57,10 @@ final class AntiCsrfMiddlewareTest extends TestCase
             $_POST['csrf_token'] = $requestTokenPost;
         }
 
-        $this->willReturnCsrfToken($sessionToken);
+        $expectedRequestToken = $requestTokenJson ?? ($_POST['csrf_token'] ?? null);
 
-        $this->expects64LengthTokenSet();
-
+        $this->expectsTokenValidation($expectedRequestToken, false);
+        $this->expectsTokenRegeneration();
         $this->pathResolverWillReturn403ErrorPath();
 
         $nextCalled = false;
@@ -99,24 +99,19 @@ final class AntiCsrfMiddlewareTest extends TestCase
         ];
     }
 
-    private function willReturnCsrfToken(mixed $token): void
+    private function expectsTokenValidation(mixed $token, bool $isValid): void
     {
-        $this->session->expects(self::once())
-            ->method('get')
-            ->with(AntiCsrfMiddleware::CSRF_SESSION_TOKEN_NAME)
-            ->willReturn($token);
+        $this->tokenManager->expects(self::once())
+            ->method('isValid')
+            ->with($token)
+            ->willReturn($isValid);
     }
 
-    private function expects64LengthTokenSet(): void
+    private function expectsTokenRegeneration(string $newToken = 'generated-token'): void
     {
-        $this->session->expects(self::once())
-            ->method('set')
-            ->with(
-                AntiCsrfMiddleware::CSRF_SESSION_TOKEN_NAME,
-                self::callback(
-                    static fn(mixed $token): bool => is_string($token) && strlen($token) === 64
-                )
-            );
+        $this->tokenManager->expects(self::once())
+            ->method('regenerateToken')
+            ->willReturn($newToken);
     }
 
     private function pathResolverWillReturn403ErrorPath(): void
@@ -153,11 +148,16 @@ final class AntiCsrfMiddlewareTest extends TestCase
         ?string $requestTokenJson
     ): void
     {
-        $this->willReturnCsrfToken($sessionToken);
+        $expectedRequestToken = $requestTokenJson ?? $requestTokenPost;
 
-        $this->session
+        $this->tokenManager->expects(self::once())
+            ->method('isValid')
+            ->with($expectedRequestToken)
+            ->willReturn(true);
+
+        $this->tokenManager
             ->expects(self::never())
-            ->method('set');
+            ->method('regenerateToken');
 
         if ($requestTokenPost !== null) {
             $_POST[AntiCsrfMiddleware::CSRF_SESSION_TOKEN_NAME] = $requestTokenPost;
@@ -197,12 +197,12 @@ final class AntiCsrfMiddlewareTest extends TestCase
     #[Test]
     public function it_returns_json_response_when_403_view_is_not_registered(): void
     {
-        $this->willReturnCsrfToken('session_token');
-        $this->expects64LengthTokenSet();
+        $this->expectsTokenValidation(null, false);
+        $this->expectsTokenRegeneration();
 
         $middleware = new AntiCsrfMiddleware(
             $this->pathResolver,
-            $this->session
+            $this->tokenManager
         );
 
         $response = $middleware->handle(
@@ -230,9 +230,10 @@ final class AntiCsrfMiddlewareTest extends TestCase
             $jsonContent = json_encode(['csrf_token' => $jsonToken]);
         }
 
-        $this->willReturnCsrfToken($sessionToken);
+        $expectedRequestToken = $jsonToken ?? $postToken;
 
-        $this->expects64LengthTokenSet();
+        $this->expectsTokenValidation($expectedRequestToken, false);
+        $this->expectsTokenRegeneration();
 
         $nextCalled = false;
 
@@ -324,15 +325,14 @@ final class AntiCsrfMiddlewareTest extends TestCase
             statusCode: 418
         );
 
-        $this->willReturnCsrfToken(null);
-
-        $this->expects64LengthTokenSet();
+        $this->expectsTokenValidation(null, false);
+        $this->expectsTokenRegeneration();
 
         $handlerCalled = false;
 
         $middleware = new AntiCsrfMiddleware(
             $this->pathResolver,
-            $this->session
+            $this->tokenManager
         );
 
         $response = $middleware->handle(
@@ -360,13 +360,16 @@ final class AntiCsrfMiddlewareTest extends TestCase
     #[Test]
     public function it_accepts_custom_token_name_when_tokens_match(): void
     {
-        $this->willReturnCsrfToken('custom-token');
-
-        $this->session
-            ->expects(self::never())
-            ->method('set');
-
         $jsonContent = json_encode(['my_token' => 'custom-token']);
+
+        $this->tokenManager->expects(self::once())
+            ->method('isValid')
+            ->with('custom-token')
+            ->willReturn(true);
+
+        $this->tokenManager
+            ->expects(self::never())
+            ->method('regenerateToken');
 
         $request = $this->getRequestWithJsonData($jsonContent);
 
@@ -388,9 +391,8 @@ final class AntiCsrfMiddlewareTest extends TestCase
     #[Test]
     public function it_rejects_invalid_token_for_custom_token_name(): void
     {
-        $this->willReturnCsrfToken('session_token');
-
-        $this->expects64LengthTokenSet();
+        $this->expectsTokenValidation(['not', 'string'], false);
+        $this->expectsTokenRegeneration();
 
         $jsonContent = json_encode(['my_token' => ['not', 'string']]);
 
@@ -408,8 +410,8 @@ final class AntiCsrfMiddlewareTest extends TestCase
     #[Test]
     public function it_gets_json_error_response_when_accept_is_json(): void
     {
-        $this->willReturnCsrfToken('token');
-        $this->expects64LengthTokenSet();
+        $this->expectsTokenValidation(null, false);
+        $this->expectsTokenRegeneration();
 
         $this->pathResolver->expects(self::never())
             ->method('resolveErrorFilePath');

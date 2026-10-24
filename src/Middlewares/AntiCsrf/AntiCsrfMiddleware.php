@@ -12,7 +12,6 @@ use Velo\Http\Responses\Concrete\JsonResponse;
 use Velo\Http\Responses\Concrete\ViewResponse;
 use Velo\Http\Responses\Response;
 use Velo\Router\Middlewares\MiddlewareInterface;
-use Velo\Session\Session\SessionInterface;
 
 /**
  * Protects against CSRF attacks.
@@ -27,7 +26,7 @@ final readonly class AntiCsrfMiddleware implements MiddlewareInterface
 
     public function __construct(
         private PathResolver     $pathResolver,
-        private SessionInterface $session
+        private AntiCsrfTokenManagerInterface $tokenManager
     )
     {
     }
@@ -47,33 +46,14 @@ final readonly class AntiCsrfMiddleware implements MiddlewareInterface
         AntiCsrfConfig $config = new AntiCsrfConfig()
     ): Response
     {
-        $sessionToken = $this->session->get(self::CSRF_SESSION_TOKEN_NAME);
         $requestToken = $request->getJsonInputOrFormValue($config->tokenName);
 
-        if (
-            !is_string($sessionToken)
-            || $sessionToken === ''
-            || !is_string($requestToken)
-            || $requestToken === ''
-            || !hash_equals($sessionToken, $requestToken)
-        ) {
-            $this->regenerateToken();
-
+        if (!$this->tokenManager->isValid($requestToken)) {
+            $this->tokenManager->regenerateToken();
             return $this->getInvalidTokenResponse($request, $config);
         }
 
         return $next($request);
-    }
-
-    /**
-     * @throws RandomException
-     */
-    private function regenerateToken(): void
-    {
-        $this->session->set(
-            self::CSRF_SESSION_TOKEN_NAME,
-            bin2hex(random_bytes(32))
-        );
     }
 
     /**
