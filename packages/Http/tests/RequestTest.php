@@ -293,6 +293,7 @@ final class RequestTest extends TestCase
     #[Test]
     public function it_prioritizes_json_over_form_and_gets_json(): void
     {
+        $this->setJsonContentType();
         $data = [1 => 'value'];
         $_POST[1] = 'nope';
 
@@ -322,6 +323,7 @@ final class RequestTest extends TestCase
     #[Test]
     public function it_prioritizes_json_and_thorws_json_exception_when_file_is_not_a_valid_json(): void
     {
+        $this->setJsonContentType();
         $_POST['a'] = 'v';
         $data = '{"a": 30';
         $request = $this->createStreamWithContentAndCreateRequest($data);
@@ -344,6 +346,7 @@ final class RequestTest extends TestCase
     #[Test]
     public function it_returns_null_when_input_value_is_null(): void
     {
+        $this->setJsonContentType();
         $_POST['a'] = 'v';
         $data = ['a' => null];
 
@@ -377,6 +380,7 @@ final class RequestTest extends TestCase
     #[Test]
     public function it_returns_json_value_even_if_it_is_equal_to_default_instead_of_form_value(): void
     {
+        $this->setJsonContentType();
         $_POST['a'] = 'v';
         $default = 'hehe';
         $data = ['a' => $default];
@@ -384,5 +388,10 @@ final class RequestTest extends TestCase
         $request = $this->createStreamWithContentAndCreateRequest($data);
 
         self::assertSame($default, $request->getJsonInputOrFormValue('a', $default));
+    }
+
+    private function setJsonContentType(): void
+    {
+        $_SERVER['HTTP_CONTENT_TYPE'] = 'application/json';
     }
 }

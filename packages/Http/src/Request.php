@@ -114,10 +114,10 @@ final class Request
      */
     public function getJsonInputOrFormValue(string|int $key, mixed $default = null): mixed
     {
-        $jsonValue = $this->getJsonInput($key, $default);
+        $contentType = strtolower(($this->getHeader('content-type', '')));
 
-        if ($this->hasJsonKey($key)) {
-            return $jsonValue;
+        if (str_contains($contentType, 'application/json')) {
+            return $this->getJsonInput($key, $default);
         }
 
         return $this->getFormValue((string)$key, $default);
@@ -134,13 +134,23 @@ final class Request
     }
 
     /**
-     * Returns $_POST superglobal.
-     *
      * @return array<string, mixed>
      */
     public function getFormData(): array
     {
-        return $_POST;
+        if ($_POST !== []) {
+            return $_POST;
+        }
+
+        $raw = trim($this->getRawInput());
+
+        if ($raw === '') {
+            return [];
+        }
+
+        parse_str($raw, $data);
+
+        return $data;
     }
 
     /**

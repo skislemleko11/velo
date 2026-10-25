@@ -30,6 +30,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
     {
         $_POST = [];
         $_SERVER['HTTP_ACCEPT'] = 'text/html';
+        unset($_SERVER['HTTP_CONTENT_TYPE']);
 
         $this->pathResolver = self::createMock(PathResolver::class);
         $this->tokenManager = self::createMock(AntiCsrfTokenManagerInterface::class);
@@ -39,6 +40,7 @@ final class AntiCsrfMiddlewareTest extends TestCase
     protected function tearDown(): void
     {
         $_POST = [];
+        unset($_SERVER['HTTP_CONTENT_TYPE']);
     }
 
     #[Test]
@@ -124,6 +126,10 @@ final class AntiCsrfMiddlewareTest extends TestCase
 
     private function getRequestWithJsonData(string $content = ''): Request
     {
+        if ($content !== '') {
+            $_SERVER['HTTP_CONTENT_TYPE'] = 'application/json';
+        }
+
         $stream = fopen('php://memory', 'r+');
         fwrite($stream, json_encode($content));
         rewind($stream);
