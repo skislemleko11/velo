@@ -10,17 +10,23 @@ use Velo\Http\RequestMethod;
 use Velo\Http\Responses\Concrete\JsonResponse;
 use Velo\Http\Responses\Concrete\TextResponse;
 use Velo\Middlewares\AuthMiddleware\ApiAuthMiddleware;
+use Velo\Middlewares\AuthMiddleware\ApiAuthMiddlewareConfig;
 use Velo\Session\Session\Session;
 use Velo\Session\Session\SessionInterface;
 
 final class ApiAuthMiddlewareTest extends TestCase
 {
     private SessionInterface $session;
+    private ApiAuthMiddlewareConfig $config;
 
     protected function setUp(): void
     {
         $_SESSION = [];
         $this->session = new Session();
+        $this->config = new ApiAuthMiddlewareConfig(
+            sessionKeyName: 'key',
+            responseForUnauthenticatedUser: ['error' => 'hehe']
+        );
     }
 
     protected function tearDown(): void
@@ -31,7 +37,7 @@ final class ApiAuthMiddlewareTest extends TestCase
     #[Test]
     public function it_calls_next_when_user_is_authenticated(): void
     {
-        $_SESSION['user_id'] = 123;
+        $_SESSION[$this->config->sessionKeyName] = 123;
 
         $request = new Request(url: '/dashboard', method: RequestMethod::GET);
         $expectedResponse = new TextResponse('hehe');
@@ -43,7 +49,7 @@ final class ApiAuthMiddlewareTest extends TestCase
             return $expectedResponse;
         };
 
-        $response = $middleware->handle($request, $next);
+        $response = $middleware->handle($request, $next, $this->config);
 
         self::assertTrue($nextCalled);
         self::assertSame($expectedResponse, $response);
@@ -58,7 +64,7 @@ final class ApiAuthMiddlewareTest extends TestCase
 
         $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
-        $response = $middleware->handle($request, $next);
+        $response = $middleware->handle($request, $next, $this->config);
 
         self::assertSame(401, $response->statusCode);
         self::assertNull($response->getHeader('Location'));
@@ -73,7 +79,7 @@ final class ApiAuthMiddlewareTest extends TestCase
 
         $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
-        $response = $middleware->handle($request, $next, responseForUnauthenticatedUser: ['error' => 'hehe']);
+        $response = $middleware->handle($request, $next, $this->config);
 
         self::assertSame(401, $response->statusCode);
         self::assertNull($response->getHeader('Location'));
@@ -92,11 +98,15 @@ final class ApiAuthMiddlewareTest extends TestCase
             return $customResponse;
         };
 
-        $middleware = new ApiAuthMiddleware(session: $this->session, customResponseHandler: $customHandler);
+        $config = new ApiAuthMiddlewareConfig(
+            customResponseHandler: $customHandler
+        );
+
+        $middleware = new ApiAuthMiddleware(session: $this->session);
 
         $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
-        $response = $middleware->handle($request, $next);
+        $response = $middleware->handle($request, $next, $config);
 
         self::assertSame($customResponse, $response);
         self::assertArrayNotHasKey('redirect_after_login', $_SESSION);
@@ -114,11 +124,16 @@ final class ApiAuthMiddlewareTest extends TestCase
             return new JsonResponse(body: $responseForUnauthenticatedUser);
         };
 
-        $middleware = new ApiAuthMiddleware(session: $this->session, customResponseHandler: $customHandler);
+        $config = new ApiAuthMiddlewareConfig(
+            responseForUnauthenticatedUser: ['hehe' => 'hihi'],
+            customResponseHandler: $customHandler
+        );
+
+        $middleware = new ApiAuthMiddleware(session: $this->session);
 
         $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
-        $response = $middleware->handle($request, $next, ['hehe' => 'hihi']);
+        $response = $middleware->handle($request, $next, $config);
 
         self::assertEquals($expectedResponse, $response);
         self::assertArrayNotHasKey('redirect_after_login', $_SESSION);

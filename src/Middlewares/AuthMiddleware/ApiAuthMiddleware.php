@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Velo\Middlewares\AuthMiddleware;
 
-use Closure;
 use Velo\Http\Request;
 use Velo\Http\Responses\Concrete\JsonResponse;
 use Velo\Http\Responses\Response;
@@ -14,34 +13,27 @@ use Velo\Session\Session\SessionInterface;
  * Auth Middleware for API. It's the opposite of ApiGuestMiddleware.
  *
  * Authentication is handled with session-based User IDs.
- * User ID is stored in $_SESSION['user_id'].
  */
 final readonly class ApiAuthMiddleware implements MiddlewareInterface
 {
-    /**
-     * @param Closure|null $customResponseHandler Closure should take 2 arguments - Request request and array response.
-     */
     public function __construct(
-        private SessionInterface $session,
-        private ?Closure         $customResponseHandler = null
+        private SessionInterface $session
     )
     {
     }
 
     /**
-     * Handles the given Request - if the user is authenticated (with 'user_id' in $_SESSION), returns the result of next(request),
-     * otherwise, calls getResponseForUnauthenticatedUser(request, responseForUnauthenticatedUser).
-     *
-     * @param array<string, mixed> $responseForUnauthenticatedUser
+     * Handles the given Request - if the user is authenticated, returns the result of next(request),
+     * otherwise, calls getResponseForUnauthenticatedUser(request, config).
      */
     public function handle(
         Request  $request,
         callable $next,
-        array    $responseForUnauthenticatedUser = ['error' => 'Unauthenticated']
+        ApiAuthMiddlewareConfig $config = new ApiAuthMiddlewareConfig()
     ): Response
     {
-        if (!$this->session->has('user_id')) {
-            return $this->getResponseForUnauthenticatedUser($request, $responseForUnauthenticatedUser);
+        if (!$this->session->has($config->sessionKeyName)) {
+            return $this->getResponseForUnauthenticatedUser($request, $config);
         }
 
         return $next($request);
@@ -50,19 +42,17 @@ final readonly class ApiAuthMiddleware implements MiddlewareInterface
     /**
      * Returns the JsonResponse for an unauthenticated user.
      *
-     * Returns customResponseHandler(request, response) if provided in constructor,
-     * otherwise returns the JsonResponse with statusCode: 401 and data: response.
-     *
-     * @param array<string, mixed> $response
+     * Returns customResponseHandler(request, responseForUnauthenticatedUser) if provided in constructor,
+     * otherwise returns the JsonResponse with statusCode: 401 and data: responseForUnauthenticatedUser.
      */
-    private function getResponseForUnauthenticatedUser(Request $request, array $response): Response
+    private function getResponseForUnauthenticatedUser(Request $request, ApiAuthMiddlewareConfig $config): Response
     {
-        if ($this->customResponseHandler) {
-            return ($this->customResponseHandler)($request, $response);
+        if ($config->customResponseHandler) {
+            return ($config->customResponseHandler)($request, $config->responseForUnauthenticatedUser);
         }
 
         return new JsonResponse(
-            body: $response,
+            body: $config->responseForUnauthenticatedUser,
             statusCode: 401
         );
     }
