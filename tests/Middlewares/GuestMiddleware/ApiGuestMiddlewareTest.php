@@ -9,6 +9,7 @@ use Velo\Http\Request;
 use Velo\Http\RequestMethod;
 use Velo\Http\Responses\Concrete\JsonResponse;
 use Velo\Http\Responses\Concrete\TextResponse;
+use Velo\Middlewares\GuestMiddleware\ApiGuestConfig;
 use Velo\Middlewares\GuestMiddleware\ApiGuestMiddleware;
 use Velo\Session\Session\Session;
 use Velo\Session\Session\SessionInterface;
@@ -16,11 +17,18 @@ use Velo\Session\Session\SessionInterface;
 class ApiGuestMiddlewareTest extends TestCase
 {
     private SessionInterface $session;
+    private ApiGuestConfig $config;
 
     protected function setUp(): void
     {
         $_SESSION = [];
         $this->session = new Session();
+        $this->config = new ApiGuestConfig(
+            sessionKeyName: 'key',
+            responseForAuthenticatedUser: [
+                'hehe' => 'hehe'
+            ]
+        );
     }
 
     protected function tearDown(): void
@@ -41,7 +49,7 @@ class ApiGuestMiddlewareTest extends TestCase
             return $expectedResponse;
         };
 
-        $response = $middleware->handle($request, $next);
+        $response = $middleware->handle($request, $next, $this->config);
 
         self::assertTrue($nextCalled);
         self::assertSame($expectedResponse, $response);
@@ -66,38 +74,42 @@ class ApiGuestMiddlewareTest extends TestCase
     #[Test]
     public function it_returns_custom_authenticated_response_when_provided(): void
     {
-        $_SESSION['user_id'] = 123;
+        $_SESSION[$this->config->sessionKeyName] = 123;
 
         $request = new Request(url: '/admin/settings', method: RequestMethod::GET);
         $middleware = new ApiGuestMiddleware(session: $this->session);
 
         $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
-        $response = $middleware->handle($request, $next, responseForAuthenticatedUser: ['error' => 'hehe']);
+        $response = $middleware->handle($request, $next, $this->config);
 
         self::assertSame(403, $response->statusCode);
         self::assertNull($response->getHeader('Location'));
-        self::assertSame(['error' => 'hehe'], $response->body ?? null);
+        self::assertSame($this->config->responseForAuthenticatedUser, $response->body ?? null);
     }
 
     #[Test]
     public function it_uses_custom_response_handler_when_provided(): void
     {
-        $_SESSION['user_id'] = 123;
-
         $request = new Request(url: '/secret', method: RequestMethod::GET);
         $customResponse = new TextResponse('', statusCode: 401);
-
         $customHandler = function (Request $req) use ($request, $customResponse) {
             self::assertSame($request, $req);
             return $customResponse;
         };
 
-        $middleware = new ApiGuestMiddleware(session: $this->session, customResponseHandler: $customHandler);
+        $config = new ApiGuestConfig(
+            responseForAuthenticatedUser: ['hehe' => 'hehe'],
+            customResponseHandler: $customHandler
+        );
+
+        $_SESSION[$config->sessionKeyName] = 123;
+
+        $middleware = new ApiGuestMiddleware(session: $this->session);
 
         $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
-        $response = $middleware->handle($request, $next);
+        $response = $middleware->handle($request, $next, $config);
 
         self::assertSame($customResponse, $response);
     }
@@ -105,8 +117,6 @@ class ApiGuestMiddlewareTest extends TestCase
     #[Test]
     public function it_uses_custom_response_handler_with_custom_response_when_provided(): void
     {
-        $_SESSION['user_id'] = 123;
-
         $request = new Request(url: '/secret', method: RequestMethod::GET);
         $customResponse = new JsonResponse(body: ['hehe' => 'hihi'], statusCode: 401);
 
@@ -115,11 +125,18 @@ class ApiGuestMiddlewareTest extends TestCase
             return new JsonResponse(body: $data, statusCode: 401);
         };
 
-        $middleware = new ApiGuestMiddleware(session: $this->session, customResponseHandler: $customHandler);
+        $config = new ApiGuestConfig(
+            responseForAuthenticatedUser: ['hehe' => 'hihi'],
+            customResponseHandler: $customHandler
+        );
+
+        $_SESSION[$config->sessionKeyName] = 123;
+
+        $middleware = new ApiGuestMiddleware(session: $this->session);
 
         $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
-        $response = $middleware->handle($request, $next, ['hehe' => 'hihi']);
+        $response = $middleware->handle($request, $next, $config);
 
         self::assertEquals($customResponse, $response);
     }
