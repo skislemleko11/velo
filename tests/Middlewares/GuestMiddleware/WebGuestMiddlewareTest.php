@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Velo\Http\Request;
 use Velo\Http\RequestMethod;
 use Velo\Http\Responses\Concrete\ViewResponse;
+use Velo\Middlewares\GuestMiddleware\WebGuestConfig;
 use Velo\Middlewares\GuestMiddleware\WebGuestMiddleware;
 use Velo\Session\Session\Session;
 use Velo\Session\Session\SessionInterface;
@@ -65,14 +66,15 @@ class WebGuestMiddlewareTest extends TestCase
     #[Test]
     public function it_redirects_to_custom_url_when_provided(): void
     {
-        $_SESSION['user_id'] = 1;
+        $config = new WebGuestConfig(redirectAuthenticatedUserTo: '/custom-login');
+        $_SESSION[$config->sessionKeyName] = 1;
 
         $request = new Request(url: '/admin/settings', method: RequestMethod::GET);
         $middleware = new WebGuestMiddleware(session: $this->session);
 
         $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
-        $response = $middleware->handle($request, $next, redirectAuthenticatedUserTo: '/custom-login');
+        $response = $middleware->handle($request, $next, $config);
 
         self::assertSame(302, $response->statusCode);
         self::assertSame('/custom-login', $response->getHeader('Location'));
@@ -81,8 +83,6 @@ class WebGuestMiddlewareTest extends TestCase
     #[Test]
     public function it_uses_custom_response_handler_when_provided(): void
     {
-        $_SESSION['user_id'] = 1;
-
         $request = new Request(url: '/secret', method: RequestMethod::GET);
         $customResponse = new ViewResponse('/views/custom-error.php', statusCode: 401);
 
@@ -91,11 +91,15 @@ class WebGuestMiddlewareTest extends TestCase
             return $customResponse;
         };
 
-        $middleware = new WebGuestMiddleware(session: $this->session, customResponseHandler: $customHandler);
+        $config = new WebGuestConfig(customResponseHandler: $customHandler);
+
+        $_SESSION[$config->sessionKeyName] = 1;
+
+        $middleware = new WebGuestMiddleware(session: $this->session);
 
         $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
-        $response = $middleware->handle($request, $next);
+        $response = $middleware->handle($request, $next, $config);
 
         self::assertSame($customResponse, $response);
     }
@@ -103,8 +107,6 @@ class WebGuestMiddlewareTest extends TestCase
     #[Test]
     public function it_uses_custom_response_handler_with_custom_response_when_provided(): void
     {
-        $_SESSION['user_id'] = 1;
-
         $request = new Request(url: '/secret', method: RequestMethod::GET);
         $customResponse = new ViewResponse('/views/custom-error.php', statusCode: 401);
 
@@ -113,11 +115,18 @@ class WebGuestMiddlewareTest extends TestCase
             return new ViewResponse($url, statusCode: 401);
         };
 
-        $middleware = new WebGuestMiddleware(session: $this->session, customResponseHandler: $customHandler);
+        $config = new WebGuestConfig(
+            redirectAuthenticatedUserTo: '/views/custom-error.php',
+            customResponseHandler: $customHandler
+        );
+
+        $_SESSION[$config->sessionKeyName] = 1;
+
+        $middleware = new WebGuestMiddleware(session: $this->session);
 
         $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
-        $response = $middleware->handle($request, $next, '/views/custom-error.php');
+        $response = $middleware->handle($request, $next, $config);
 
         self::assertEquals($customResponse, $response);
     }
