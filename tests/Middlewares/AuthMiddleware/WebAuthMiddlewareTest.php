@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Velo\Http\Request;
 use Velo\Http\RequestMethod;
 use Velo\Http\Responses\Concrete\ViewResponse;
+use Velo\Middlewares\AuthMiddleware\WebAuthConfig;
 use Velo\Middlewares\AuthMiddleware\WebAuthMiddleware;
 use Velo\Session\Session\Session;
 use Velo\Session\Session\SessionInterface;
@@ -15,11 +16,16 @@ use Velo\Session\Session\SessionInterface;
 final class WebAuthMiddlewareTest extends TestCase
 {
     private SessionInterface $session;
+    private WebAuthConfig $config;
 
     protected function setUp(): void
     {
         $_SESSION = [];
         $this->session = new Session();
+        $this->config = new WebAuthConfig(
+            sessionKeyName: 'key',
+            redirectUnauthenticatedUserTo: '/custom-login'
+        );
     }
 
     protected function tearDown(): void
@@ -30,7 +36,7 @@ final class WebAuthMiddlewareTest extends TestCase
     #[Test]
     public function it_calls_next_when_user_is_authenticated(): void
     {
-        $_SESSION['user_id'] = 123;
+        $_SESSION[$this->config->sessionKeyName] = 123;
 
         $request = new Request(url: '/dashboard', method: RequestMethod::GET);
         $expectedResponse = new ViewResponse('/views/dashboard.php');
@@ -42,7 +48,7 @@ final class WebAuthMiddlewareTest extends TestCase
             return $expectedResponse;
         };
 
-        $response = $middleware->handle($request, $next);
+        $response = $middleware->handle($request, $next, $this->config);
 
         self::assertTrue($nextCalled);
         self::assertSame($expectedResponse, $response);
@@ -71,7 +77,7 @@ final class WebAuthMiddlewareTest extends TestCase
 
         $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
-        $response = $middleware->handle($request, $next, redirectUnauthenticatedUserTo: '/custom-login');
+        $response = $middleware->handle($request, $next, $this->config);
 
         self::assertSame(302, $response->statusCode);
         self::assertSame('/custom-login?redirect=%2Fadmin%2Fsettings', $response->getHeader('Location'));
@@ -88,11 +94,13 @@ final class WebAuthMiddlewareTest extends TestCase
             return $customResponse;
         };
 
-        $middleware = new WebAuthMiddleware(session: $this->session, customResponseHandler: $customHandler);
+        $config = new WebAuthConfig(customResponseHandler: $customHandler);
+
+        $middleware = new WebAuthMiddleware(session: $this->session);
 
         $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
-        $response = $middleware->handle($request, $next);
+        $response = $middleware->handle($request, $next, $config);
 
         self::assertSame($customResponse, $response);
     }
@@ -105,14 +113,20 @@ final class WebAuthMiddlewareTest extends TestCase
 
         $customHandler = function (Request $req, $responseForUnauthenticatedUser) use ($request) {
             self::assertSame($request, $req);
+
             return new ViewResponse($responseForUnauthenticatedUser, statusCode: 401);
         };
 
-        $middleware = new WebAuthMiddleware(session: $this->session, customResponseHandler: $customHandler);
+        $config = new WebAuthConfig(
+            redirectUnauthenticatedUserTo: '/views/custom-error.php',
+            customResponseHandler: $customHandler
+        );
+
+        $middleware = new WebAuthMiddleware(session: $this->session);
 
         $next = fn() => self::fail('Should not be called for unauthenticated user.');
 
-        $response = $middleware->handle($request, $next, '/views/custom-error.php');
+        $response = $middleware->handle($request, $next, $config);
 
         self::assertEquals($customResponse, $response);
     }
