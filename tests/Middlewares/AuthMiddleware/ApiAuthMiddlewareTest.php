@@ -10,20 +10,20 @@ use Velo\Http\RequestMethod;
 use Velo\Http\Responses\Concrete\JsonResponse;
 use Velo\Http\Responses\Concrete\TextResponse;
 use Velo\Middlewares\AuthMiddleware\ApiAuthMiddleware;
-use Velo\Middlewares\AuthMiddleware\ApiAuthMiddlewareConfig;
+use Velo\Middlewares\AuthMiddleware\ApiAuthConfig;
 use Velo\Session\Session\Session;
 use Velo\Session\Session\SessionInterface;
 
 final class ApiAuthMiddlewareTest extends TestCase
 {
     private SessionInterface $session;
-    private ApiAuthMiddlewareConfig $config;
+    private ApiAuthConfig $config;
 
     protected function setUp(): void
     {
         $_SESSION = [];
         $this->session = new Session();
-        $this->config = new ApiAuthMiddlewareConfig(
+        $this->config = new ApiAuthConfig(
             sessionKeyName: 'key',
             responseForUnauthenticatedUser: ['error' => 'hehe']
         );
@@ -98,7 +98,7 @@ final class ApiAuthMiddlewareTest extends TestCase
             return $customResponse;
         };
 
-        $config = new ApiAuthMiddlewareConfig(
+        $config = new ApiAuthConfig(
             customResponseHandler: $customHandler
         );
 
@@ -124,7 +124,7 @@ final class ApiAuthMiddlewareTest extends TestCase
             return new JsonResponse(body: $responseForUnauthenticatedUser);
         };
 
-        $config = new ApiAuthMiddlewareConfig(
+        $config = new ApiAuthConfig(
             responseForUnauthenticatedUser: ['hehe' => 'hihi'],
             customResponseHandler: $customHandler
         );

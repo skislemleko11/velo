@@ -29,7 +29,7 @@ final readonly class ApiAuthMiddleware implements MiddlewareInterface
     public function handle(
         Request  $request,
         callable $next,
-        ApiAuthMiddlewareConfig $config = new ApiAuthMiddlewareConfig()
+        ApiAuthConfig $config = new ApiAuthConfig()
     ): Response
     {
         if (!$this->session->has($config->sessionKeyName)) {
@@ -45,7 +45,7 @@ final readonly class ApiAuthMiddleware implements MiddlewareInterface
      * Returns customResponseHandler(request, responseForUnauthenticatedUser) if provided in constructor,
      * otherwise returns the JsonResponse with statusCode: 401 and data: responseForUnauthenticatedUser.
      */
-    private function getResponseForUnauthenticatedUser(Request $request, ApiAuthMiddlewareConfig $config): Response
+    private function getResponseForUnauthenticatedUser(Request $request, ApiAuthConfig $config): Response
     {
         if ($config->customResponseHandler) {
             return ($config->customResponseHandler)($request, $config->responseForUnauthenticatedUser);

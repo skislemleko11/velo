@@ -5,7 +5,7 @@ namespace Velo\Middlewares\AuthMiddleware;
 
 use Closure;
 
-final readonly class ApiAuthMiddlewareConfig
+final readonly class ApiAuthConfig
 {
     /**
      * @param array<string, mixed> $responseForUnauthenticatedUser
